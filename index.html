@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#2a2440" />
+    <meta name="description" content="A tiny animated village has an invitation for you." />
+    <link rel="icon" href="/lantern.svg" type="image/svg+xml" />
+    <title>You Are Invited</title>
+  </head>
+  <body>
+    <div id="root">
+      <!-- shown instantly while the scripts load; React replaces it -->
+      <div style="position:fixed;inset:0;display:grid;place-content:center;justify-items:center;gap:18px;background:radial-gradient(ellipse at 50% 60%,#f6c9a8,#c98f95 55%,#5a5286 100%);color:#fff4e6;font:italic 18px Georgia,serif">
+        <div style="width:54px;height:64px;border-radius:45%;background:radial-gradient(circle at 50% 45%,#ffd68a,#e2503a 60%,#a42b1f);box-shadow:0 0 40px 10px rgba(255,170,90,.6)"></div>
+        <p style="margin:0">Building a tiny village…</p>
+      </div>
+      <noscript><p style="position:fixed;bottom:24px;width:100%;text-align:center;color:#fff">Please enable JavaScript to open this invitation.</p></noscript>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
