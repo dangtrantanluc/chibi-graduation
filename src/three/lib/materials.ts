@@ -1,21 +1,6 @@
 import * as THREE from 'three'
 import type { MatKey } from './kit'
-import { agedTex, lacquerTex } from './textures'
-
-/*
- * Every lit material ends in `opaque_fragment`. Sanitise its output: a single
- * NaN or over-bright fragment (a razor-sharp sun glint on glass or water can
- * overflow the half-float scene buffer to Infinity) is spread over the whole
- * screen by the bloom's mip chain and shows up as a black flicker. Replace
- * NaN/Inf with black and cap the radiance well below the half-float limit.
- */
-if (!THREE.ShaderChunk.opaque_fragment.includes('fcSafe')) {
-  THREE.ShaderChunk.opaque_fragment += `
-vec4 fcSafe = gl_FragColor;
-if ( any( isnan( fcSafe ) ) || any( isinf( fcSafe ) ) || !all( lessThan( abs( fcSafe ), vec4( 1e6 ) ) ) ) fcSafe = vec4( 0.0, 0.0, 0.0, 1.0 );
-gl_FragColor = vec4( min( fcSafe.rgb, vec3( 48.0 ) ), fcSafe.a );
-`
-}
+import { agedTex, lacquerTex, thatchTex } from './textures'
 
 /** Shared uniforms, advanced once per frame by <Ticker/>. */
 export const uTime = { value: 0 }
@@ -222,6 +207,12 @@ export function kitMat(key: MatKey): THREE.Material {
     case 'aged':
       m = patchMaterial(std({ roughness: 0.96 }), { aged: true, rim: { color: RIM_WARM, strength: 0.08 } }, 'aged')
       break
+    case 'thatch': {
+      const map = thatchTex()
+      map.repeat.set(1.6, 2.2)
+      m = patchMaterial(std({ roughness: 1, map }), { rim: { color: '#ffe6a8', strength: 0.3, power: 2.2 } }, 'thatch')
+      break
+    }
     case 'glass':
       m = patchMaterial(std({ roughness: 0.2, metalness: 0.15, envMapIntensity: 1.6 }), { selfLit: 0.12, rim: { color: '#d8f3ff', strength: 0.35, power: 2 } }, 'glass')
       break

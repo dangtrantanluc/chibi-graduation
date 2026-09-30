@@ -5,8 +5,8 @@ import * as THREE from 'three'
  * read inside useFrame — never triggers React renders.
  */
 
-/** Lực, his university friend (IT girl), his Hà Nội friend, the court lady, the princess */
-export type CharId = 'luc' | 'uni' | 'hanoi' | 'lady' | 'princess'
+/** Lực, his university friend (IT girl), his Hà Nội friend, his father and mother, the princess */
+export type CharId = 'luc' | 'uni' | 'hanoi' | 'father' | 'mother' | 'princess'
 
 export type Action =
   | 'none'
@@ -20,12 +20,17 @@ export type Action =
   | 'smile'
   | 'laugh'
   | 'dance'
-  | 'vai'
-  | 'book'
+  /** arms folded, a bow — how a Vietnamese child greets their parents (khoanh tay chào) */
+  | 'greet'
+  /** holding the graduation notice open in both hands */
+  | 'present'
+  | 'clap'
+  /** an open-palmed sweep of the arm: "go on, in you go" */
+  | 'usher'
   /** Bình Định martial-arts salute: right fist into the left palm */
   | 'omQuyen'
-  /** a finger to the cap brim */
-  | 'capTip'
+  /** a shy grin, scratching the back of his head (gãi đầu) */
+  | 'scratch'
   /** V-sign held toward the guest, with a wink */
   | 'peace'
   | 'hi5'
@@ -104,7 +109,8 @@ export const world = {
     luc: char([1.55, 0, 7.35], 0, 'sit'),
     uni: char([1.05, 0, -6.35], 0.4, 'sit'),
     hanoi: char([-1.75, 0, -21.4], 0.5),
-    lady: char([0, 0, -35.2], 0),
+    father: char([-0.55, 0, -35.3], 0.15),
+    mother: char([0.55, 0, -35.3], -0.15),
     princess: char([0, 0, -41.9], 0),
   } as Record<CharId, CharState>,
   wipe: { kind: 'none' as WipeKind, p: 0 },
@@ -116,8 +122,10 @@ export const world = {
   villageWave: 0,
   /** bảng vàng unfurl 0‥1 */
   scroll: 0,
-  /** court lady's sutra 0 (closed) ‥ 1 (open) */
-  handScroll: 0,
+  /** Lực's graduation notice 0 (rolled) ‥ 1 (open) */
+  diploma: 0,
+  /** where the notice is (updated by its rig) — the golden threads start here */
+  diplomaPos: new THREE.Vector3(0, -50, 0),
   /** IT friend's laptop lid 0 (closed) ‥ 1 (open) */
   laptop: 0,
   /** "</>" speech bubble over the IT friend 0‥1 */

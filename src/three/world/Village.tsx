@@ -1,10 +1,12 @@
 import * as THREE from 'three'
 import { useMemo } from 'react'
-import { G, offsetParts, type Part } from '../lib/kit'
+import { G, offsetParts, rng, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { canvas, toTexture } from '../lib/textures'
 import { taperTube } from '../characters/hair'
-import { CONGLANG, WELL } from '../layout'
+import { CONGLANG, HOUSE, WELL } from '../layout'
+import { hipRoof } from '../lib/roof'
+import { matTex } from '../characters/garments'
 import { PLAQUES } from '../../config'
 import { archRing, archedWall, box, cyl, nghe, panel, plinth, skirting } from './parts'
 import { Flags, Plaque, Sign } from './Common'
@@ -196,6 +198,118 @@ function wellParts(): Part[] {
   return offsetParts(p, [WELL.x, 0, WELL.z], -0.4)
 }
 
+/**
+ * Bố mẹ's house: a thatched cottage of mud walls on a low earth platform —
+ * plank door, a barred window, corner posts, and a thick two-layer thatch
+ * with a shaggy straw fringe and a bound ridge.
+ */
+function houseParts(): Part[] {
+  const p: Part[] = []
+  const MUD = '#b08a5c'
+  const POST = '#5a3f2a'
+  const W = 3.0
+  const Dd = 2.2
+  const WH = 1.25
+  p.push(box(W + 0.5, 0.12, Dd + 0.5, [0, 0.06, 0], '#8a6a48', 'aged'))
+  p.push(box(W, WH, Dd, [0, 0.12 + WH / 2, 0], MUD, 'aged'))
+  for (const [sx, sz] of [
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1],
+    [0, 1],
+  ])
+    p.push(box(0.1, WH, 0.1, [(sx * W) / 2, 0.12 + WH / 2, (sz * Dd) / 2 + sz * 0.01], POST, 'wood'))
+  p.push(box(W + 0.05, 0.08, 0.1, [0, 0.12 + WH - 0.04, Dd / 2 + 0.01], POST, 'wood'))
+  // plank door with its frame
+  const dz = Dd / 2 + 0.02
+  p.push(box(0.72, 1.06, 0.05, [-0.62, 0.12 + 0.53, dz], POST, 'wood'))
+  for (let k = 0; k < 5; k++) p.push(box(0.11, 0.98, 0.03, [-0.62 - 0.24 + k * 0.12, 0.12 + 0.53, dz + 0.03], k % 2 ? '#6e4c33' : '#7a553a', 'wood'))
+  p.push(box(0.6, 0.05, 0.03, [-0.62, 0.12 + 0.3, dz + 0.05], '#5a3f2a', 'wood'))
+  p.push(box(0.6, 0.05, 0.03, [-0.62, 0.12 + 0.8, dz + 0.05], '#5a3f2a', 'wood'))
+  // window with vertical wooden bars (song cửa)
+  p.push(box(0.8, 0.5, 0.04, [0.65, 0.12 + 0.72, dz], '#2e241c', 'wood'))
+  p.push(box(0.9, 0.07, 0.07, [0.65, 0.12 + 1.0, dz + 0.02], POST, 'wood'))
+  p.push(box(0.9, 0.07, 0.07, [0.65, 0.12 + 0.44, dz + 0.02], POST, 'wood'))
+  for (let k = 0; k < 7; k++) p.push(box(0.035, 0.5, 0.035, [0.65 - 0.33 + k * 0.11, 0.12 + 0.72, dz + 0.03], '#7a553a', 'wood'))
+  // thatch: two thick layered hipped roofs of straw (strands run down the slope)
+  const straw = (parts: Part[]) => parts.map((q) => ({ ...q, m: q.m === 'tile' ? ('thatch' as const) : ('wood' as const) }))
+  const ey = 0.12 + WH
+  p.push(...straw(offsetParts(hipRoof({ w: W + 1.4, d: Dd + 1.4, h: 1.55, lift: 0.0, curve: 1.0, thick: 0.34, tile: '#e0bd72', under: '#9a7a44', fascia: '#c29c56', ridgeColor: '#b8944e', ornaments: false, hipCaps: false }), [0, ey - 0.04, 0])))
+  p.push(...straw(offsetParts(hipRoof({ w: W + 0.6, d: Dd + 0.6, h: 1.2, lift: 0.0, curve: 1.0, thick: 0.28, tile: '#ecc97e', under: '#9a7a44', fascia: '#c9a45e', ridgeColor: '#b8944e', ornaments: false, hipCaps: false }), [0, ey + 0.42, 0])))
+  // the shaggy straw fringe hanging from the eaves, two staggered rows
+  const ew = (W + 1.4) / 2
+  const ed = (Dd + 1.4) / 2
+  const rnd = rng(606)
+  // ragged straw ends: flat blades of uneven length, each at its own slant
+  const fringe = (x: number, z: number, row: number, along: number) =>
+    p.push({
+      g: G.coneLo,
+      c: ['#b8944e', '#a88442', '#c9a45e', '#96763a'][Math.floor(rnd() * 4)],
+      m: 'thatch',
+      p: [x, ey - 0.16 - row * 0.06 - rnd() * 0.04, z],
+      r: [Math.PI + (rnd() - 0.5) * 0.3, along + (rnd() - 0.5) * 0.5, (rnd() - 0.5) * 0.3],
+      s: [0.1, 0.3 + rnd() * 0.22, 0.03],
+    })
+  for (let row = 0; row < 3; row++) {
+    const off = row * 0.035
+    for (let x = -ew + off; x <= ew + 1e-3; x += 0.065) {
+      fringe(x, ed - row * 0.04, row, 0)
+      fringe(x, -ed + row * 0.04, row, 0)
+    }
+    for (let z = -ed + 0.065 + off; z < ed; z += 0.065) {
+      fringe(ew - row * 0.04, z, row, Math.PI / 2)
+      fringe(-ew + row * 0.04, z, row, Math.PI / 2)
+    }
+  }
+  // bound ridge roll with bamboo ties
+  const rl = W + 0.6 - (Dd + 0.6) + 0.5
+  const ry = ey + 0.42 + 1.2 + 0.08
+  p.push({ g: G.cyl, c: '#b8944e', m: 'thatch', p: [0, ry, 0], r: [0, 0, Math.PI / 2], s: [0.14, rl, 0.14] })
+  for (const x of [-rl / 2 + 0.1, 0, rl / 2 - 0.1]) p.push({ g: G.torusLo, c: '#6f5a32', m: 'wood', p: [x, ry, 0], r: [0, Math.PI / 2, 0], s: [0.15, 0.15, 0.25] })
+  return offsetParts(p, [HOUSE.x, 0, HOUSE.z], HOUSE.ry)
+}
+
+/** the yard in front of the house: two nón lá, a basket of corn, a big chum */
+function yardParts(): Part[] {
+  const p: Part[] = []
+  const nonLa = (x: number, z: number, tilt: number, ry: number) => {
+    const cone = new THREE.ConeGeometry(0.28, 0.14, 24, 1, true)
+    p.push({ g: cone, c: '#e2cf9a', m: 'wood', p: [x, 0.08, z], r: [tilt, ry, 0] })
+    for (let k = 1; k <= 3; k++) p.push({ g: G.torusLo, c: '#c9b27a', m: 'wood', p: [x, 0.08 + 0.07 - k * 0.035, z], r: [Math.PI / 2 + tilt, 0, 0], s: [0.28 * (k / 4), 0.28 * (k / 4), 0.1] })
+  }
+  nonLa(3.2, -34.6, 0, 0)
+  nonLa(3.42, -34.85, 0.5, 0.6)
+  // a basket of corn cobs in their husks
+  const bx = 4.75
+  const bz = -35.05
+  for (let k = 0; k < 4; k++) p.push({ g: new THREE.CylinderGeometry(0.22 + k * 0.015, 0.2 + k * 0.015, 0.05, 18, 1, true), c: k % 2 ? '#c9a45a' : '#b38a44', m: 'wood', p: [bx, 0.03 + k * 0.05, bz] })
+  p.push({ g: G.torus, c: '#a8803e', m: 'wood', p: [bx, 0.22, bz], r: [Math.PI / 2, 0, 0], s: [0.27, 0.27, 0.3] })
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * Math.PI * 2
+    const x = bx + Math.cos(a) * 0.1
+    const z = bz + Math.sin(a) * 0.1
+    p.push({ g: G.cyl, c: '#f2c230', m: 'toy', p: [x, 0.26, z], r: [Math.sin(a) * 0.9, 0, -Math.cos(a) * 0.9], s: [0.045, 0.24, 0.045] })
+    p.push({ g: G.coneLo, c: '#9cbc5a', m: 'foliage', p: [x + Math.cos(a) * 0.1, 0.24, z + Math.sin(a) * 0.1], r: [Math.sin(a) * 1.3, 0, -Math.cos(a) * 1.3], s: [0.05, 0.22, 0.02] })
+  }
+  // the big clay chum by the house corner
+  const jar = new THREE.LatheGeometry(
+    [
+      [0, 0],
+      [0.26, 0.02],
+      [0.4, 0.3],
+      [0.42, 0.52],
+      [0.34, 0.74],
+      [0.24, 0.82],
+      [0.25, 0.86],
+    ].map(([a, b]) => new THREE.Vector2(a, b)),
+    20,
+  )
+  p.push({ g: jar, c: '#8a5a3c', m: 'aged', p: [HOUSE.x + 1.95, 0, HOUSE.z + 1.05] })
+  p.push({ g: G.torusLo, c: '#6f4630', m: 'aged', p: [HOUSE.x + 1.95, 0.55, HOUSE.z + 1.05], r: [Math.PI / 2, 0, 0], s: [0.42, 0.42, 0.2] })
+  return p
+}
+
 /** bamboo lantern poles along the brick path (the lanterns themselves live in Lanterns.tsx) */
 export const VILLAGE_POLES: [number, number][] = [
   [-1.25, -30.6],
@@ -230,12 +344,25 @@ function mieuParts(): Part[] {
   return offsetParts(p, [-3.2, 0, -36.9], 0.5)
 }
 
+/** the woven sedge mat (chiếu) spread in the yard */
+function ChieuMat() {
+  const mat = useMemo(() => new THREE.MeshStandardMaterial({ map: matTex(), roughness: 0.95 }), [])
+  return (
+    <mesh position={[3.55, 0.018, -34.85]} rotation={[-Math.PI / 2, 0, 0.1]} material={mat} receiveShadow>
+      <planeGeometry args={[1.35, 1.0]} />
+    </mesh>
+  )
+}
+
 export function Village() {
   const tho = useMemo(() => thoLattice(), [])
   return (
     <group>
       <KitMesh build={gateParts} />
       <KitMesh build={wellParts} />
+      <KitMesh build={houseParts} />
+      <KitMesh build={yardParts} />
+      <ChieuMat />
       <KitMesh build={poleParts} />
       <KitMesh build={mieuParts} />
       {[-1, 1].flatMap((s) =>
@@ -260,6 +387,10 @@ export function Village() {
 export const HEDGE: [number, number, number][] = (() => {
   const out: [number, number, number][] = []
   for (let x = 4.6; x < 19.5; x += 1.55) {
+    if (x > 2.2 && x < 7.2) {
+      out.push([-x, K.z + (Math.cos(x * 1.3) * 0.25), 0.95 + 0.15 * Math.cos(x * 2.3)])
+      continue
+    }
     out.push([x, K.z + (Math.sin(x * 1.7) * 0.25), 0.95 + 0.15 * Math.sin(x * 3.1)])
     out.push([-x, K.z + (Math.cos(x * 1.3) * 0.25), 0.95 + 0.15 * Math.cos(x * 2.3)])
   }

@@ -56,7 +56,10 @@ export const CAST = {
   luc: 'Lực',
   uni: 'Hội bạn CNTT',
   hanoi: 'Hội bạn Hà Nội',
-  lady: 'Nữ quan',
+  father: 'Bố',
+  mother: 'Mẹ',
+  /** the name tag when both parents speak together */
+  parents: 'Bố & Mẹ',
   princess: 'Công nương',
 }
 
@@ -67,9 +70,8 @@ export const PLAQUES = {
   /** red couplet panels on the gate's outer pillars: "love of one's home runs deep" / "a heart set on the four directions" */
   hoangDeLeft: '鄉情深厚',
   hoangDeRight: '志在四方',
-  /** ĐH Nông Lâm — the building name over the door, and the rooftop sign */
-  thienLy: 'THIÊN LÝ',
-  campusSign: 'NONG LAM UNIVERSITY-HO CHI MINH CITY',
+  /** ĐH Nông Lâm — the name on the curved glass bay of the old lecture hall */
+  rangDong: 'GIẢNG ĐƯỜNG RẠNG ĐÔNG',
   /** Hoàng thành Thăng Long — the stone plaque of Đoan Môn */
   doanMon: '端門',
   /** the village gate: "a sacred land breeds outstanding people" */

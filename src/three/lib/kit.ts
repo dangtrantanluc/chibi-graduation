@@ -29,6 +29,8 @@ export type MatKey =
   | 'aged'
   /** glass curtain wall: glossy, a little emissive */
   | 'glass'
+  /** straw thatch: strands running down the slope (UVs in world units) */
+  | 'thatch'
 
 export type V3 = [number, number, number]
 

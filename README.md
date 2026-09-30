@@ -6,10 +6,10 @@ per chapter, all on one axis of the diorama:
 
 | Chapter | Place | Who | What happens |
 | --- | --- | --- | --- |
-| I | Bình Định · Cổng thành Hoàng Đế | Lực | sitting on a stone bench under his home town's gate, he tips his cap, greets you with a Bình Định martial salute (ôm quyền) and walks into the light |
-| II | Sài Gòn · ĐH Nông Lâm, nhà Thiên Lý | Hội bạn CNTT | the North–South express carries him south; his friend in the Khoa CNTT polo looks up from her stickered laptop, "`</>`", a high-five |
+| I | Bình Định · Cổng thành Hoàng Đế | Lực | sitting on a stone bench under his home town's gate, he grins shyly, greets you with a Bình Định martial salute (ôm quyền) and walks into the light |
+| II | Sài Gòn · ĐH Nông Lâm, giảng đường Rạng Đông | Hội bạn CNTT | the North–South express carries him south; his friend in the Khoa CNTT polo looks up from her stickered laptop, "`</>`", a high-five |
 | III | Hà Nội · Hoàng thành Thăng Long (autumn) | Hội bạn Hà Nội | a gust of golden leaves; by a bicycle loaded with daisies she flashes a V-sign and offers you a bunch of cúc hoạ mi |
-| IV | A northern village gate | Nữ quan (áo đối khâm) | through Đoan Môn's arch to the village: a Huế court greeting, a lacquered sutra, and threads of gold that light the lanterns up the brick lane |
+| IV | Home · the village gate | Bố & Mẹ | he says goodbye to his Hà Nội friend and walks through Đoan Môn to his parents, waiting by their thatched house; arms folded, he bows, then unrolls his graduation notice (made like a sớ) — threads of gold light the lanterns — and his parents step aside to cheer him on toward Huế |
 | V | Huế · Ngọ Môn | Công nương (áo nhật bình) + everyone | through the village gate to Ngọ Môn: the princess dances and the golden list (bảng vàng) unrolls from Lầu Ngũ Phụng with "Welcome, {name} · You are invited" |
 
 Then the camera rises over the village and looks back at Ngọ Môn: the whole
@@ -56,7 +56,7 @@ Everything a host needs is in **`src/config.ts`**:
 | `startISO`, `endISO` | Optional. When both are set, an "Add to calendar" (.ics) link appears |
 | `defaultGuest` | Name used when the guest leaves the ticket empty |
 | `CAST` | The dialogue name tags — rename the two friend groups here |
-| `PLAQUES` | Calligraphy and signs: the Hoàng Đế lintel and couplets, the Thiên Lý signs, Đoan Môn, the village gate, Ngọ Môn, the hall and its couplets (graduation wishes 金榜題名 / 前程萬里) |
+| `PLAQUES` | Calligraphy and signs: the Hoàng Đế lintel and couplets, the Rạng Đông name, Đoan Môn, the village gate, Ngọ Môn, the hall and its couplets (graduation wishes 金榜題名 / 前程萬里) |
 
 | `MUSIC` | Volume and the two tracks (village, Huế) with their credits |
 

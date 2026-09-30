@@ -5,8 +5,8 @@ import { emit, world } from '../../state/world'
 import { LANTERNS } from '../world/Lanterns'
 
 /**
- * Threads of golden light: as the court lady's sutra opens, a soft thread
- * reaches from the book to each village lantern in turn and it ignites.
+ * Threads of golden light: as Lực's graduation notice opens, a soft thread
+ * reaches from the paper to each village lantern in turn and it ignites.
  */
 const targets = LANTERNS.map((l, i) => ({ l, i })).filter(({ l }) => l.zone === 'village')
 
@@ -35,7 +35,7 @@ export function Lightning() {
       const th = (l.idx ?? 0) / targets.length
       if (w > 0.002 && w > th - 0.02 && !st.fired.has(k)) {
         st.fired.add(k)
-        const from = world.chars.lady.pos.clone().add(new THREE.Vector3(0, 0.75, 0.3))
+        const from = world.diplomaPos.clone()
         const to = new THREE.Vector3(l.a[0], l.a[1] - l.len - 0.2, l.a[2])
         // bolts that would pass right across the lens would just be a white smear
         const near = to.distanceTo(camera.position) < 2.2 || from.distanceTo(camera.position) < 1.2

@@ -26,7 +26,6 @@ export function Effects() {
   const dof = useRef<DepthOfFieldEffect>(null)
   const tilt = useRef<TiltRef>(null)
   const high = quality === 'high'
-  const fx = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('fx') : null
 
   useFrame(() => {
     const c = world.cam
@@ -51,14 +50,6 @@ export function Effects() {
       </EffectComposer>
     )
   }
-  if (fx === 'none') return null
-  if (fx === 'nobloom')
-    return (
-      <EffectComposer multisampling={0} stencilBuffer={false}>
-        <TiltShift2 ref={tilt as never} blur={0.12} taper={0.6} samples={6} />
-        <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-      </EffectComposer>
-    )
   return (
     <EffectComposer multisampling={0} stencilBuffer={false}>
       <TiltShift2 ref={tilt as never} blur={0.12} taper={0.6} samples={6} />

@@ -33,6 +33,8 @@ export interface RoofOpts {
   gable?: number
   gableColor?: string
   bargeColor?: string
+  /** draw the hip-ridge caps (with their curled ends); off for thatch */
+  hipCaps?: boolean
 }
 
 type P2 = [number, number]
@@ -161,6 +163,7 @@ export function hipRoof(o: RoofOpts): Part[] {
     trimGeos.push(gf.toNonIndexed())
 
     // Hip ridge cap along u = 0, with a curl beyond the corner
+    if (o.hipCaps === false) continue
     const pts: THREE.Vector3[] = []
     for (let k = 0; k <= 10; k++) {
       const v = k / 10

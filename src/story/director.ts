@@ -11,14 +11,15 @@ import { CAST } from '../config'
  * The story director: Lực's journey, one chapter per tap. Every camera move,
  * character beat and transition is a GSAP timeline mutating `world`.
  *
- *   I   Bình Định — Lực on a bench under the Hoàng Đế gate: he tips his cap
- *       and greets you with a Bình Định martial salute, then walks into the light
+ *   I   Bình Định — Lực on a bench under the Hoàng Đế gate: a shy grin, a
+ *       Bình Định martial salute, then he walks into the light
  *   II  Nông Lâm — the North–South express carries him to Sài Gòn; his CNTT
  *       friend looks up from her laptop, "</>", a high-five
  *   III Hà Nội — a gust of autumn leaves; by a bicycle loaded with daisies his
  *       Hà Nội friend flashes a V-sign and gives you a bunch of cúc họa mi
- *   IV  the village gate — a court lady greets you in the Huế manner and opens
- *       a sutra; threads of gold light the lanterns up the brick lane
+ *   IV  the village gate — through Đoan Môn to his parents, waiting by their
+ *       thatched house; he greets them, shows his graduation notice (threads of
+ *       gold light the lanterns), and they step aside to cheer him on
  *   V   Ngọ Môn — through the village gate to Huế: everyone is there, the
  *       princess dances, and the golden list unrolls with your name on it
  */
@@ -194,10 +195,17 @@ const CAPTIONS: Record<string, () => Caption> = {
   }),
   village: () => ({
     chapter: 'IV',
-    place: 'Làng Bắc Bộ · Cổng làng',
-    speaker: CAST.lady,
-    color: '#2e6b66',
-    line: `Kính chào ${name()}. Mời người bước qua cổng làng — kinh thành Huế đã thắp đèn chờ sẵn.`,
+    place: 'Về nhà · Cổng làng',
+    speaker: CAST.luc,
+    color: '#34353b',
+    line: 'Con chào bố mẹ ạ! Con tốt nghiệp rồi — giấy báo đây ạ!',
+  }),
+  parents: () => ({
+    chapter: 'IV',
+    place: 'Về nhà · Cổng làng',
+    speaker: CAST.parents,
+    color: '#8a5a32',
+    line: `Giỏi lắm con trai! ${name()} đi cùng Lực vào Huế nhé — cả kinh thành đang đợi hai đứa đấy!`,
   }),
   hue: () => ({
     chapter: 'V',
@@ -214,7 +222,12 @@ const SHOTS = {
   home: { pos: [2.6, 1.55, 11.5], target: [0.9, 1.25, 6.4], fov: 32, focus: [1.5, 0.85, 7.4], dof: 1, tilt: 0.1, range: 3.2, backoff: 0.8 } as Shot,
   campus: { pos: [-1.9, 1.62, -3.9], target: [4.6, 1.55, -9.2], fov: 34, focus: [2.2, 0.75, -7.4], dof: 1, tilt: 0.1, range: 3.4, backoff: 0.6 } as Shot,
   hanoi: { pos: [1.6, 1.6, -16.2], target: [-1.9, 1.45, -23.4], fov: 34, focus: [-1.2, 0.8, -21.8], dof: 1, tilt: 0.1, range: 3.4, backoff: 0.6 } as Shot,
-  village: { pos: [0.9, 1.5, -29.9], target: [-0.1, 1.45, -37.2], fov: 34, focus: [0.3, 0.9, -35.0], dof: 1, tilt: 0.1, range: 3.6, backoff: 0.3 } as Shot,
+  village: { pos: [0.1, 1.55, -29.8], target: [0.95, 1.45, -37.2], fov: 34, focus: [0.5, 0.9, -34.9], dof: 1, tilt: 0.1, range: 3.8, backoff: 0.3 } as Shot,
+}
+
+/** IV: on wide screens the frame takes in the thatched house; on phones it stays on the family */
+function villagePose(): Shot {
+  return narrow() ? { ...SHOTS.village, pos: [0.25, 1.85, -29.6], target: [0.3, 1.2, -37.2], focus: [0.3, 0.9, -34.8], backoff: 0 } : SHOTS.village
 }
 
 function huePose(): Shot {
@@ -259,13 +272,13 @@ function playHome() {
   })
   beat(t, 3.3, () => act('luc', 'standUp'))
   t.to(world.chars.luc.pos, { y: 0, duration: 0.32, ease: 'sine.out' }, 3.34)
-  beat(t, 4.2, () => act('luc', 'capTip'))
+  beat(t, 4.2, () => act('luc', 'scratch'))
   caption(t, 4.6, CAPTIONS.home())
   // the Bình Định salute — fist into palm, a crisp bow
   beat(t, 5.9, () => act('luc', 'omQuyen'))
   beat(t, 8.1, () => act('luc', 'wave'))
   allowContinue(t, 8.4)
-  beat(t, 10.5, () => fidget('luc', ['smile', 'capTip', 'think'], 3.8))
+  beat(t, 10.5, () => fidget('luc', ['smile', 'scratch', 'think'], 3.8))
 }
 
 /** II · Nông Lâm — the train to Sài Gòn */
@@ -332,7 +345,7 @@ function playCampus() {
   allowContinue(t, 10.4)
   beat(t, 12.4, () => {
     fidget('uni', ['type', 'smile', 'laugh'], 3.4)
-    fidget('luc', ['smile', 'laugh', 'capTip'], 4.1)
+    fidget('luc', ['smile', 'laugh', 'scratch'], 4.1)
   })
 }
 
@@ -387,72 +400,118 @@ function playHanoi() {
   allowContinue(t, 9.0)
   beat(t, 11.8, () => {
     fidget('hanoi', ['peace', 'hop', 'laugh', 'wave'], 3.2)
-    fidget('luc', ['smile', 'capTip'], 4.4)
+    fidget('luc', ['smile', 'scratch'], 4.4)
   })
 }
 
-/** IV · the village gate — through Đoan Môn's central arch */
+/** IV · home — through Đoan Môn's central arch to his parents at the village gate */
 function playVillage() {
   const t = newTimeline()
   useUI.setState({ busy: true, canContinue: false })
   caption(t, 0, null)
-  beat(t, 0, () => act('hanoi', 'wave'))
-  beat(t, 0.4, () => {
-    mount(5)
-    place('luc', [...MARKS.lucVillage] as V3, -0.4)
-    lookAt('lady', null)
+  // goodbye to the Hà Nội friend
+  beat(t, 0, () => {
+    act('hanoi', 'wave')
+    act('luc', 'wave')
+    lookAt('luc', 'hanoi')
   })
-  // walk the camera straight through the great central arch
+  beat(t, 0.3, () => {
+    mount(5)
+    // his parents wait in the lane, looking up the road for him
+    place('father', [...MARKS.father] as V3, 0.12)
+    place('mother', [...MARKS.mother] as V3, -0.12)
+    lookAt('father', null)
+    lookAt('mother', null)
+  })
+  // he walks off through the great central arch; the camera follows him
   const z = DOANMON.z
+  const vp = villagePose()
+  const toParents = Math.atan2(MARKS.father[0] + 0.55 - MARKS.lucVillage[0], MARKS.father[2] - MARKS.lucVillage[2])
+  beat(t, 0.9, () => {
+    lookAt('luc', null)
+    walk('luc', [[0.1, 0, -24.2], [0, 0, -26.4], [0, 0, z - 1.6], [0.6, 0, -31.6], [...MARKS.lucVillage] as V3], 2.0, toParents)
+  })
   camPath(
     t,
-    0.3,
-    5.0,
+    1.5,
+    6.6,
     [
-      [0.6, 1.5, -20.2],
-      [0, 1.45, z + 3.2],
-      [0, 1.4, z + 0.4],
-      [0, 1.42, z - 1.9],
-      SHOTS.village.pos,
+      [0.6, 1.6, -21.4],
+      [0, 1.5, z + 2.6],
+      [0, 1.45, z + 0.2],
+      [0, 1.45, z - 1.8],
+      vp.pos,
     ],
     [
-      [0, 1.4, -27],
-      [0, 1.4, z - 3],
-      [0, 1.4, z - 6],
-      [0, 1.42, -37],
-      SHOTS.village.target,
+      [0, 1.3, -27],
+      [0, 1.3, z - 3],
+      [0, 1.35, z - 6],
+      [0, 1.4, -37],
+      vp.target,
     ],
     'sine.inOut',
   )
-  camTo(t, 0.3, 5.0, { fov: SHOTS.village.fov, focus: SHOTS.village.focus, dof: 1, backoff: 0.3, range: SHOTS.village.range })
-  beat(t, 2.6, () => {
-    world.shadowFocus.set(0, 0, -34)
+  camTo(t, 1.5, 6.6, { fov: vp.fov, focus: vp.focus, dof: 1, backoff: vp.backoff ?? 0.3, range: vp.range })
+  beat(t, 3.8, () => {
+    world.shadowFocus.set(1, 0, -34.5)
     world.glow.hanoi = 0
     orbit(0.3, 0.22, 0.08, 0.18)
   })
-  lightSlot(t, 3.5, 2, [0, 2.2, -35], 4, 1.2)
-  setStep(t, 5.0, 'village')
-  // the Huế court greeting: hands clasped, raised to the brow, a slow bow
-  beat(t, 5.1, () => {
-    lookAt('lady', 'camera')
-    act('lady', 'vai')
+  lightSlot(t, 4.5, 2, [0.5, 2.2, -34.8], 4, 1.2)
+  setStep(t, 6.4, 'village')
+  // they see him coming: a wave, a smile
+  beat(t, 5.6, () => {
+    lookAt('father', 'luc')
+    lookAt('mother', 'luc')
+    act('father', 'wave')
+    act('mother', 'smile')
   })
-  beat(t, 5.5, () => {
-    lookAt('luc', 'lady')
-    act('luc', 'bow')
+  // khoanh tay chào: arms folded, a bow to his parents
+  beat(t, 7.2, () => {
+    lookAt('luc', 'father')
+    act('luc', 'greet')
   })
-  caption(t, 5.5, CAPTIONS.village())
-  // she opens the sutra; threads of gold light the lanterns up the lane
-  beat(t, 8.3, () => {
-    act('lady', 'book')
-    lookAt('lady', null)
+  caption(t, 7.4, CAPTIONS.village())
+  // … and out comes the graduation notice, unrolled for them to read
+  beat(t, 9.6, () => act('luc', 'present'))
+  t.to(world, { diploma: 1, duration: 1.7, ease: 'power2.out' }, 9.9)
+  beat(t, 10.1, () => bell(523, 0.14))
+  beat(t, 11.2, () => {
+    act('mother', 'clap')
+    act('father', 'cheer')
   })
-  t.to(world, { handScroll: 1, duration: 2.6, ease: 'power2.out' }, 8.6)
-  t.to(world, { villageWave: 1, duration: 3.8, ease: 'sine.inOut' }, 9.4)
-  lightSlot(t, 9.4, 2, [0, 2.3, -35.4], 9, 2, '#ffcf80')
-  beat(t, 9.6, () => emit({ type: 'gust', x: 0, z: -35, strength: 0.4, radius: 3 }))
-  beat(t, 11.2, () => lookAt('luc', 'camera'))
-  allowContinue(t, 11.4)
+  // threads of gold run from the paper to the lanterns up the lane
+  t.to(world, { villageWave: 1, duration: 3.4, ease: 'sine.inOut' }, 11.4)
+  lightSlot(t, 11.4, 2, [0.6, 2.3, -35.2], 9, 2, '#ffcf80')
+  beat(t, 11.6, () => emit({ type: 'gust', x: 0.6, z: -34.6, strength: 0.4, radius: 3 }))
+  // he turns to show it to you too
+  beat(t, 12.6, () => {
+    lookAt('luc', 'camera')
+    world.chars.luc.faceY = -0.1
+  })
+  // then they step aside, to either side of the lane, and send him on
+  beat(t, 14.0, () => {
+    walk('father', [[...MARKS.fatherAside] as V3], 1.1, 0.55)
+    walk('mother', [[...MARKS.motherAside] as V3], 1.1, -0.85)
+    lookAt('father', 'camera')
+    lookAt('mother', 'camera')
+  })
+  caption(t, 14.2, CAPTIONS.parents())
+  beat(t, 15.4, () => {
+    act('luc', 'none')
+    act('father', 'usher')
+    act('mother', 'usher')
+  })
+  t.to(world, { diploma: 0, duration: 0.8 }, 15.4)
+  beat(t, 16.2, () => {
+    act('luc', 'smile')
+    world.chars.luc.faceY = toParents
+  })
+  allowContinue(t, 16.0)
+  beat(t, 18.4, () => {
+    fidget('father', ['usher', 'cheer', 'smile'], 3.6)
+    fidget('mother', ['clap', 'usher', 'smile'], 3.9)
+  })
 }
 
 /** V · Huế — through the village gate to Ngọ Môn */
@@ -460,14 +519,15 @@ function playHue() {
   const t = newTimeline()
   useUI.setState({ busy: true, canContinue: false })
   caption(t, 0, null)
-  beat(t, 0, () => {
-    lookAt('lady', 'camera')
-    mount(6)
+  beat(t, 0, () => mount(6))
+  // his parents cheer as he walks between them toward the gate
+  beat(t, 0.5, () => {
+    lookAt('father', 'luc')
+    lookAt('mother', 'luc')
+    act('father', 'cheer')
+    act('mother', 'clap')
   })
-  t.to(world, { handScroll: 0, duration: 1.0 }, 0)
   beat(t, 0.4, () => {
-    act('lady', 'none')
-    walk('lady', [[-0.9, 0, -35.8]], 1.1, Math.PI / 2)
     // the friends are already waiting at Ngọ Môn (seen through the arch); Lực leads the way
     const k = tight()
     for (const id of ['uni', 'hanoi'] as CharId[]) {
@@ -511,10 +571,12 @@ function playHue() {
   // everyone gathers (off camera, while it's in the arch) on the Ngọ Môn plaza
   beat(t, 0.2, () => act('princess', 'dance'))
   beat(t, 4.2, () => {
-    // the lady slips in behind the camera
-    const [x, z] = MARKS.hue.lady
-    place('lady', [x * tight(), 0, z], 0)
-    lookAt('lady', 'camera')
+    // his parents slip in behind the camera, to stand beside him
+    for (const id of ['father', 'mother'] as CharId[]) {
+      const [x, z] = MARKS.hue[id]
+      place(id, [x * tight(), 0, z], 0)
+      lookAt(id, 'camera')
+    }
     lookAt('luc', 'camera')
     world.villageWave = 1
     world.shadowFocus.set(0, 0, -46)
@@ -535,7 +597,10 @@ function playHue() {
   beat(t, 11.6, () => bell(440, 0.22))
   camTo(t, 8.1, 6, { pos: [hp.pos[0], hp.pos[1] + 0.12, hp.pos[2] - 0.3], target: [hp.target[0], hp.target[1] + 0.3, hp.target[2]] }, 'sine.inOut')
   // everyone reacts as the name appears
-  beat(t, 9.8, () => act('lady', 'vai'))
+  beat(t, 9.8, () => {
+    act('father', 'cheer')
+    act('mother', 'clap')
+  })
   beat(t, 10.2, () => act('luc', 'omQuyen'))
   beat(t, 10.5, () => act('uni', 'peace'))
   beat(t, 10.8, () => act('hanoi', 'cheer'))
@@ -570,11 +635,11 @@ function playFinale() {
     world.shadowFocus.set(0, 0, -38)
   })
   // everyone steps forward in a line, turns to the camera and waves goodbye
-  const ids: CharId[] = ['uni', 'luc', 'princess', 'hanoi', 'lady']
+  const ids: CharId[] = ['uni', 'father', 'luc', 'princess', 'mother', 'hanoi']
   const face = Math.atan2(end[0], end[2] + 44)
   beat(t, 1.6, () => {
     ids.forEach((id, i) => {
-      const x = (i - 2) * (tall ? 0.85 : 1.05)
+      const x = (i - 2.5) * (tall ? 0.8 : 1.0)
       walk(id, [[x, 0, -43.8 - (i % 2) * 0.4]], 1.4, face)
       lookAt(id, null)
     })
@@ -586,7 +651,8 @@ function playFinale() {
   })
   beat(t, 7.9, () => {
     act('hanoi', 'peace')
-    act('lady', 'vai')
+    act('father', 'cheer')
+    act('mother', 'clap')
     act('princess', 'dance')
   })
   beat(t, 8.8, () => {
@@ -596,10 +662,11 @@ function playFinale() {
   beat(t, 11, () => {
     idle.push(gsap.to(world.cam.pos, { x: end[0] - 2, y: end[1] + 0.8, duration: 12, ease: 'sine.inOut', yoyo: true, repeat: -1 }))
     const acts: Record<string, readonly Action[]> = {
-      luc: ['wave', 'capTip', 'omQuyen', 'laugh'],
+      luc: ['wave', 'scratch', 'omQuyen', 'laugh'],
       uni: ['wave', 'peace', 'hop'],
       hanoi: ['peace', 'hop', 'wave', 'cheer'],
-      lady: ['vai', 'smile'],
+      father: ['cheer', 'wave', 'usher'],
+      mother: ['clap', 'smile', 'wave'],
       princess: ['dance', 'smile'],
     }
     finaleLoop = gsap.to(
@@ -653,8 +720,9 @@ export function skipToInvite() {
   world.bubble = 0
   useUI.setState({ mounted: 6, caption: null, flash: 0 })
   place('luc', [...MARKS.lucVillage] as V3, -0.4)
-  place('lady', [...MARKS.lady] as V3, 0)
-  setCam({ ...SHOTS.village })
+  place('father', [...MARKS.fatherAside] as V3, 0.55)
+  place('mother', [...MARKS.motherAside] as V3, -0.85)
+  setCam({ ...villagePose() })
   playHue()
 }
 
@@ -673,7 +741,8 @@ export function resetWorld() {
   place('luc', [BENCH.x, 0.265, BENCH.z], 0, 'sit')
   place('uni', [...MARKS.uniSit] as V3, UNI_BENCH.ry, 'sit')
   place('hanoi', [...MARKS.hanoi] as V3, BIKE.ry)
-  place('lady', [...MARKS.lady] as V3, 0)
+  place('father', [...MARKS.father] as V3, 0.12)
+  place('mother', [...MARKS.mother] as V3, -0.12)
   place('princess', [...MARKS.princess] as V3, 0)
   for (const id of Object.keys(world.chars) as CharId[]) world.chars[id].look = null
   world.gate.light = 0
@@ -681,7 +750,7 @@ export function resetWorld() {
   uGlow.value = 1
   world.villageWave = 0
   world.scroll = 0
-  world.handScroll = 0
+  world.diploma = 0
   world.laptop = 0.9
   world.bubble = 0
   world.wipe.kind = 'none'

@@ -1,5 +1,6 @@
 import * as THREE from 'three'
-import { canvas, FONT_UI, roundRect, toTexture } from '../lib/textures'
+import { canvas, FONT_CJK, FONT_DISPLAY, FONT_UI, roundRect, toTexture } from '../lib/textures'
+import { CAST } from '../../config'
 import { rng } from '../lib/kit'
 
 /*
@@ -212,64 +213,6 @@ export const nhatBinhSleeve = () =>
   })
 
 // ═══════════════════════════════════════════════════════════
-//  Áo đối khâm — parallel-collar gown over a red yếm and dark skirt
-// ═══════════════════════════════════════════════════════════
-export const doiKhamTex = () =>
-  once('doikham', () => {
-    const [c, g] = canvas(W, H)
-    silk(g, '#2e6b66')
-    // woven lozenge-and-flower brocade
-    scatter(g, 0, 0, W, Y(0.08), 34, (x, y, i) => {
-      g.strokeStyle = 'rgba(214,190,120,0.45)'
-      g.lineWidth = 1.4
-      g.beginPath()
-      g.moveTo(x, y - 9)
-      g.lineTo(x + 9, y)
-      g.lineTo(x, y + 9)
-      g.lineTo(x - 9, y)
-      g.closePath()
-      g.stroke()
-      if (i % 3 === 0) {
-        g.fillStyle = 'rgba(232,194,103,0.55)'
-        g.beginPath()
-        g.arc(x, y, 2.6, 0, Math.PI * 2)
-        g.fill()
-      }
-    })
-    // hem band
-    band(g, 0, Y(0.08), W, H * 0.08, '#e9d8a6', '#b3262e', 4)
-    scatter(g, 0, Y(0.08), W, H, 26, (x, y) => cloud(g, x, y + 4, 6, 'rgba(160,60,40,0.7)', 1.2))
-    // the front: red yếm above, dark skirt below, framed by the parallel collar bands (nẹp)
-    frontStrip(g, 40, 0, H, (x, w, y0, y1) => {
-      g.fillStyle = '#2a2228'
-      g.fillRect(x, y0, w, y1 - y0)
-      g.fillStyle = '#c8342b'
-      g.fillRect(x, 0, w, Y(0.62))
-      g.fillStyle = 'rgba(243,217,138,0.9)'
-      g.fillRect(x, Y(0.62) - 3, w, 3)
-    })
-    for (const cx of [W * 0.043, W * 0.957]) {
-      band(g, cx - 13, 0, 26, H, '#e9d8a6', '#b3262e', 3)
-      for (let y = 18; y < H; y += 30) {
-        g.fillStyle = 'rgba(179,38,46,0.7)'
-        g.beginPath()
-        g.arc(cx, y, 3.2, 0, Math.PI * 2)
-        g.fill()
-      }
-    }
-    return toTexture(c)
-  })
-
-export const doiKhamSleeve = () =>
-  once('doikham-sleeve', () => {
-    const [c, g] = canvas(256, 256)
-    silk(g, '#2e6b66', 256, 256)
-    band(g, 0, 200, 256, 56, '#e9d8a6', '#b3262e', 4)
-    for (let x = 16; x < 256; x += 32) cloud(g, x, 230, 7, 'rgba(160,60,40,0.7)', 1.2)
-    return toTexture(c)
-  })
-
-// ═══════════════════════════════════════════════════════════
 //  Shared fabric helpers for the modern outfits
 // ═══════════════════════════════════════════════════════════
 /** Matte cotton / nylon: flat base, soft vertical folds, fine grain. */
@@ -325,115 +268,59 @@ function stitch(g: G2, x0: number, y0: number, x1: number, y1: number, color: st
 }
 
 // ═══════════════════════════════════════════════════════════
-//  LỰC — black coach jacket over a navy hoodie
+//  LỰC — a navy crew-neck T-shirt
 // ═══════════════════════════════════════════════════════════
-export const lucJacketTex = () =>
-  once('luc-jacket', () => {
+const NAVY = '#26324f'
+export const lucTeeTex = () =>
+  once('luc-tee', () => {
     const [c, g] = canvas(W, H)
-    cotton(g, '#232429', W, H, 0.045, 3)
-    // nylon sheen: two broad soft highlights where the light rolls over the chest and back
-    for (const x of [W * 0.12, W * 0.62]) {
-      const grd = g.createRadialGradient(x, Y(0.62), 10, x, Y(0.62), 220)
-      grd.addColorStop(0, 'rgba(160,170,200,0.12)')
-      grd.addColorStop(1, 'rgba(160,170,200,0)')
-      g.fillStyle = grd
-      g.fillRect(0, 0, W, H)
-    }
-    // ribbed drawcord hem
-    g.fillStyle = '#1b1c20'
-    g.fillRect(0, Y(0.07), W, H * 0.07)
-    for (let x = 0; x < W; x += 6) {
-      g.fillStyle = 'rgba(255,255,255,0.05)'
-      g.fillRect(x, Y(0.07), 2, H * 0.07)
-    }
-    // cord toggles either side of the zip
-    for (const x of [44, W - 44]) {
-      g.fillStyle = '#e9e6de'
-      roundRect(g, x - 6, Y(0.05) - 4, 12, 22, 4)
-      g.fill()
-      g.strokeStyle = '#e9e6de'
-      g.lineWidth = 3
-      g.beginPath()
-      g.moveTo(x, Y(0.05) + 18)
-      g.lineTo(x + (x < W / 2 ? -8 : 8), Y(0.0) - 2)
-      g.stroke()
-    }
-    // welt pockets, slanted
-    for (const [x, dir] of [
-      [W * 0.115, 1],
-      [W * 0.885, -1],
-    ]) {
-      g.save()
-      g.translate(x, Y(0.3))
-      g.rotate(dir * 0.35)
-      g.fillStyle = '#131418'
-      roundRect(g, -34, -6, 68, 12, 4)
-      g.fill()
-      g.fillStyle = 'rgba(255,255,255,0.1)'
-      g.fillRect(-32, -7, 64, 2)
-      g.restore()
-    }
-    // folds from the armpits toward the waist, and a sag across the back
+    cotton(g, NAVY, W, H, 0.05, 3)
+    // soft jersey folds under the arms and across the belly
     folds(g, [
-      [W * 0.2, Y(0.72), W * 0.18, Y(0.5), W * 0.14, Y(0.35)],
-      [W * 0.8, Y(0.72), W * 0.82, Y(0.5), W * 0.86, Y(0.35)],
-      [W * 0.4, Y(0.55), W * 0.5, Y(0.47), W * 0.6, Y(0.55)],
-      [W * 0.42, Y(0.3), W * 0.5, Y(0.24), W * 0.58, Y(0.3)],
+      [W * 0.2, Y(0.75), W * 0.18, Y(0.5), W * 0.15, Y(0.2)],
+      [W * 0.8, Y(0.75), W * 0.82, Y(0.5), W * 0.85, Y(0.2)],
+      [W * 0.42, Y(0.36), W * 0.5, Y(0.3), W * 0.58, Y(0.36)],
+      [W * 0.9, Y(0.3), W * 0.96, Y(0.24), W * 1.02, Y(0.3)],
     ])
-    // back yoke seam with top-stitching
-    stitch(g, W * 0.3, Y(0.82), W * 0.7, Y(0.82), 'rgba(255,255,255,0.22)')
-    // tiny white print on the left chest
-    g.fillStyle = '#f1efe9'
-    g.font = `800 15px ${FONT_UI}`
+    // double-needle hem
+    stitch(g, 0, Y(0.05), W, Y(0.05), 'rgba(255,255,255,0.18)')
+    stitch(g, 0, Y(0.035), W, Y(0.035), 'rgba(255,255,255,0.12)')
+    // a small print on the left chest: a mountain and "small steps · big dreams"
+    const x = W * 0.085
+    const y = Y(0.72)
+    g.strokeStyle = '#f3efe4'
+    g.fillStyle = '#f3efe4'
+    g.lineWidth = 2.4
+    g.lineJoin = 'round'
+    g.beginPath()
+    g.moveTo(x - 22, y + 8)
+    g.lineTo(x - 8, y - 10)
+    g.lineTo(x, y - 2)
+    g.lineTo(x + 9, y - 14)
+    g.lineTo(x + 24, y + 8)
+    g.closePath()
+    g.stroke()
+    g.beginPath()
+    g.arc(x + 14, y - 16, 3.5, 0, Math.PI * 2)
+    g.fill()
+    g.font = `800 10px ${FONT_UI}`
     g.textAlign = 'center'
-    g.fillText('SMALL STEPS', W * 0.075, Y(0.74))
-    g.fillRect(W * 0.075 - 22, Y(0.74) + 5, 44, 2)
-    // the zip: tape, teeth and the pull near the collar
-    const zip = (x: number) => {
-      g.fillStyle = '#16171b'
-      g.fillRect(x - 7, 0, 14, H)
-      for (let y = 0; y < Y(0.07); y += 5) {
-        g.fillStyle = '#8f949c'
-        g.fillRect(x - 3, y, 6, 2.4)
-      }
-    }
-    zip(0)
-    zip(W)
-    stitch(g, 12, 0, 12, H, 'rgba(255,255,255,0.18)')
-    stitch(g, W - 12, 0, W - 12, H, 'rgba(255,255,255,0.18)')
+    g.fillText('SMALL STEPS', x, y + 22)
+    g.font = `700 8px ${FONT_UI}`
+    g.fillText('BIG DREAMS', x, y + 32)
+    // shoulder seams
+    for (const u of [0.25, 0.75]) stitch(g, W * u - 30, Y(0.93), W * u + 30, Y(0.93), 'rgba(255,255,255,0.1)')
     return toTexture(c)
   })
 
-export const lucSleeve = () =>
-  once('luc-sleeve', () => {
+export const lucTeeSleeve = () =>
+  once('luc-tee-sleeve', () => {
     const [c, g] = canvas(256, 256)
-    cotton(g, '#232429', 256, 256, 0.045, 5)
-    folds(g, [
-      [40, 120, 90, 100, 150, 130],
-      [110, 150, 160, 135, 220, 160],
-    ])
-    // elastic cuff
-    g.fillStyle = '#1a1b1f'
-    g.fillRect(0, 214, 256, 42)
-    for (let x = 0; x < 256; x += 6) {
-      g.fillStyle = 'rgba(255,255,255,0.06)'
-      g.fillRect(x, 214, 2, 42)
-    }
-    return toTexture(c)
-  })
-
-/** "NY" monogram for the cap (stylised serif, white embroidery). */
-export const nyTex = () =>
-  once('ny', () => {
-    const [c, g] = canvas(128, 128)
-    g.clearRect(0, 0, 128, 128)
-    g.fillStyle = '#f7f5ef'
-    g.textAlign = 'center'
-    g.textBaseline = 'middle'
-    g.font = `italic 700 78px Georgia, "Times New Roman", serif`
-    g.fillText('N', 54, 60)
-    g.font = `italic 700 70px Georgia, "Times New Roman", serif`
-    g.fillText('Y', 76, 72)
+    cotton(g, NAVY, 256, 256, 0.05, 5)
+    folds(g, [[40, 110, 110, 90, 200, 120]])
+    stitch(g, 0, 214, 256, 214, 'rgba(255,255,255,0.18)')
+    g.fillStyle = 'rgba(0,0,0,0.12)'
+    g.fillRect(0, 222, 256, 34)
     return toTexture(c)
   })
 
@@ -842,5 +729,271 @@ export const hanoiSleeve = () =>
     g.fillStyle = 'rgba(170,130,40,0.35)'
     g.fillRect(0, 184, 256, 4)
     g.fillRect(0, 222, 256, 3)
+    return toTexture(c)
+  })
+
+// ═══════════════════════════════════════════════════════════
+//  BỐ — áo cánh nâu (homespun, cloth-knot buttons, a patch)
+// ═══════════════════════════════════════════════════════════
+/** coarse homespun: visible cross-weave */
+function homespun(g: G2, base: string, w = W, h = H, seed = 1) {
+  cotton(g, base, w, h, 0.06, seed)
+  g.globalAlpha = 0.07
+  g.fillStyle = '#000'
+  for (let y = 0; y < h; y += 3) g.fillRect(0, y, w, 1)
+  g.fillStyle = '#fff'
+  for (let x = 0; x < w; x += 4) g.fillRect(x, 0, 1, h)
+  g.globalAlpha = 1
+}
+
+export const fatherShirtTex = () =>
+  once('father-shirt', () => {
+    const [c, g] = canvas(W, H)
+    homespun(g, '#7b5a3c', W, H, 31)
+    folds(
+      g,
+      [
+        [W * 0.2, Y(0.8), W * 0.17, Y(0.5), W * 0.14, Y(0.15)],
+        [W * 0.8, Y(0.8), W * 0.83, Y(0.5), W * 0.86, Y(0.15)],
+        [W * 0.4, Y(0.4), W * 0.5, Y(0.33), W * 0.6, Y(0.4)],
+      ],
+      'rgba(40,25,10,0.22)',
+      'rgba(255,230,190,0.1)',
+    )
+    // faded patches where the sun and work have worn it
+    for (const [x, y, r] of [
+      [W * 0.3, Y(0.55), 60],
+      [W * 0.62, Y(0.7), 80],
+    ]) {
+      const grd = g.createRadialGradient(x, y, 0, x, y, r)
+      grd.addColorStop(0, 'rgba(200,170,120,0.18)')
+      grd.addColorStop(1, 'rgba(200,170,120,0)')
+      g.fillStyle = grd
+      g.fillRect(x - r, y - r, r * 2, r * 2)
+    }
+    // a mended patch on the back, stitched round
+    g.fillStyle = '#8a6a48'
+    g.fillRect(W * 0.52, Y(0.62), 70, 56)
+    stitch(g, W * 0.52, Y(0.62), W * 0.52 + 70, Y(0.62), 'rgba(40,25,10,0.6)')
+    stitch(g, W * 0.52, Y(0.62) + 56, W * 0.52 + 70, Y(0.62) + 56, 'rgba(40,25,10,0.6)')
+    stitch(g, W * 0.52, Y(0.62), W * 0.52, Y(0.62) + 56, 'rgba(40,25,10,0.6)')
+    stitch(g, W * 0.52 + 70, Y(0.62), W * 0.52 + 70, Y(0.62) + 56, 'rgba(40,25,10,0.6)')
+    // two patch pockets on the lower front
+    for (const x of [W * 0.11, W * 0.89]) {
+      g.fillStyle = 'rgba(60,40,20,0.18)'
+      g.fillRect(x - 32, Y(0.36), 64, 58)
+      stitch(g, x - 32, Y(0.36), x + 32, Y(0.36), 'rgba(40,25,10,0.5)')
+    }
+    // the front slit and cloth-knot buttons (cúc vải) down from the neck
+    for (const x of [0, W]) {
+      g.fillStyle = 'rgba(40,25,10,0.35)'
+      g.fillRect(x - 2, 0, 4, Y(0.55))
+      for (const v of [0.93, 0.83, 0.73, 0.63]) {
+        g.fillStyle = '#5a3f28'
+        g.beginPath()
+        g.arc(x, Y(v), 6, 0, Math.PI * 2)
+        g.fill()
+        g.strokeStyle = '#3a2818'
+        g.lineWidth = 2
+        g.beginPath()
+        g.moveTo(x - 12, Y(v))
+        g.lineTo(x + 12, Y(v))
+        g.stroke()
+      }
+    }
+    return toTexture(c)
+  })
+
+export const fatherSleeve = () =>
+  once('father-sleeve', () => {
+    const [c, g] = canvas(256, 256)
+    homespun(g, '#7b5a3c', 256, 256, 33)
+    // sleeves rolled up to the elbow
+    g.fillStyle = '#8c6a48'
+    g.fillRect(0, 180, 256, 76)
+    g.fillStyle = 'rgba(40,25,10,0.3)'
+    g.fillRect(0, 178, 256, 4)
+    g.fillRect(0, 218, 256, 3)
+    return toTexture(c)
+  })
+
+/** black-and-white gingham for his khăn */
+export const ginghamTex = () =>
+  once('gingham', () => {
+    const [c, g] = canvas(128, 128)
+    g.fillStyle = '#f1ede4'
+    g.fillRect(0, 0, 128, 128)
+    const n = 8
+    const s = 128 / n
+    g.fillStyle = 'rgba(40,38,40,0.55)'
+    for (let i = 0; i < n; i += 2) {
+      g.fillRect(i * s, 0, s, 128)
+      g.fillRect(0, i * s, 128, s)
+    }
+    g.fillStyle = 'rgba(30,28,30,0.55)'
+    for (let i = 0; i < n; i += 2) for (let j = 0; j < n; j += 2) g.fillRect(i * s, j * s, s, s)
+    const t = toTexture(c)
+    t.wrapS = t.wrapT = THREE.RepeatWrapping
+    t.repeat.set(3, 3)
+    return t
+  })
+
+// ═══════════════════════════════════════════════════════════
+//  MẸ — áo tứ thân in faded indigo over a red yếm and a green skirt
+// ═══════════════════════════════════════════════════════════
+export const motherCoatTex = () =>
+  once('mother-coat', () => {
+    const [c, g] = canvas(W, H)
+    homespun(g, '#4d5a8c', W, H, 41)
+    // indigo fades unevenly
+    const r = rng(43)
+    for (let i = 0; i < 30; i++) {
+      const x = r() * W
+      const y = r() * H
+      const rad = 30 + r() * 90
+      const grd = g.createRadialGradient(x, y, 0, x, y, rad)
+      grd.addColorStop(0, r() < 0.5 ? 'rgba(120,130,170,0.16)' : 'rgba(20,25,50,0.16)')
+      grd.addColorStop(1, 'rgba(0,0,0,0)')
+      g.fillStyle = grd
+      g.fillRect(x - rad, y - rad, rad * 2, rad * 2)
+    }
+    folds(
+      g,
+      [
+        [W * 0.22, Y(0.8), W * 0.2, Y(0.45), W * 0.17, Y(0.05)],
+        [W * 0.78, Y(0.8), W * 0.8, Y(0.45), W * 0.83, Y(0.05)],
+        [W * 0.45, Y(0.5), W * 0.5, Y(0.25), W * 0.55, Y(0.05)],
+      ],
+      'rgba(10,15,40,0.25)',
+      'rgba(200,210,255,0.08)',
+    )
+    // the open front: red yếm above the sash, dark green skirt below
+    const open = (x: number, half: number) => {
+      g.fillStyle = '#b04a36'
+      g.fillRect(x - half, 0, half * 2, Y(0.5))
+      g.fillStyle = 'rgba(255,200,170,0.15)'
+      g.fillRect(x - half, 0, half * 2, 6)
+      g.fillStyle = '#4c5a3b'
+      g.fillRect(x - half, Y(0.46), half * 2, H - Y(0.46))
+      g.fillStyle = 'rgba(0,0,0,0.12)'
+      for (let y = Y(0.46); y < H; y += 9) g.fillRect(x - half, y, half * 2, 1.5)
+    }
+    open(0, 46)
+    open(W, 46)
+    // the coat's front edges (nẹp) in a darker indigo
+    for (const x of [46, W - 46]) {
+      g.fillStyle = '#34406a'
+      g.fillRect(x - 7, 0, 14, H)
+    }
+    // hem
+    g.fillStyle = '#34406a'
+    g.fillRect(0, H - 12, W, 12)
+    return toTexture(c)
+  })
+
+export const motherSleeve = () =>
+  once('mother-sleeve', () => {
+    const [c, g] = canvas(256, 256)
+    homespun(g, '#4d5a8c', 256, 256, 45)
+    folds(g, [[30, 120, 120, 100, 220, 130]], 'rgba(10,15,40,0.25)', 'rgba(200,210,255,0.08)')
+    g.fillStyle = '#34406a'
+    g.fillRect(0, 226, 256, 30)
+    return toTexture(c)
+  })
+
+// ═══════════════════════════════════════════════════════════
+//  The graduation notice, in the manner of a sớ
+// ═══════════════════════════════════════════════════════════
+export const diplomaTex = () =>
+  once('diploma', () => {
+    const DW = 1024
+    const DH = 400
+    const [c, g] = canvas(DW, DH)
+    // warm yellow sớ paper with fibres
+    const grd = g.createLinearGradient(0, 0, 0, DH)
+    grd.addColorStop(0, '#f6e6b4')
+    grd.addColorStop(1, '#efd99a')
+    g.fillStyle = grd
+    g.fillRect(0, 0, DW, DH)
+    const r = rng(77)
+    for (let i = 0; i < 900; i++) {
+      g.fillStyle = `rgba(160,120,60,${0.04 + r() * 0.06})`
+      g.fillRect(r() * DW, r() * DH, 4 + r() * 22, 1)
+    }
+    // red double border with gold cloud corners
+    g.strokeStyle = '#b3262e'
+    g.lineWidth = 10
+    g.strokeRect(16, 16, DW - 32, DH - 32)
+    g.lineWidth = 3
+    g.strokeRect(32, 32, DW - 64, DH - 64)
+    for (const [x, y] of [
+      [48, 48],
+      [DW - 48, 48],
+      [48, DH - 48],
+      [DW - 48, DH - 48],
+    ])
+      cloud(g, x + (x < DW / 2 ? 16 : -16), y + (y < DH / 2 ? 10 : -6), 12, '#c8962e', 3)
+    // vertical Hán columns at both ends: 捷報 (news of success) and 畢業 (graduation)
+    const col = (x: number, text: string) => {
+      g.fillStyle = '#b3262e'
+      g.fillRect(x - 34, 66, 68, DH - 132)
+      g.fillStyle = '#f6e6b4'
+      g.textAlign = 'center'
+      g.textBaseline = 'middle'
+      g.font = `52px ${FONT_CJK}`
+      ;[...text].forEach((ch, i) => g.fillText(ch, x, 130 + i * 70))
+    }
+    col(DW - 96, '捷報')
+    col(96, '畢業')
+    // the body, centred
+    g.fillStyle = '#b3262e'
+    g.textAlign = 'center'
+    g.textBaseline = 'alphabetic'
+    g.font = `900 46px ${FONT_UI}`
+    g.fillText('GIẤY BÁO TỐT NGHIỆP', DW / 2, 104)
+    g.fillStyle = '#3a2418'
+    g.font = `700 22px ${FONT_UI}`
+    g.fillText('TRƯỜNG ĐẠI HỌC NÔNG LÂM TP. HỒ CHÍ MINH', DW / 2, 146)
+    g.fillText('KHOA CÔNG NGHỆ THÔNG TIN', DW / 2, 176)
+    g.font = `italic 400 30px ${FONT_DISPLAY}`
+    g.fillText('Sinh viên', DW / 2 - 150, 236)
+    g.font = `700 44px ${FONT_DISPLAY}`
+    g.fillText(CAST.luc, DW / 2 + 40, 238)
+    g.font = `italic 400 24px ${FONT_DISPLAY}`
+    g.fillText('đã hoàn thành chương trình đào tạo đại học', DW / 2, 286)
+    // a big red seal, slightly askew
+    g.save()
+    g.translate(DW / 2 + 250, 300)
+    g.rotate(-0.18)
+    g.strokeStyle = 'rgba(190,30,36,0.85)'
+    g.lineWidth = 6
+    g.beginPath()
+    g.arc(0, 0, 44, 0, Math.PI * 2)
+    g.stroke()
+    g.fillStyle = 'rgba(190,30,36,0.85)'
+    g.font = `40px ${FONT_CJK}`
+    g.textAlign = 'center'
+    g.textBaseline = 'middle'
+    g.fillText('印', 0, 2)
+    g.restore()
+    return toTexture(c)
+  })
+
+/** a woven sedge mat (chiếu) with red border stripes */
+export const matTex = () =>
+  once('chieu', () => {
+    const [c, g] = canvas(256, 192)
+    g.fillStyle = '#d9c08a'
+    g.fillRect(0, 0, 256, 192)
+    for (let y = 0; y < 192; y += 4) {
+      for (let x = (y / 4) % 2 ? 0 : 4; x < 256; x += 8) {
+        g.fillStyle = 'rgba(150,110,50,0.35)'
+        g.fillRect(x, y, 4, 3)
+      }
+    }
+    for (const y of [14, 22, 170, 178]) {
+      g.fillStyle = '#b8453a'
+      g.fillRect(0, y, 256, 4)
+    }
     return toTexture(c)
   })

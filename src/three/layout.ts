@@ -12,7 +12,7 @@
  *                   │ banyan · well · lanterns   │
  *           z = −28 │═══════ ĐOAN MÔN ═══════════│  III Hoàng thành Thăng Long (autumn)
  *                   │ autumn esplanade, bicycle  │
- *           z = −11 │  campus   ▣ THIÊN LÝ       │  II  ĐH Nông Lâm TP.HCM
+ *           z = −11 │  campus   ▣ RẠNG ĐÔNG      │  II  ĐH Nông Lâm TP.HCM
  *                   │ topiary · flags · phượng   │
  *           z = +5  │═══ CỔNG THÀNH HOÀNG ĐẾ ════│  I   Bình Định (home)
  *                   │ bench · coconuts · paddy   │
@@ -31,20 +31,21 @@ export const PADDY = { x0: 6.5, x1: 18.8, z0: 7.2, z1: 13 }
 
 // ── II · Nông Lâm ───────────────────────────────────────────
 /**
- * Nhà Thiên Lý, ĐH Nông Lâm TP.HCM. It stands on the right of the lane and
- * faces it (−x): the façade plane is at x = xf, centred on z = zc. Campus
- * props are authored in the building's own frame (lx along the façade, lz
- * out from it toward the lane) and mapped with campusToWorld().
+ * Giảng đường Rạng Đông, ĐH Nông Lâm TP.HCM — one of the campus's old lecture
+ * halls. It stands on the right of the lane and faces it (−x): the front of
+ * its corridors is at x = xf, centred on z = zc. Campus props are authored in
+ * the building's own frame (lx along the façade, lz out from it toward the
+ * lane) and mapped with campusToWorld().
  */
-export const THIENLY = { xf: 8.3, zc: -5.6, w: 11.6, d: 3.1, floor: 0.8, floors: 6, ry: -Math.PI / 2 }
+export const RANGDONG = { xf: 8.3, zc: -5.6, w: 11.6, d: 3.1, floor: 0.8, floors: 4, ry: -Math.PI / 2 }
 export function campusToWorld(lx: number, lz: number): [number, number] {
-  return [THIENLY.xf - lz, THIENLY.zc + lx]
+  return [RANGDONG.xf - lz, RANGDONG.zc + lx]
 }
 const TOP = campusToWorld(0.3, 4.1)
-export const TOPIARY = { x: TOP[0], z: TOP[1], r: 0.95 }
+export const TOPIARY = { x: TOP[0], z: TOP[1], r: 0.62 }
 /** the pink bench where the IT friend sits (local −2.1, 5.7), facing the lane */
 const UNI = campusToWorld(-2.1, 5.7)
-export const UNI_BENCH = { x: UNI[0], z: UNI[1], ry: THIENLY.ry + 0.45 }
+export const UNI_BENCH = { x: UNI[0], z: UNI[1], ry: RANGDONG.ry + 0.45 }
 
 // ── III · Thăng Long ────────────────────────────────────────
 /** Đoan Môn — south gate of the Forbidden City, Hoàng thành Thăng Long */
@@ -55,7 +56,9 @@ export const BIKE = { x: -3.1, z: -20.4, ry: 0.5 }
 /** the village gate set into the bamboo hedge (lũy tre) */
 export const CONGLANG = { x: 0, z: -38.6, archW: 1.25, archH: 2.1 }
 export const BANYAN = { x: -4.6, z: -35.6 }
-export const WELL = { x: 4.3, z: -33.6 }
+export const WELL = { x: -6.4, z: -31.2 }
+/** the parents' thatched house, just behind them on the right of the lane, facing the guest */
+export const HOUSE = { x: 4.15, z: -36.95, ry: 0 }
 /** ao làng — the village pond by the banyan */
 export const POND = { x: -10.6, z: -33.4, rx: 3.0, rz: 2.0 }
 
@@ -103,15 +106,21 @@ export const MARKS = {
   hanoi: [-1.75, 0, -21.4] as const,
   /** Lực stands at her side, a step behind, so the camera sees them both */
   lucHanoi: [-0.55, 0, -22.25] as const,
-  lady: [0, 0, -35.2] as const,
-  lucVillage: [1.25, 0, -35.8] as const,
+  /** the parents wait side by side in the lane, then step aside to let him pass */
+  father: [-0.55, 0, -35.3] as const,
+  mother: [0.55, 0, -35.3] as const,
+  fatherAside: [-1.5, 0, -36.4] as const,
+  motherAside: [2.25, 0, -35.9] as const,
+  lucVillage: [0.95, 0, -33.9] as const,
   princess: [0, 0, -46.7] as const,
   // Ngọ Môn formation, inside the U of the gate (x relative to the axis, z absolute)
+  // Lực and the princess at the centre, his parents either side, the friends at the ends
   hue: {
-    luc: [-1.1, -47.35],
-    uni: [-2.3, -47.0],
-    hanoi: [1.1, -47.35],
-    lady: [2.3, -47.0],
-    princess: [0, -46.7],
+    uni: [-2.65, -46.95],
+    father: [-1.55, -47.25],
+    luc: [-0.5, -46.75],
+    princess: [0.55, -46.7],
+    mother: [1.6, -47.25],
+    hanoi: [2.65, -46.95],
   } as Record<string, [number, number]>,
 }

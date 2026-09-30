@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+// must run before any material compiles
+import './lib/sanitize'
 import { Canvas, useThree } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
 import { Suspense, useEffect, useState, type ReactNode } from 'react'
@@ -19,7 +21,7 @@ import { GateLight } from './fx/GateLight'
 import { Wipe } from './fx/Wipe'
 import { Sparkles } from './fx/Sparkles'
 import { HangingScroll } from './fx/HangingScroll'
-import { CourtLady, Hanoi, Luc, Princess, Uni } from './characters/Cast'
+import { Father, Hanoi, Luc, Mother, Princess, Uni } from './characters/Cast'
 import { Lightning } from './fx/Lightning'
 import { PottedMai } from './world/Foliage'
 import { NGOMON } from './layout'
@@ -119,7 +121,8 @@ export default function Experience() {
           <Hanoi />
         </Lazy>
         <Lazy at={4}>
-          <CourtLady />
+          <Father />
+          <Mother />
           <Lightning />
         </Lazy>
         <Lazy at={5}>

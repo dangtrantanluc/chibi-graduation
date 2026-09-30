@@ -527,3 +527,35 @@ export const vnFlagTex = () =>
     g.fill()
     return toTexture(c)
   })
+
+/** Straw thatch: dense strands running down the slope, bundles and shadows. */
+export const thatchTex = () =>
+  once('thatch', () => {
+    const S = 256
+    const [c, g] = canvas(S, S)
+    g.fillStyle = '#c9a45e'
+    g.fillRect(0, 0, S, S)
+    const r = mulberry(12)
+    // bundle bands (courses) across the slope
+    for (let y = 0; y < S; y += 32) {
+      const grd = g.createLinearGradient(0, y, 0, y + 32)
+      grd.addColorStop(0, 'rgba(255,240,190,0.25)')
+      grd.addColorStop(0.8, 'rgba(90,60,20,0.1)')
+      grd.addColorStop(1, 'rgba(60,40,15,0.45)')
+      g.fillStyle = grd
+      g.fillRect(0, y, S, 32)
+    }
+    // strands
+    for (let i = 0; i < 1400; i++) {
+      const x = r() * S
+      const y = r() * S
+      const len = 10 + r() * 30
+      g.strokeStyle = r() < 0.5 ? `rgba(110,75,30,${0.2 + r() * 0.3})` : `rgba(255,236,170,${0.2 + r() * 0.35})`
+      g.lineWidth = 1 + r() * 1.5
+      g.beginPath()
+      g.moveTo(x, y)
+      g.lineTo(x + (r() - 0.5) * 4, y + len)
+      g.stroke()
+    }
+    return toTexture(c, true, true)
+  })

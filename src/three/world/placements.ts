@@ -1,5 +1,5 @@
 import { rng } from '../lib/kit'
-import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, THIENLY, TOPIARY, WELL } from '../layout'
+import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, HOUSE, DOANMON, GATE, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, TOPIARY, WELL } from '../layout'
 import { CAMPUS_TREES } from './Campus'
 
 /** Deterministic placement of buildings, trees, rocks and flowers, region by region. */
@@ -93,7 +93,7 @@ const SIGHTS: [number, number, number, number][] = [
   [0.4, 26, 0.4, 5], // the opening wide shot
   [-2.6, -1.6, 3.2, -7.4], // II · the campus bench
   [1.6, -16.2, -1.8, -21.8], // III · by the bicycle
-  [0.9, -29.9, 0, -35.2], // IV · the court lady
+  [0.1, -29.8, 0.6, -35.3], // IV · his parents at the village gate
 ]
 function distToSeg(x: number, z: number, [ax, az, bx, bz]: [number, number, number, number]) {
   const dx = bx - ax
@@ -117,8 +117,8 @@ export function isFree(x: number, z: number, m = 0) {
   if (((x - POND.x) / (POND.rx + 0.9 + m)) ** 2 + ((z - POND.z) / (POND.rz + 0.9 + m)) ** 2 < 1) return false
   if (x > -3 - m && x < 3 - m && z > 5 && z < 9 + m) return false // benches
   // Nông Lâm: the building and its plaza (between the lane and the façade)
-  if (x > THIENLY.xf - 1.4 - m && x < THIENLY.xf + THIENLY.d + 1.2 + m && Math.abs(z - THIENLY.zc) < THIENLY.w / 2 + 1.2 + m) return false
-  if (x > -0.4 - m && x < THIENLY.xf + m && Math.abs(z - THIENLY.zc) < THIENLY.w / 2 + 0.2 + m) return false
+  if (x > RANGDONG.xf - 1.4 - m && x < RANGDONG.xf + RANGDONG.d + 1.2 + m && Math.abs(z - RANGDONG.zc) < RANGDONG.w / 2 + 1.2 + m) return false
+  if (x > -0.4 - m && x < RANGDONG.xf + m && Math.abs(z - RANGDONG.zc) < RANGDONG.w / 2 + 0.2 + m) return false
   if (Math.hypot(x - TOPIARY.x, z - TOPIARY.z) < TOPIARY.r + 1.2 + m) return false
   // Thăng Long: the bicycle, the gánh, lamps and benches
   if (Math.hypot(x - BIKE.x, z - BIKE.z) < 1.3 + m) return false
@@ -127,6 +127,7 @@ export function isFree(x: number, z: number, m = 0) {
   if (Math.hypot(x - WELL.x, z - WELL.z) < 2.0 + m) return false
   if (Math.hypot(x - BANYAN.x, z - BANYAN.z) < 3.0 + m) return false
   if (Math.abs(x) < 4.4 + m && z < -29.4 + m && z > CONGLANG.z - 0.8) return false
+  if (Math.abs(x - HOUSE.x) < 2.6 + m && Math.abs(z - HOUSE.z) < 2.6 + m) return false
   // Huế: Ngọ Môn, its plaza, the ponds, the hall
   if (Math.abs(x - NGOMON.x) < NGOMON.w / 2 + 0.8 + m && z > NGOMON.z - NGOMON.depth / 2 - 1 && z < CONGLANG.z - 1.2 + m) return false
   for (const [x0, x1, z0, z1] of HUE_PONDS) if (x > x0 - 0.8 - m && x < x1 + 0.8 + m && z > z0 - 0.8 - m && z < z1 + 0.8 + m) return false

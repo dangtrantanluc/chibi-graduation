@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
-import { BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, THIENLY, TOPIARY } from '../layout'
+import { BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, TOPIARY } from '../layout'
 import { blob, G, mergeKit, rng, type Part } from '../lib/kit'
 import { kitMat } from '../lib/materials'
 import { canvas, toTexture, waterNormalTex } from '../lib/textures'
@@ -135,7 +135,7 @@ function paintGround() {
     g.fillRect(px(PADDY.x0), py(z + 0.1), (PADDY.x1 - PADDY.x0) * SX, 0.12 * SZ)
   }
   // ── II · Nông Lâm: concrete plaza, a drive around the topiary, lawns ──
-  paving(-0.6, THIENLY.zc - THIENLY.w / 2 - 0.4, THIENLY.xf, THIENLY.zc + THIENLY.w / 2 + 0.4, '#d6d3ca', 0.8, 0.8, 'rgba(120,115,105,0.35)')
+  paving(-0.6, RANGDONG.zc - RANGDONG.w / 2 - 0.4, RANGDONG.xf, RANGDONG.zc + RANGDONG.w / 2 + 0.4, '#d6d3ca', 0.8, 0.8, 'rgba(120,115,105,0.35)')
   g.fillStyle = '#bdb9b0'
   g.beginPath()
   g.ellipse(px(TOPIARY.x), py(TOPIARY.z), (TOPIARY.r + 1.4) * SX, (TOPIARY.r + 1.4) * SZ, 0, 0, Math.PI * 2)
@@ -226,7 +226,7 @@ function paintGround() {
 
   // baked contact shadows (cheap ambient occlusion)
   soft(BOARD.minX, GATE.z - 0.4, BOARD.maxX, GATE.z + 0.5, 0.8, 0.5)
-  soft(THIENLY.xf - 0.2, THIENLY.zc - THIENLY.w / 2, THIENLY.xf + THIENLY.d, THIENLY.zc + THIENLY.w / 2, 0.9, 0.55)
+  soft(RANGDONG.xf - 0.2, RANGDONG.zc - RANGDONG.w / 2, RANGDONG.xf + RANGDONG.d, RANGDONG.zc + RANGDONG.w / 2, 0.9, 0.55)
   soft(-DOANMON.w / 2, DOANMON.z - DOANMON.d / 2, DOANMON.w / 2, DOANMON.z + DOANMON.d / 2, 0.9, 0.5)
   soft(BOARD.minX, DOANMON.z - 0.5, BOARD.maxX, DOANMON.z + 0.5, 0.7, 0.45)
   soft(-3.8, CONGLANG.z - 0.5, 3.8, CONGLANG.z + 0.5, 0.6, 0.45)

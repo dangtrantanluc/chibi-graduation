@@ -141,6 +141,10 @@ export interface ChibiLook {
     /** chunky sneaker: a thick sole and a side stripe */
     sole?: string
     stripe?: string
+    /** knee-length shorts over bare shins */
+    shorts?: boolean
+    /** bare feet (farm folk) */
+    bare?: boolean
   }
   /** resting arm pose: 'pockets' tucks the hands into the jacket pockets */
   idle?: 'rest' | 'pockets'
@@ -191,7 +195,13 @@ function buildArm(look: ChibiLook) {
 function buildLeg(look: ChibiLook) {
   const l = look.leg ?? { pant: '#444', shoe: '#222' }
   const p: Part[] = []
-  if (l.wide) {
+  if (l.shorts) {
+    // bare shin, shorts rolled just above the knee
+    p.push({ g: new THREE.CapsuleGeometry(0.058, 0.09, 4, 10), c: look.skin, p: [0, -0.1, 0] })
+    p.push({ g: G.sphere, c: l.pant, p: [0, 0.0, 0], s: [0.084, 0.06, 0.084] })
+    p.push({ g: new THREE.CylinderGeometry(0.084, 0.09, 0.1, 16, 1, true), c: l.pant, p: [0, -0.04, 0] })
+    p.push({ g: new THREE.CylinderGeometry(0.094, 0.094, 0.028, 16), c: l.cuff ?? l.pant, p: [0, -0.092, 0] })
+  } else if (l.wide) {
     // wide-leg trousers flaring to a rolled cuff that sits on the shoe
     p.push({ g: G.sphere, c: l.pant, p: [0, 0.0, 0], s: [0.079, 0.05, 0.079] })
     p.push({ g: new THREE.CylinderGeometry(0.079, 0.097, 0.17, 18, 1, true), c: l.pant, p: [0, -0.085, 0] })
@@ -201,7 +211,11 @@ function buildLeg(look: ChibiLook) {
   } else {
     p.push({ g: new THREE.CapsuleGeometry(0.072, 0.07, 4, 10), c: l.pant, p: [0, -0.08, 0] })
   }
-  if (l.sole) {
+  if (l.bare) {
+    // a bare foot with a hint of toes
+    p.push({ g: G.sphere, c: look.skin, p: [0, -0.205, 0.035], s: [0.07, 0.045, 0.1] })
+    for (let k = -1; k <= 1; k++) p.push({ g: G.sphereXs, c: look.skin, p: [k * 0.03, -0.215, 0.125], s: [0.02, 0.018, 0.02] })
+  } else if (l.sole) {
     // chunky sneaker: rounded upper, thick contrasting sole, a side stripe
     p.push({ g: G.sphere, c: l.shoe, p: [0, -0.19, 0.03], s: [0.084, 0.056, 0.115] })
     p.push({ g: G.sphere, c: l.sole, p: [0, -0.225, 0.03], s: [0.09, 0.028, 0.124] })
@@ -268,9 +282,11 @@ export const ACTION_DUR: Record<string, number> = {
   smile: 1.8,
   laugh: 1.7,
   dance: 3.4,
-  vai: 3.0,
+  greet: 2.4,
+  clap: 2.2,
+  usher: 2.6,
   omQuyen: 2.0,
-  capTip: 1.5,
+  scratch: 1.9,
   peace: 2.6,
   hi5: 1.2,
   offer: 3.2,
@@ -466,13 +482,14 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         mood = tau > 1.2 ? 'happy' : 'calm'
         break
       }
-      case 'capTip': {
-        const e = env(tau, ACTION_DUR.capTip, 0.25, 0.35)
-        const nod = sstep(0.35, 0.55, tau) * (1 - sstep(0.75, 1.0, tau))
-        tg.aRx = lerp(tg.aRx, -2.75, e)
-        tg.aRz = lerp(tg.aRz, 0.7, e)
-        tg.hX += 0.2 * nod
-        tg.hZ += -0.08 * e
+      case 'scratch': {
+        // gãi đầu: a hand to the back of the head, a shy tilt and grin
+        const e = env(tau, ACTION_DUR.scratch, 0.3, 0.4)
+        tg.aRx = lerp(tg.aRx, -2.55 + 0.1 * Math.sin(tau * 14), e)
+        tg.aRz = lerp(tg.aRz, 0.95, e)
+        tg.hZ += 0.16 * e
+        tg.hX += 0.08 * e
+        tg.tZ += -0.04 * e
         mood = 'happy'
         break
       }
@@ -560,30 +577,51 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         mood = 'happy'
         break
       }
-      case 'vai': {
-        // Huế court greeting: hands clasped, raised to the brow, a slow deep bow
-        const clasp = sstep(0, 0.45, tau) * (1 - sstep(2.5, 3.0, tau))
-        const raise = sstep(0.45, 0.95, tau) * (1 - sstep(2.1, 2.6, tau))
-        const bow = sstep(0.95, 1.5, tau) * (1 - sstep(1.95, 2.45, tau))
-        tg.aLx = lerp(tg.aLx, lerp(-1.1, -2.15, raise), clasp)
-        tg.aRx = lerp(tg.aRx, lerp(-1.1, -2.15, raise), clasp)
-        tg.aLz = lerp(tg.aLz, -0.62, clasp)
-        tg.aRz = lerp(tg.aRz, 0.62, clasp)
-        tg.tX += 0.55 * bow
-        tg.hX += 0.3 * bow
-        tg.squash += -0.03 * bow
+      case 'greet': {
+        // khoanh tay: arms folded across the chest, then a slow, polite bow
+        const fold = sstep(0, 0.35, tau) * (1 - sstep(1.95, 2.35, tau))
+        const bow = sstep(0.55, 0.95, tau) * (1 - sstep(1.4, 1.85, tau))
+        tg.aLx = lerp(tg.aLx, -1.35, fold)
+        tg.aRx = lerp(tg.aRx, -1.2, fold)
+        tg.aLz = lerp(tg.aLz, -0.9, fold)
+        tg.aRz = lerp(tg.aRz, 0.95, fold)
+        tg.tX += 0.4 * bow
+        tg.hX += 0.25 * bow
+        mood = tau > 1.5 ? 'happy' : 'calm'
+        break
+      }
+      case 'present': {
+        // both hands hold the notice out; they part as it unrolls
+        const e = sstep(0, 0.45, tau)
+        const s = world.diploma
+        tg.aLx = lerp(tg.aLx, -1.35, e)
+        tg.aRx = lerp(tg.aRx, -1.35, e)
+        tg.aLz = lerp(tg.aLz, -0.42 + 0.95 * s, e)
+        tg.aRz = lerp(tg.aRz, 0.42 - 0.95 * s, e)
+        tg.hX += 0.1 * e
+        mood = s > 0.5 ? 'happy' : 'calm'
+        break
+      }
+      case 'clap': {
+        const e = env(tau, ACTION_DUR.clap, 0.2, 0.35)
+        const k = Math.sin(tau * 17)
+        tg.aLx = lerp(tg.aLx, -1.25, e)
+        tg.aRx = lerp(tg.aRx, -1.25, e)
+        tg.aLz = lerp(tg.aLz, -0.5 + 0.2 * k, e)
+        tg.aRz = lerp(tg.aRz, 0.5 - 0.2 * k, e)
+        tg.bob += 0.025 * Math.abs(k) * e
         mood = 'happy'
         break
       }
-      case 'book': {
-        const e = sstep(0, 0.7, tau)
-        const s = world.handScroll
-        tg.aLx = lerp(tg.aLx, -1.15, e)
+      case 'usher': {
+        // an open palm swept out toward the way ahead, a little nod
+        const e = env(tau, ACTION_DUR.usher, 0.3, 0.45)
+        const sweep = sstep(0.2, 0.9, tau)
         tg.aRx = lerp(tg.aRx, -1.15, e)
-        tg.aLz = lerp(tg.aLz, -0.5 + 0.9 * s, e)
-        tg.aRz = lerp(tg.aRz, 0.5 - 0.9 * s, e)
-        tg.hX += 0.18 * e
-        mood = s > 0.4 ? 'happy' : 'calm'
+        tg.aRz = lerp(tg.aRz, lerp(0.3, -0.85, sweep), e)
+        tg.tY += -0.25 * e
+        tg.hX += 0.12 * sstep(0.6, 0.9, tau) * (1 - sstep(1.2, 1.6, tau))
+        mood = 'happy'
         break
       }
       case 'cheer': {
@@ -661,7 +699,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
     tg.hZ += Math.sin(t * 1.3 + a.seed) * 0.03
 
     // ── damp toward targets (continuous), show on twos ──
-    const fast = ['wave', 'beckon', 'cheer', 'dance', 'peace', 'hi5', 'omQuyen', 'type', 'laugh'].includes(c.action)
+    const fast = ['wave', 'beckon', 'cheer', 'dance', 'peace', 'hi5', 'omQuyen', 'type', 'laugh', 'clap'].includes(c.action)
     for (const k of JOINTS) {
       const lam = k === 'spin' ? 30 : k === 'hX' || k === 'hY' || k === 'tY' ? 6 : fast && k[0] === 'a' ? 22 : k === 'bob' || k === 'squash' ? 18 : 12
       a.cur[k] = THREE.MathUtils.damp(a.cur[k], tg[k], lam, dt)
@@ -694,7 +732,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       if (Math.random() < 0.2) a.nextBlink = t + 0.28
     }
     const blinking = t - a.blinkT < 0.12
-    const closedHappy = mood === 'happy' && ['cheer', 'smile', 'bow', 'dance', 'hop', 'vai', 'laugh', 'hi5'].includes(c.action)
+    const closedHappy = mood === 'happy' && ['cheer', 'smile', 'bow', 'dance', 'hop', 'laugh', 'hi5', 'clap'].includes(c.action)
     let eyes: EyeState = eyesWide ? 'surprised' : wink ? 'wink' : closedHappy ? 'happy' : 'open'
     if (blinking && eyes === 'open') eyes = 'blink'
     const grin = look.face.grin

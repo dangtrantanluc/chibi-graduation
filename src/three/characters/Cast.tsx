@@ -5,21 +5,24 @@ import { Cel, Chibi, faceMatrix, garmentLathe, type ChibiLook } from './Chibi'
 import { hairCap, hairCurtain, onHead, shine, spike, taperTube } from './hair'
 import { G, mergeKit, roundedBox, type Part } from '../lib/kit'
 import { world, type CharId } from '../../state/world'
-import { SutraBook } from '../fx/SutraBook'
+import { Diploma } from '../fx/Diploma'
+import { outlineMat, toonRamp } from '../lib/materials'
 import {
   anipTex,
   bubbleTex,
-  doiKhamSleeve,
-  doiKhamTex,
+  fatherShirtTex,
+  fatherSleeve,
+  ginghamTex,
   hanoiShirtTex,
   hanoiSleeve,
   laptopLidTex,
   laptopScreenTex,
-  lucJacketTex,
-  lucSleeve,
+  lucTeeSleeve,
+  lucTeeTex,
+  motherCoatTex,
+  motherSleeve,
   nhatBinhSleeve,
   nhatBinhTex,
-  nyTex,
   uniPoloTex,
   uniSleeve,
 } from './garments'
@@ -142,113 +145,90 @@ function Charms({ id, position, children }: { id: CharId; position: [number, num
 
 // ═══════════════════════════════════════════════════════════
 //  LỰC — "Small steps, big dreams"
-//  black NY cap · black coach jacket over a navy hoodie · a black
-//  backpack with a water bottle and a jangle of keychains · light-grey
-//  wide cargo trousers · chunky black sneakers · hands in pockets
+//  messy dark hair · a navy crew-neck T-shirt · a black backpack with a
+//  water bottle and a jangle of keychains · light-grey wide cargo trousers ·
+//  chunky black sneakers · hands in pockets
 // ═══════════════════════════════════════════════════════════
 const L_HAIR = '#3b2a24'
-const L_BLACK = '#1f2025'
-const JACKET: [number, number][] = [
-  [0, -0.08],
-  [0.202, -0.08],
-  [0.226, -0.02],
-  [0.228, 0.08],
-  [0.214, 0.2],
-  [0.174, 0.3],
-  [0.106, 0.36],
-  [0, 0.374],
+const TEE: [number, number][] = [
+  [0, -0.07],
+  [0.198, -0.07],
+  [0.218, 0.0],
+  [0.22, 0.08],
+  [0.208, 0.2],
+  [0.17, 0.3],
+  [0.104, 0.358],
+  [0, 0.372],
 ]
 
-/** half-shell of an ellipsoid (the cap crown), open at the bottom */
-function crownGeo() {
-  const g = new THREE.SphereGeometry(1, 28, 12, 0, Math.PI * 2, 0, Math.PI * 0.52)
-  return g
-}
-
-/** the cap crown sits low on the brow and tilts back a little */
-const CAP_P = V(0, 0.06, -0.03)
-const CAP_TILT = -0.2
-const CAP_S = V(0.43, 0.41, 0.45)
-
-function LucCapDecals() {
-  const ny = useMemo(() => nyTex(), [])
-  // the embroidered logo on the front panel of the crown
-  return (
-    <group position={CAP_P.toArray()} rotation-x={CAP_TILT}>
-      <Decal map={ny} size={[0.14, 0.14]} position={[0, 0.172, 0.43]} rotation={[-0.44, 0, 0]} />
-    </group>
-  )
-}
-
-const lucLook: ChibiLook = {
-  skin: '#fde0c8',
-  face: {
-    iris: ['#34292a', '#8d7b72'],
-    brow: '#3b2a24',
-    lash: '#231a18',
-    tilt: 0.02,
-    eyeW: 0.132,
-    eyeH: 0.166,
-    browThick: 1.35,
-    lashWing: 0.22,
-    lashWeight: 1.05,
-    grin: true,
-  },
-  head: (p) => {
-    hairCap(p, L_HAIR, 1.03, 0.03, 0.05)
-    // messy fringe peeking out under the brim
-    fringe(p, L_HAIR, [-0.26, -0.16, -0.06, 0.05, 0.15, 0.25], 0.16, 0.15, 0.1, true, 0.3)
-    // short sideburns in front of the ears and soft tufts at the nape
-    for (const s of [-1, 1]) {
-      spike(p, L_HAIR, s * 1.28, -0.02, 0.12, 0.06, -0.1, -1.4)
-      spike(p, L_HAIR, s * 2.2, 0.02, 0.12, 0.07, 0.1, -1.3)
-    }
-    for (const th of [2.8, 3.14, 3.48]) spike(p, L_HAIR, th, -0.02, 0.12, 0.08, 0.15, -1.5)
-    // black six-panel cap worn low: the brim sits just above the brows
-    const cap = new THREE.Matrix4().compose(CAP_P, new THREE.Quaternion().setFromEuler(new THREE.Euler(CAP_TILT, 0, 0)), CAP_S)
-    p.push({ g: crownGeo(), c: L_BLACK, mat: cap })
-    // panel seams and the top button
-    for (const a of [0, Math.PI / 3, (2 * Math.PI) / 3]) {
-      const seam = new THREE.TorusGeometry(1, 0.012, 4, 30, Math.PI * 0.5)
-      seam.rotateZ(Math.PI / 4)
-      seam.rotateY(a)
-      p.push({ g: seam, c: '#34353b', mat: cap.clone().multiply(new THREE.Matrix4().makeScale(1.005, 1.005, 1.005)) })
-    }
-    p.push({ g: G.sphereLo, c: L_BLACK, mat: cap.clone().multiply(new THREE.Matrix4().compose(V(0, 1.0, 0), new THREE.Quaternion(), V(0.07, 0.05, 0.07))) })
-    // sweatband edge + the brim (a flattened, gently drooping oval)
-    p.push({ g: new THREE.TorusGeometry(1, 0.03, 5, 36), c: '#17181c', mat: cap.clone().multiply(new THREE.Matrix4().makeRotationX(Math.PI / 2)).multiply(new THREE.Matrix4().makeScale(1.005, 1.005, 1)) })
-    p.push({ g: G.sphere, c: L_BLACK, p: [0, 0.16, 0.47], r: [0.24, 0, 0], s: [0.31, 0.022, 0.21] })
-    p.push({ g: G.sphere, c: '#2b2c31', p: [0, 0.146, 0.47], r: [0.24, 0, 0], s: [0.3, 0.012, 0.2] })
-    // the adjuster strap across the opening at the back
-    p.push({ g: new THREE.TorusGeometry(0.1, 0.016, 5, 16, Math.PI), c: '#17181c', p: [0, -0.02, -0.41], r: [0.1, Math.PI, 0] })
-    p.push({ g: roundedBox(0.05, 0.024, 0.02, 0.006), c: '#9aa0a8', m: 'gloss', p: [0, 0.08, -0.43], r: [-0.25, 0, 0] })
-  },
-  headExtra: <LucCapDecals />,
-  torso: (p) => {
-    p.push({ g: garmentLathe(JACKET), c: '#ffffff', m: 'garment' })
-    // stand collar, open over the navy hoodie (its hood bunches at the back)
-    p.push({ g: new THREE.CylinderGeometry(0.108, 0.118, 0.06, 20, 1, true), c: L_BLACK, p: [0, 0.37, 0] })
-    p.push({ g: new THREE.TorusGeometry(0.113, 0.012, 5, 22), c: '#17181c', p: [0, 0.4, 0], r: [Math.PI / 2, 0, 0] })
-    p.push({ g: new THREE.CylinderGeometry(0.09, 0.1, 0.05, 16), c: '#2c3752', p: [0, 0.37, 0.012] })
-    p.push({ g: G.sphere, c: '#2c3752', p: [0, 0.37, -0.12], s: [0.14, 0.07, 0.08] })
-    for (const s of [-1, 1]) p.push({ g: G.cyl, c: '#e9e6de', p: [s * 0.035, 0.3, 0.165], r: [-0.4, 0, 0], s: [0.007, 0.1, 0.007] })
-    p.push({ g: roundedBox(0.026, 0.045, 0.014, 0.006), c: '#b8bcc4', m: 'gloss', p: [0, 0.335, 0.125], r: [-0.55, 0, 0] })
-    // backpack straps over the shoulders, down the chest, round under the arms
-    for (const s of [-1, 1]) {
-      p.push({
-        g: taperTube([V(s * 0.08, 0.28, -0.24), V(s * 0.11, 0.37, -0.08), V(s * 0.12, 0.34, 0.11), V(s * 0.125, 0.22, 0.19), V(s * 0.15, 0.08, 0.205), V(s * 0.205, -0.01, 0.1), V(s * 0.15, 0.0, -0.2)], 0.024, 0.024, 26, 6, 0.32),
-        c: '#15161a',
-      })
-      p.push({ g: roundedBox(0.05, 0.028, 0.02, 0.006), c: '#9aa0a8', m: 'gloss', p: [s * 0.14, 0.13, 0.21], r: [-0.1, 0, 0] })
-    }
-  },
-  torsoExtra: <LucBackpack />,
-  garment: lucJacketTex,
-  sleeveTex: lucSleeve,
-  arm: { sleeve: L_BLACK },
-  leg: { pant: '#c8cacf', cuff: '#d7d9dd', wide: true, shoe: '#1f2025', sole: '#35373d', stripe: '#5b5e66' },
-  idle: 'pockets',
-  handR: <VSign id="luc" />,
+function lucLook(handL: ReactNode, handR: ReactNode): ChibiLook {
+  return {
+    skin: '#fde0c8',
+    face: {
+      iris: ['#34292a', '#8d7b72'],
+      brow: '#3b2a24',
+      lash: '#231a18',
+      tilt: 0.02,
+      eyeW: 0.132,
+      eyeH: 0.166,
+      browThick: 1.35,
+      lashWing: 0.22,
+      lashWeight: 1.05,
+      grin: true,
+    },
+    head: (p) => {
+      hairCap(p, L_HAIR, 1.06, 0.05, 0.05)
+      // a messy, wind-tossed top: soft spikes swept back and to one side
+      const tufts: [number, number, number, number][] = [
+        [0.2, 1.15, 0.26, 0.12],
+        [-0.35, 1.1, 0.25, 0.12],
+        [0.8, 0.95, 0.24, 0.11],
+        [-0.95, 0.9, 0.23, 0.11],
+        [1.6, 0.8, 0.22, 0.11],
+        [-1.7, 0.78, 0.22, 0.11],
+        [2.5, 0.7, 0.24, 0.12],
+        [-2.5, 0.72, 0.24, 0.12],
+        [3.14, 0.85, 0.24, 0.12],
+        [0, 1.45, 0.22, 0.11],
+      ]
+      for (const [th, ph, len, rad] of tufts) spike(p, L_HAIR, th, ph, len * 0.72, rad * 1.1, 0.75, -0.12)
+      // a fringe of uneven pointed locks falling over the brows
+      fringe(p, L_HAIR, [-0.27, -0.17, -0.07, 0.04, 0.14, 0.24], 0.25, 0.22, 0.11, true, 0.35)
+      // sideburns in front of the ears, soft tufts at the nape
+      for (const s of [-1, 1]) {
+        spike(p, L_HAIR, s * 1.28, 0.02, 0.14, 0.06, -0.1, -1.4)
+        spike(p, L_HAIR, s * 2.1, 0.06, 0.15, 0.08, 0.1, -1.2)
+      }
+      for (const th of [2.75, 3.14, 3.53]) spike(p, L_HAIR, th, 0.0, 0.14, 0.085, 0.2, -1.4)
+      shine(p, '#6a5046', 0.27, 1.08, 1.8, 0.014)
+    },
+    torso: (p) => {
+      p.push({ g: garmentLathe(TEE), c: '#ffffff', m: 'garment' })
+      // ribbed crew neck
+      p.push({ g: new THREE.TorusGeometry(0.1, 0.018, 6, 22), c: '#2e3b5c', p: [0, 0.362, 0.004], r: [Math.PI / 2 - 0.08, 0, 0] })
+      // backpack straps over the shoulders, down the chest, round under the arms
+      for (const s of [-1, 1]) {
+        p.push({
+          g: taperTube([V(s * 0.08, 0.28, -0.24), V(s * 0.11, 0.37, -0.08), V(s * 0.12, 0.34, 0.11), V(s * 0.125, 0.22, 0.19), V(s * 0.15, 0.08, 0.2), V(s * 0.2, -0.01, 0.09), V(s * 0.15, 0.0, -0.2)], 0.024, 0.024, 26, 6, 0.32),
+          c: '#15161a',
+        })
+        p.push({ g: roundedBox(0.05, 0.028, 0.02, 0.006), c: '#9aa0a8', m: 'gloss', p: [s * 0.14, 0.13, 0.205], r: [-0.1, 0, 0] })
+      }
+    },
+    torsoExtra: <LucBackpack />,
+    garment: lucTeeTex,
+    sleeveTex: lucTeeSleeve,
+    arm: { sleeve: '#26324f', short: true },
+    leg: { pant: '#c8cacf', cuff: '#d7d9dd', wide: true, shoe: '#1f2025', sole: '#35373d', stripe: '#5b5e66' },
+    idle: 'pockets',
+    handL,
+    handR: (
+      <>
+        <VSign id="luc" />
+        {handR}
+      </>
+    ),
+  }
 }
 
 function LucBackpack() {
@@ -310,7 +290,15 @@ function LucBackpack() {
 }
 
 export function Luc() {
-  return <Chibi id="luc" look={lucLook} />
+  const handL = useRef<THREE.Group>(null)
+  const handR = useRef<THREE.Group>(null)
+  const look = useMemo(() => lucLook(<group ref={handL} />, <group ref={handR} />), [])
+  return (
+    <>
+      <Chibi id="luc" look={look} />
+      <Diploma handL={handL} handR={handR} />
+    </>
+  )
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -681,58 +669,184 @@ const LONG_ROBE: [number, number][] = [
 ]
 
 // ═══════════════════════════════════════════════════════════
-//  NỮ QUAN — court lady in áo đối khâm, with a lacquered sutra
+//  BỐ & MẸ — Lực's parents, farm folk waiting at the village gate
 // ═══════════════════════════════════════════════════════════
 const BLACK_HAIR = '#1e1718'
 
-function courtLadyLook(handL: ReactNode, handR: ReactNode): ChibiLook {
-  return {
-    skin: '#fde3d3',
-    face: { iris: ['#3a2418', '#b07a50'], brow: '#3a2a22', lash: '#2a1a14', tilt: 0.12, sparkle: true },
-    head: (p) => {
-      hairCap(p, BLACK_HAIR, 1.05, 0.05, 0.05)
-      fringe(p, BLACK_HAIR, [-0.22, -0.11, 0, 0.11, 0.22], 0.2, 0.14, 0.14, false)
-      // khăn vấn: a dark wrapped turban, two layered coils with a gold edge
-      p.push({ g: new THREE.TorusGeometry(0.385, 0.05, 10, 40), c: '#3f2a22', p: [0, 0.21, -0.03], r: [Math.PI / 2 - 0.2, 0, 0] })
-      p.push({ g: new THREE.TorusGeometry(0.35, 0.042, 10, 40), c: '#4d3328', p: [0, 0.27, -0.05], r: [Math.PI / 2 - 0.24, 0, 0.08] })
-      p.push({ g: new THREE.TorusGeometry(0.4, 0.01, 5, 40), c: '#e9c46a', m: 'gold', p: [0, 0.175, -0.02], r: [Math.PI / 2 - 0.2, 0, 0] })
-      // low bun with a jade hairpin, small jade earrings
-      p.push({ g: G.sphere, c: BLACK_HAIR, p: [0, -0.02, -0.4], s: [0.15, 0.12, 0.12] })
-      p.push({ g: G.cyl, c: '#5fb28c', m: 'ceramic', p: [0, 0.0, -0.44], r: [0, 0, 1.4], s: [0.014, 0.4, 0.014] })
-      for (const s of [-1, 1]) p.push({ g: G.sphere, c: '#5fb28c', m: 'ceramic', p: [s * 0.4, -0.14, 0.03], s: [0.022, 0.03, 0.022] })
-      shine(p, '#5a4a52', 0.36, 1.02, 1.4, 0.012)
-    },
-    torso: (p) => {
-      p.push({ g: garmentLathe(LONG_ROBE), c: '#ffffff', m: 'garment' })
-      // silk sash (thắt lưng) with a front knot
-      p.push({ g: new THREE.TorusGeometry(0.212, 0.022, 6, 28), c: '#e98aa0', p: [0, 0.05, 0], r: [Math.PI / 2, 0, 0] })
-      p.push({ g: G.sphere, c: '#e98aa0', p: [0.05, 0.05, 0.21], s: [0.05, 0.035, 0.03] })
-      // standing inner collar
-      p.push({ g: new THREE.TorusGeometry(0.1, 0.02, 6, 20), c: '#e9d8a6', p: [0, 0.35, 0.01], r: [Math.PI / 2, 0, 0] })
-    },
-    garment: doiKhamTex,
-    sleeveTex: doiKhamSleeve,
-    arm: { sleeve: '#2e6b66', cuff: '#e9d8a6' },
-    leg: { pant: '#2a2228', shoe: '#2d2b30', hidden: true },
-    ribbons: [
-      { anchor: 'hips', offset: [0.06, 0.05, 0.2], color: '#e98aa0', width: 0.045, length: 0.32, segs: 6, side: 1 },
-      { anchor: 'hips', offset: [0.1, 0.05, 0.19], color: '#e98aa0', width: 0.045, length: 0.26, segs: 6, side: 2.5 },
-    ],
-    handL,
-    handR,
-  }
+/** a toon-shaded, outlined mesh with its own texture (for patterned cloth) */
+function Patterned({ geo, map, position, rotation, scale }: { geo: THREE.BufferGeometry; map: THREE.Texture; position?: [number, number, number]; rotation?: [number, number, number]; scale?: [number, number, number] }) {
+  const mat = useMemo(() => {
+    const m = new THREE.MeshToonMaterial({ map, gradientMap: toonRamp() })
+    m.emissive = new THREE.Color('#1d1520')
+    return m
+  }, [map])
+  return (
+    <group position={position} rotation={rotation} scale={scale}>
+      <mesh geometry={geo} material={mat} castShadow />
+      <mesh geometry={geo} material={outlineMat()} />
+    </group>
+  )
 }
 
-export function CourtLady() {
-  const handL = useRef<THREE.Group>(null)
-  const handR = useRef<THREE.Group>(null)
-  const look = useMemo(() => courtLadyLook(<group ref={handL} />, <group ref={handR} />), [])
+/** his black-and-white checked khăn, wrapped round the head, knotted at the side */
+function FatherScarf() {
+  const map = useMemo(() => ginghamTex(), [])
+  const geos = useMemo(() => {
+    const wrap = new THREE.SphereGeometry(1, 28, 12, 0, Math.PI * 2, 0, Math.PI * 0.5)
+    const band = new THREE.TorusGeometry(1, 0.13, 8, 36)
+    const knot = new THREE.SphereGeometry(1, 12, 10)
+    const tail = new THREE.BoxGeometry(1, 1, 1)
+    return { wrap, band, knot, tail }
+  }, [])
   return (
-    <>
-      <Chibi id="lady" look={look} />
-      <SutraBook handL={handL} handR={handR} />
-    </>
+    <group>
+      <Patterned geo={geos.wrap} map={map} position={[0, 0.1, -0.02]} rotation={[-0.12, 0, 0]} scale={[0.445, 0.36, 0.45]} />
+      <Patterned geo={geos.band} map={map} position={[0, 0.15, 0.0]} rotation={[Math.PI / 2 - 0.12, 0, 0]} scale={[0.43, 0.44, 0.42]} />
+      {/* the knot sits on his right, the two ends sticking out like little wings */}
+      <Patterned geo={geos.knot} map={map} position={[-0.4, 0.2, 0.06]} scale={[0.07, 0.08, 0.07]} />
+      <Patterned geo={geos.tail} map={map} position={[-0.47, 0.3, 0.08]} rotation={[0.1, 0.3, 0.7]} scale={[0.05, 0.16, 0.02]} />
+      <Patterned geo={geos.tail} map={map} position={[-0.48, 0.13, 0.1]} rotation={[0.1, 0.3, -0.5]} scale={[0.05, 0.15, 0.02]} />
+    </group>
   )
+}
+
+/** a rice-harvest sickle (liềm): wooden handle, crescent blade */
+function Sickle() {
+  const build = useMemo(
+    () => () => {
+      const blade = new THREE.TorusGeometry(0.1, 0.012, 4, 18, Math.PI * 1.15)
+      const p: Part[] = [
+        { g: G.cyl, c: '#8a5a32', m: 'wood', p: [0, -0.02, 0.06], r: [Math.PI / 2 - 0.4, 0, 0], s: [0.017, 0.16, 0.017] },
+        { g: G.cyl, c: '#5a5f66', m: 'gloss', p: [0, 0.035, 0.12], r: [Math.PI / 2 - 0.4, 0, 0], s: [0.02, 0.02, 0.02] },
+        { g: blade, c: '#aab0b8', m: 'gloss', p: [0, 0.1, 0.18], r: [0, Math.PI / 2, -0.3], s: [1, 1, 1.4] },
+      ]
+      return p
+    },
+    [],
+  )
+  return <Props build={build} />
+}
+
+/** a small woven bamboo basket with a sheaf of golden rice */
+function RiceBasket() {
+  const build = useMemo(
+    () => () => {
+      const p: Part[] = []
+      for (let k = 0; k < 5; k++) p.push({ g: new THREE.CylinderGeometry(0.075 + k * 0.004, 0.072 + k * 0.004, 0.024, 16, 1, true), c: k % 2 ? '#c9a45a' : '#b38a44', m: 'wood', p: [0, -0.04 + k * 0.024, 0.07] })
+      p.push({ g: new THREE.CylinderGeometry(0.072, 0.072, 0.01, 16), c: '#a8803e', m: 'wood', p: [0, -0.052, 0.07] })
+      p.push({ g: G.torus, c: '#a8803e', m: 'wood', p: [0, 0.075, 0.07], r: [Math.PI / 2, 0, 0], s: [0.095, 0.095, 0.2] })
+      // handle
+      p.push({ g: new THREE.TorusGeometry(0.09, 0.008, 4, 16, Math.PI), c: '#a8803e', m: 'wood', p: [0, 0.075, 0.07] })
+      // rice ears drooping out of it, green stalks
+      for (let k = 0; k < 7; k++) {
+        const a = (k / 7) * Math.PI * 2
+        p.push({ g: G.cylXs, c: '#7fa04a', m: 'foliage', p: [Math.cos(a) * 0.03, 0.14, 0.07 + Math.sin(a) * 0.03], r: [Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3], s: [0.005, 0.16, 0.005] })
+        p.push({ g: G.coneLo, c: '#e2c35a', m: 'foliage', p: [Math.cos(a) * 0.08, 0.2, 0.07 + Math.sin(a) * 0.08], r: [Math.sin(a) * 1.2, 0, -Math.cos(a) * 1.2], s: [0.016, 0.09, 0.016] })
+      }
+      return p
+    },
+    [],
+  )
+  return <Props build={build} />
+}
+
+const SHIRT_FARM: [number, number][] = [
+  [0, -0.08],
+  [0.205, -0.08],
+  [0.226, -0.01],
+  [0.226, 0.08],
+  [0.212, 0.2],
+  [0.172, 0.3],
+  [0.106, 0.358],
+  [0, 0.372],
+]
+
+const fatherLook: ChibiLook = {
+  skin: '#f4d0ae',
+  face: { iris: ['#3a2618', '#a8784e'], brow: '#2a1d17', lash: '#2a1a14', tilt: -0.02, eyeW: 0.13, eyeH: 0.16, browThick: 1.55, lashWing: 0.2, lashWeight: 1.1, sparkle: true },
+  head: (p) => {
+    hairCap(p, BLACK_HAIR, 1.02, 0.02, 0.05)
+    for (const s of [-1, 1]) spike(p, BLACK_HAIR, s * 1.3, 0.02, 0.1, 0.05, -0.1, -1.4)
+    for (const th of [2.8, 3.14, 3.48]) spike(p, BLACK_HAIR, th, 0.02, 0.1, 0.07, 0.2, -1.4)
+  },
+  headExtra: <FatherScarf />,
+  torso: (p) => {
+    p.push({ g: garmentLathe(SHIRT_FARM), c: '#ffffff', m: 'garment' })
+    // a plain round neckband
+    p.push({ g: new THREE.TorusGeometry(0.1, 0.016, 5, 22), c: '#6a4b32', p: [0, 0.362, 0.004], r: [Math.PI / 2 - 0.08, 0, 0] })
+    // a cloth sash (thắt lưng) with the knot on his left and the ends hanging
+    p.push({ g: new THREE.TorusGeometry(0.221, 0.026, 6, 30), c: '#b9a582', p: [0, 0.03, 0], r: [Math.PI / 2, 0, 0] })
+    p.push({ g: G.sphere, c: '#b9a582', p: [0.12, 0.03, 0.19], s: [0.045, 0.035, 0.03] })
+    for (const [dx, rz] of [
+      [0.1, 0.18],
+      [0.145, -0.1],
+    ])
+      p.push({ g: G.box, c: '#b09a74', p: [dx, -0.06, 0.2], r: [0.05, 0, rz], s: [0.04, 0.16, 0.012] })
+  },
+  garment: fatherShirtTex,
+  sleeveTex: fatherSleeve,
+  arm: { sleeve: '#7b5a3c', short: true },
+  leg: { pant: '#3e2b22', cuff: '#4a3528', shoe: '#f4d0ae', shorts: true, bare: true },
+  handR: <Sickle />,
+  scale: 1.06,
+}
+
+const MOTHER_ROBE: [number, number][] = [
+  [0, -0.24],
+  [0.27, -0.24],
+  [0.262, -0.16],
+  [0.235, -0.04],
+  [0.215, 0.08],
+  [0.205, 0.18],
+  [0.168, 0.29],
+  [0.105, 0.355],
+  [0, 0.372],
+]
+
+const motherLook: ChibiLook = {
+  skin: '#fde2cc',
+  face: { iris: ['#3a2418', '#b07a50'], brow: '#2a1d17', lash: '#231512', tilt: 0.08, sparkle: true, eyeW: 0.138, eyeH: 0.178, lashWing: 0.8 },
+  head: (p) => {
+    hairCap(p, BLACK_HAIR, 1.03, 0.03, 0.05)
+    // hair parted in the middle, swept to both sides under the turban
+    for (const s of [-1, 1]) p.push({ g: G.sphere, c: BLACK_HAIR, mat: faceMatrix(s * 0.13, 0.22, 0.012, [0.17, 0.07, 0.03], s * 0.35) })
+    // khăn vấn in dark indigo: a wrapped crown, two coils, a tail by her left ear
+    const IND = '#2e3452'
+    p.push({ g: G.sphere, c: IND, p: [0, 0.14, -0.03], s: [0.43, 0.3, 0.44] })
+    p.push({ g: new THREE.TorusGeometry(0.4, 0.06, 8, 36), c: '#353c5c', p: [0, 0.2, -0.02], r: [Math.PI / 2 - 0.22, 0, 0] })
+    p.push({ g: new THREE.TorusGeometry(0.37, 0.05, 8, 36), c: IND, p: [0, 0.27, -0.05], r: [Math.PI / 2 - 0.3, 0, 0.1] })
+    p.push({ g: G.box, c: IND, p: [0.4, -0.05, -0.12], r: [0.2, 0.3, -0.12], s: [0.07, 0.3, 0.025] })
+    // turquoise earrings
+    for (const s of [-1, 1]) p.push({ g: G.sphere, c: '#3fb5a8', m: 'gloss', p: [s * 0.4, -0.15, 0.03], s: [0.024, 0.03, 0.024] })
+  },
+  torso: (p) => {
+    p.push({ g: garmentLathe(MOTHER_ROBE), c: '#ffffff', m: 'garment' })
+    // the coat's collar band, and the beige sash knotted in front with its ends hanging
+    p.push({ g: new THREE.TorusGeometry(0.1, 0.018, 5, 22), c: '#34406a', p: [0, 0.362, 0.004], r: [Math.PI / 2 - 0.08, 0, 0] })
+    p.push({ g: new THREE.TorusGeometry(0.214, 0.026, 6, 30), c: '#cbb48a', p: [0, 0.06, 0], r: [Math.PI / 2, 0, 0] })
+    p.push({ g: G.sphere, c: '#cbb48a', p: [0, 0.06, 0.21], s: [0.05, 0.04, 0.03] })
+    for (const [dx, rz] of [
+      [-0.03, 0.12],
+      [0.03, -0.12],
+    ])
+      p.push({ g: G.box, c: '#bfa87e', p: [dx, -0.06, 0.225], r: [0.08, 0, rz], s: [0.05, 0.2, 0.012] })
+    // bare toes peeping out under the skirt
+    for (const s of [-1, 1]) p.push({ g: G.sphere, c: '#fde2cc', p: [s * 0.08, -0.225, 0.2], s: [0.055, 0.035, 0.07] })
+  },
+  garment: motherCoatTex,
+  sleeveTex: motherSleeve,
+  arm: { sleeve: '#4d5a8c', cuff: '#34406a' },
+  leg: { pant: '#4c5a3b', shoe: '#fde2cc', hidden: true },
+  handL: <RiceBasket />,
+  scale: 1.0,
+}
+
+export function Father() {
+  return <Chibi id="father" look={fatherLook} />
+}
+
+export function Mother() {
+  return <Chibi id="mother" look={motherLook} />
 }
 
 // ═══════════════════════════════════════════════════════════
