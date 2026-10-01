@@ -2,10 +2,16 @@ import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { blob, rng } from '../lib/kit'
-import { patchMaterial } from '../lib/materials'
+import { patchMaterial, uNight, uTime } from '../lib/materials'
 
 export const SUN_DIR = new THREE.Vector3(-0.62, 0.3, -0.72).normalize()
 const CENTER = new THREE.Vector3(0, 0, -26)
+const DAY_TINT = new THREE.Color('#ffffff')
+const NIGHT_RANGE = new THREE.Color('#2c3566')
+const CLOUD_DAY = new THREE.Color('#fff4ec')
+const CLOUD_NIGHT = new THREE.Color('#566394')
+const CLOUD_GLOW_DAY = new THREE.Color('#f3b9a2')
+const CLOUD_GLOW_NIGHT = new THREE.Color('#2a3468')
 
 const skyVert = /* glsl */ `
   varying vec3 vDir;
@@ -22,14 +28,38 @@ const skyFrag = /* glsl */ `
   uniform vec3 uLow;
   uniform vec3 uSunDir;
   uniform vec3 uSun;
+  // the same dome by night (dark theme)
+  uniform vec3 uTopN;
+  uniform vec3 uMidN;
+  uniform vec3 uHorizonN;
+  uniform vec3 uLowN;
+  uniform vec3 uMoon;
+  uniform float uNight;
+  uniform float uTime;
   varying vec3 vDir;
+  float hash(vec3 p) {
+    p = fract(p * 0.3183099 + 0.1);
+    p *= 17.0;
+    return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+  }
   void main() {
-    float h = vDir.y;
-    vec3 c = mix(uHorizon, uMid, smoothstep(0.02, 0.28, h));
-    c = mix(c, uTop, smoothstep(0.25, 0.75, h));
-    c = mix(c, uLow, smoothstep(0.0, -0.25, h));
-    float sd = max(dot(normalize(vDir), uSunDir), 0.0);
-    c += uSun * (pow(sd, 18.0) * 0.55 + pow(sd, 4.0) * 0.22 + pow(sd, 400.0) * 1.2);
+    vec3 dir = normalize(vDir);
+    float h = dir.y;
+    vec3 c = mix(mix(uHorizon, uHorizonN, uNight), mix(uMid, uMidN, uNight), smoothstep(0.02, 0.28, h));
+    c = mix(c, mix(uTop, uTopN, uNight), smoothstep(0.25, 0.75, h));
+    c = mix(c, mix(uLow, uLowN, uNight), smoothstep(0.0, -0.25, h));
+    float sd = max(dot(dir, uSunDir), 0.0);
+    vec3 sun = uSun * (pow(sd, 18.0) * 0.55 + pow(sd, 4.0) * 0.22 + pow(sd, 400.0) * 1.2);
+    // the sun's place is taken by a full moon: a crisp disc in a soft halo
+    vec3 moon = uMoon * (pow(sd, 90.0) * 0.3 + pow(sd, 12.0) * 0.08 + smoothstep(0.99935, 0.99965, sd) * 1.5);
+    c += mix(sun, moon, uNight);
+    // stars: one per cell of a grid on the dome, each twinkling at its own pace
+    vec3 g = dir * 80.0;
+    vec3 id = floor(g);
+    float hs = hash(id);
+    float star = step(0.986, hs) * smoothstep(0.24, 0.0, length(fract(g) - 0.5));
+    float tw = 0.6 + 0.4 * sin(uTime * (1.2 + hs * 3.0) + hs * 40.0);
+    c += vec3(0.86, 0.9, 1.0) * star * tw * uNight * smoothstep(0.03, 0.3, h) * (1.0 - smoothstep(0.985, 0.999, sd));
     gl_FragColor = vec4(c, 1.0);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
@@ -47,6 +77,13 @@ function SkyDome() {
           uLow: { value: new THREE.Color('#e7a58f') },
           uSunDir: { value: SUN_DIR },
           uSun: { value: new THREE.Color('#ffd49a') },
+          uTopN: { value: new THREE.Color('#070b24') },
+          uMidN: { value: new THREE.Color('#141c4a') },
+          uHorizonN: { value: new THREE.Color('#33407e') },
+          uLowN: { value: new THREE.Color('#1a1f4a') },
+          uMoon: { value: new THREE.Color('#dfe8ff') },
+          uNight,
+          uTime,
         },
         vertexShader: skyVert,
         fragmentShader: skyFrag,
@@ -120,6 +157,8 @@ function Mountains() {
     return out
   }, [])
   const mat = useMemo(() => new THREE.MeshBasicMaterial({ vertexColors: true, fog: false, side: THREE.DoubleSide }), [])
+  // by night the ink-wash ranges sink to dark blue silhouettes
+  useFrame(() => mat.color.lerpColors(DAY_TINT, NIGHT_RANGE, uNight.value))
   return (
     <group>
       {rings.map((m, i) => (
@@ -171,6 +210,9 @@ function Clouds() {
   }, [])
   useFrame((_, dt) => {
     group.current.rotation.y += dt * 0.004
+    const m = mesh.material as THREE.MeshStandardMaterial
+    m.color.lerpColors(CLOUD_DAY, CLOUD_NIGHT, uNight.value)
+    m.emissive.lerpColors(CLOUD_GLOW_DAY, CLOUD_GLOW_NIGHT, uNight.value)
   })
   return (
     <group position={CENTER.toArray()}>

@@ -73,12 +73,31 @@ function ngoMonParts(): Part[] {
     }
     p.push(box(2.2, 0.2, NGOMON.wing + 0.2, [s * wx, H + 0.1, wz], '#bdb2a1', 'aged'))
   }
-  // dressed-stone courses across the faces
+  // dressed-stone courses across the faces — each course stops at the gateways it meets
+  const course = (y: number, lo: number, hi: number, gates: [number, number, number, number][], put: (c: number, len: number) => void) => {
+    // gates: [centre, half-width, spring height, ring width]
+    const cuts = gates
+      .map(([c, hw, sp, ring]) => {
+        const r = hw + ring
+        const half = y <= sp ? r : y < sp + r ? Math.sqrt(r * r - (y - sp) ** 2) : 0
+        return [c - half - 0.02, c + half + 0.02, half] as const
+      })
+      .filter(([, , half]) => half > 0)
+      .sort((a, b) => a[0] - b[0])
+    let x = lo
+    for (const [a, b] of cuts) {
+      if (a - x > 0.05) put((x + a) / 2, a - x)
+      x = Math.max(x, b)
+    }
+    if (hi - x > 0.05) put((x + hi) / 2, hi - x)
+  }
+  const frontGates = main.map(([c, hw, sp]) => [c, hw, sp, c === 0 ? 0.18 : 0.13] as [number, number, number, number])
   for (let y = 0.45; y < H - 0.1; y += 0.42) {
-    p.push(box(W + 0.02, 0.025, 0.02, [0, y, D / 2 + 0.005], '#7c7366', 'aged'))
+    course(y, -W / 2, W / 2, frontGates, (c, len) => p.push(box(len, 0.025, 0.02, [c, y, D / 2 + 0.005], '#7c7366', 'aged')))
     for (const s of [-1, 1]) {
       p.push(box(2.02, 0.025, 0.02, [s * wx, y, D / 2 + NGOMON.wing + 0.005], '#7c7366', 'aged'))
-      p.push(box(0.02, 0.025, NGOMON.wing, [s * (wx - 1.0) - s * 0.005, y, wz], '#7c7366', 'aged'))
+      // the inner face of each wing is pierced by its Dịch Môn
+      course(y, wz - NGOMON.wing / 2, wz + NGOMON.wing / 2, [[wz, 0.5, 1.02, 0.12]], (c, len) => p.push(box(0.02, 0.025, len, [s * (wx - 1.0) - s * 0.005, y, c], '#7c7366', 'aged')))
     }
   }
   p.push(box(W + 0.3, 0.2, D + 0.3, [0, H + 0.1, 0], '#bdb2a1', 'aged'))

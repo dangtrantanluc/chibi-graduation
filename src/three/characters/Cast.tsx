@@ -1,12 +1,12 @@
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef, type ReactNode } from 'react'
-import { Cel, Chibi, faceMatrix, garmentLathe, type ChibiLook } from './Chibi'
+import { Cel, Chibi, FACE_NIGHT, faceMatrix, garmentLathe, type ChibiLook } from './Chibi'
 import { hairCap, hairCurtain, onHead, shine, spike, taperTube } from './hair'
 import { G, mergeKit, roundedBox, type Part } from '../lib/kit'
 import { world, type CharId } from '../../state/world'
 import { Diploma } from '../fx/Diploma'
-import { outlineMat, toonRamp } from '../lib/materials'
+import { outlineMat, toonRamp, uNight } from '../lib/materials'
 import {
   anipTex,
   bubbleTex,
@@ -37,6 +37,7 @@ import {
  */
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
+const DECAL_DAY = new THREE.Color('#ffffff')
 /**
  * Anime fringe: flat, overlapping blades lying on the forehead. Because they
  * overlap, the ink outline only traces the outer silhouette — clean 2D bangs.
@@ -75,6 +76,8 @@ function Props({ build }: { build: () => Part[] }) {
 /** a painted decal glued to a surface (logos, labels) */
 function Decal({ map, size, position, rotation }: { map: THREE.Texture; size: [number, number]; position: [number, number, number]; rotation?: [number, number, number] }) {
   const mat = useMemo(() => new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }), [map])
+  // unlit, like the painted faces: dim it with the moonlight
+  useFrame(() => mat.color.lerpColors(DECAL_DAY, FACE_NIGHT, uNight.value))
   return (
     <mesh position={position} rotation={rotation} material={mat} renderOrder={3}>
       <planeGeometry args={size} />
@@ -93,6 +96,24 @@ function WhenAction({ id, actions, children }: { id: CharId; actions: string[]; 
       {children}
     </group>
   )
+}
+
+const UP_Q = new THREE.Quaternion()
+const UP_YAW = new THREE.Quaternion()
+const UP_AXIS = new THREE.Vector3(0, 1, 0)
+/**
+ * Keeps what a hand carries upright (a basket, a lantern, a bunch of flowers)
+ * however the arm that holds it is bent: only the owner's heading turns it.
+ */
+function Upright({ id, children }: { id: CharId; children: ReactNode }) {
+  const g = useRef<THREE.Group>(null!)
+  useFrame(() => {
+    const parent = g.current.parent
+    if (!parent) return
+    parent.getWorldQuaternion(UP_Q).invert()
+    g.current.quaternion.copy(UP_Q).multiply(UP_YAW.setFromAxisAngle(UP_AXIS, world.chars[id].rotY))
+  })
+  return <group ref={g}>{children}</group>
 }
 
 /** index + middle finger for the V-sign (the hand sphere is the fist) */
@@ -333,7 +354,7 @@ function collarFlap(len: number, wid: number) {
 
 const uniLook: ChibiLook = {
   skin: '#fde6d6',
-  face: { iris: ['#2f3a8a', '#9fb4ff'], brow: '#3a2a26', lash: '#241a1e', tilt: 0.06, sparkle: true, eyeW: 0.142, eyeH: 0.184 },
+  face: { iris: ['#2f3a8a', '#9fb4ff'], brow: '#3a2a26', lash: '#241a1e', tilt: 0.06, sparkle: true, eyeW: 0.142, eyeH: 0.184, lip: '#f08a9a' },
   head: (p) => {
     hairCap(p, U_HAIR, 1.05, 0.05, 0.05)
     // blunt, softly separated bangs
@@ -372,6 +393,7 @@ const uniLook: ChibiLook = {
   sleeveTex: uniSleeve,
   arm: { sleeve: '#1d1e25', short: true },
   leg: { pant: '#a9b8d0', cuff: '#c6d1e3', wide: true, shoe: '#f3f3f5', sole: '#d9dbe0', stripe: '#3f7fe6' },
+  idle: 'clasp',
   handL: <Watch />,
   handR: <VSign id="uni" />,
   hipsExtra: <Laptop />,
@@ -516,7 +538,7 @@ const SHIRT: [number, number][] = [
 
 const hanoiLook: ChibiLook = {
   skin: '#fde3cf',
-  face: { iris: ['#4a2a1c', '#d2a26c'], brow: '#6e4431', lash: '#2c1a14', tilt: 0.0, sparkle: true, eyeW: 0.146, eyeH: 0.19 },
+  face: { iris: ['#4a2a1c', '#d2a26c'], brow: '#6e4431', lash: '#2c1a14', tilt: 0.0, sparkle: true, eyeW: 0.146, eyeH: 0.19, lip: '#f59aa2' },
   head: (p) => {
     hairCap(p, H_HAIR, 1.07, 0.06, 0.05)
     // airy, see-through bangs
@@ -557,7 +579,12 @@ const hanoiLook: ChibiLook = {
       <Bracelet />
     </>
   ),
-  handL: <Daisies />,
+  idle: 'bouquet',
+  handL: (
+    <Upright id="hanoi">
+      <Daisies />
+    </Upright>
+  ),
   scale: 0.97,
 }
 
@@ -787,6 +814,7 @@ const fatherLook: ChibiLook = {
   sleeveTex: fatherSleeve,
   arm: { sleeve: '#7b5a3c', short: true },
   leg: { pant: '#3e2b22', cuff: '#4a3528', shoe: '#f4d0ae', shorts: true, bare: true },
+  idle: 'akimbo',
   handR: <Sickle />,
   scale: 1.06,
 }
@@ -805,7 +833,7 @@ const MOTHER_ROBE: [number, number][] = [
 
 const motherLook: ChibiLook = {
   skin: '#fde2cc',
-  face: { iris: ['#3a2418', '#b07a50'], brow: '#2a1d17', lash: '#231512', tilt: 0.08, sparkle: true, eyeW: 0.138, eyeH: 0.178, lashWing: 0.8 },
+  face: { iris: ['#3a2418', '#b07a50'], brow: '#2a1d17', lash: '#231512', tilt: 0.08, sparkle: true, eyeW: 0.138, eyeH: 0.178, lashWing: 0.8, lip: '#e07a78' },
   head: (p) => {
     hairCap(p, BLACK_HAIR, 1.03, 0.03, 0.05)
     // hair parted in the middle, swept to both sides under the turban
@@ -837,7 +865,12 @@ const motherLook: ChibiLook = {
   sleeveTex: motherSleeve,
   arm: { sleeve: '#4d5a8c', cuff: '#34406a' },
   leg: { pant: '#4c5a3b', shoe: '#fde2cc', hidden: true },
-  handL: <RiceBasket />,
+  idle: 'carry',
+  handL: (
+    <Upright id="mother">
+      <RiceBasket />
+    </Upright>
+  ),
   scale: 1.0,
 }
 
@@ -880,7 +913,7 @@ function LotusLantern() {
 
 const princessLook: ChibiLook = {
   skin: '#fde6d8',
-  face: { iris: ['#2a1a2e', '#a0708c'], brow: '#2a1a1e', lash: '#221418', tilt: 0.08, sparkle: true },
+  face: { iris: ['#2a1a2e', '#a0708c'], brow: '#2a1a1e', lash: '#221418', tilt: 0.08, sparkle: true, lip: '#e8566a' },
   head: (p) => {
     hairCap(p, BLACK_HAIR, 1.05, 0.05, 0.05)
     fringe(p, BLACK_HAIR, [-0.22, -0.11, 0, 0.11, 0.22], 0.2, 0.14, 0.14, false)
@@ -955,8 +988,17 @@ const princessLook: ChibiLook = {
   sleeveTex: nhatBinhSleeve,
   arm: { sleeve: '#b3262e', cuff: '#f7ecd2', wide: true, long: true },
   leg: { pant: '#b3262e', shoe: '#2d2b30', hidden: true },
-  handL: <LotusLantern />,
-  handR: <LotusLantern />,
+  idle: 'court',
+  handL: (
+    <Upright id="princess">
+      <LotusLantern />
+    </Upright>
+  ),
+  handR: (
+    <Upright id="princess">
+      <LotusLantern />
+    </Upright>
+  ),
 }
 
 export function Princess() {

@@ -16,6 +16,47 @@
   color-scheme: light;
 }
 
+/* ── dark theme: the same paper by lantern light — deep indigo, gold ink ── */
+:root[data-theme='dark'] {
+  --ink: #f4ead6;
+  --ink-soft: #c9b48e;
+  --paper: #262a52;
+  --paper-2: #1a1d3e;
+  --vermilion: #ff7a55;
+  --vermilion-dk: #ffa27a;
+  --gold: #f0c468;
+  --edge: rgba(240, 196, 104, 0.32);
+  --shadow: 0 18px 40px -18px rgba(0, 0, 10, 0.85), 0 2px 6px rgba(0, 0, 10, 0.4);
+  --card-sheen: rgba(150, 165, 255, 0.14);
+  --ticket-a: #2b3060;
+  --ticket-b: #1c2046;
+  --paper-t: #242850;
+  --ticket-ink: #f0e4cc;
+  --ticket-soft: #b9a57f;
+  --ticket-mid: #d8c8a6;
+  --ticket-name: #fff3da;
+  --ticket-rule: rgba(240, 196, 104, 0.4);
+  --ticket-ghost: rgba(240, 228, 204, 0.38);
+  color-scheme: dark;
+}
+:root[data-theme='dark'] body,
+:root[data-theme='dark'] #root {
+  background: #141a3c;
+}
+:root[data-theme='dark'] .ticket {
+  --paper-t: #242850;
+}
+:root[data-theme='dark'] .card::before {
+  border-color: rgba(240, 196, 104, 0.3);
+}
+:root[data-theme='dark'] .details div {
+  border-bottom-color: rgba(240, 196, 104, 0.22);
+}
+:root[data-theme='dark'] .loader,
+:root[data-theme='dark'] .fallback {
+  background: radial-gradient(ellipse at 50% 60%, #3a4590, #232a5e 55%, #0d1130 100%);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -129,6 +170,10 @@ body.is-dragging .stage {
 .sound:hover {
   background: rgba(30, 20, 36, 0.55);
 }
+/* the theme toggle sits beside the music toggle */
+.sound.theme {
+  right: calc(var(--gutter) + 48px);
+}
 .sound:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
@@ -223,8 +268,8 @@ body.is-dragging .stage {
   border-radius: 14px;
   background:
     repeating-linear-gradient(0deg, rgba(120, 90, 50, 0.035) 0 2px, transparent 2px 6px),
-    linear-gradient(170deg, #fbf5e6, var(--paper-t) 60%, #efe2c2);
-  color: #3a2a1e;
+    linear-gradient(170deg, var(--ticket-a, #fbf5e6), var(--paper-t) 60%, var(--ticket-b, #efe2c2));
+  color: var(--ticket-ink, #3a2a1e);
   text-align: left;
   filter: drop-shadow(0 18px 24px rgba(30, 10, 20, 0.45));
   transform: rotate(-1.2deg);
@@ -267,7 +312,7 @@ body.is-dragging .stage {
 .ticket-no {
   font-family: var(--display);
   letter-spacing: 0.06em;
-  color: #8a6a4a;
+  color: var(--ticket-soft, #8a6a4a);
 }
 .route {
   position: relative;
@@ -277,7 +322,7 @@ body.is-dragging .stage {
   display: flex;
   justify-content: space-between;
   font: 700 10.5px/1.15 var(--ui);
-  color: #5a4232;
+  color: var(--ticket-mid, #5a4232);
 }
 .route::before {
   content: '';
@@ -303,7 +348,7 @@ body.is-dragging .stage {
   height: 10px;
   margin-left: -5px;
   border-radius: 50%;
-  background: #fbf5e6;
+  background: var(--ticket-a, #fbf5e6);
   border: 2.5px solid var(--vermilion);
 }
 .route li:first-child::before,
@@ -314,7 +359,7 @@ body.is-dragging .stage {
   font: 800 10px/1 var(--ui);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #8a6a4a;
+  color: var(--ticket-soft, #8a6a4a);
 }
 .ticket input,
 .ticket-name {
@@ -322,7 +367,7 @@ body.is-dragging .stage {
   margin: 0;
   padding: 0 0 4px;
   border: 0;
-  border-bottom: 2px solid rgba(90, 60, 40, 0.3);
+  border-bottom: 2px solid var(--ticket-rule, rgba(90, 60, 40, 0.3));
   outline: none;
   background: transparent;
   font-family: var(--display);
@@ -330,7 +375,7 @@ body.is-dragging .stage {
   font-weight: 600;
   font-size: clamp(26px, 6vw, 32px);
   line-height: 1.15;
-  color: #2e1e14;
+  color: var(--ticket-name, #2e1e14);
   caret-color: var(--vermilion);
   user-select: text;
   transition: border-color 300ms ease;
@@ -339,7 +384,7 @@ body.is-dragging .stage {
   border-bottom-color: var(--vermilion);
 }
 .ticket input::placeholder {
-  color: rgba(80, 55, 35, 0.4);
+  color: var(--ticket-ghost, rgba(80, 55, 35, 0.4));
   font-weight: 400;
 }
 .ticket-stub {
@@ -366,7 +411,7 @@ body.is-dragging .stage {
   font: 800 9px/1 var(--ui);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #8a6a4a;
+  color: var(--ticket-soft, #8a6a4a);
 }
 .ticket.nudge {
   animation: nudge 520ms ease both;
@@ -607,7 +652,7 @@ body.is-dragging .stage {
 .card {
   position: relative;
   background:
-    radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.55), transparent 60%),
+    radial-gradient(120% 90% at 0% 0%, var(--card-sheen, rgba(255, 255, 255, 0.55)), transparent 60%),
     linear-gradient(180deg, var(--paper), var(--paper-2));
   border: 1px solid var(--edge);
   border-radius: 18px;

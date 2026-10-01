@@ -31,14 +31,16 @@ Everything — buildings, characters, costume and leaf textures — is generated
 code; the app loads no 3D model or image files. The only assets are two music
 tracks in `public/audio/`.
 
-## Controls (no buttons)
+## Controls
 
 - **Tap / click anywhere** — continue. Tapping while a line is still typing finishes it.
 - **Drag** (mouse or one finger) — look around the current scene.
 - **Scroll / pinch** — lean in or out a little.
 - Keyboard: Enter / Space / → continue.
-- The ♪ button (top right) is the one button: it mutes/unmutes the music, and
-  the choice is remembered.
+- Two small buttons, top right: ♪ mutes/unmutes the music, and ☾ / ☀ switches
+  between the light theme (the sunset the story was painted in) and the dark
+  theme (the same journey by night: a moon and stars, lanterns and lit windows,
+  fireflies in the village). Both choices are remembered.
 
 ## Run
 
@@ -69,6 +71,7 @@ Dialogue lines live in `src/story/director.ts` (`CAPTIONS`).
 ticket for them (`?name=` / `?guest=` also work). Vietnamese diacritics render
 correctly everywhere, including the golden list.
 `?skip` jumps straight to the invitation (for returning guests);
+`?theme=dark` / `?theme=light` opens the link in that theme;
 `?q=low` / `?q=high` forces a quality tier.
 
 ## Music

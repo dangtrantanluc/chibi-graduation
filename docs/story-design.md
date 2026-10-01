@@ -157,6 +157,31 @@ Giữ nguyên: **múa hoa đăng** trước Ngọ Môn khi bảng vàng mở ra.
 
 ---
 
+## 2b. Dáng người và cử động
+
+- **Tỉ lệ**: thân to hơn và đầu nhỏ lại một chút (khoảng 2,4 đầu) để dáng và động tác đọc được từ xa, vẫn giữ chất chibi.
+- **Tay có khuỷu**: cánh tay gồm bắp tay và cẳng tay, bàn tay có ngón cái. Nhờ đó vẫy tay bằng cẳng tay, khoanh tay chào, chống hông, đưa tay lên cằm, gãi đầu đều ra đúng dáng.
+- **Mỗi người một dáng đứng riêng**:
+  - Lực: hai tay đút túi quần.
+  - Bạn CNTT: hai tay đan trước bụng.
+  - Bạn Hà Nội: một tay ôm bó cúc họa mi, tay kia để sau lưng.
+  - Bố: một tay chống hông, tay kia cầm liềm.
+  - Mẹ: hai tay bưng giỏ lúa trước bụng.
+  - Công nương: hai tay nâng đôi đèn sen trong ống tay áo rộng.
+- **Dồn trọng tâm**: khi đứng yên, hông và vai nghiêng ngược nhau, vài giây lại đổi chân trụ; hai bàn chân vẫn đứng yên trên mặt đất.
+- **Đồ cầm trên tay luôn thẳng đứng** (giỏ lúa, đèn sen, bó hoa) dù cánh tay gập thế nào.
+- **Miệng cử động khi nói**: ai đang nói câu thoại thì miệng mấp máy theo chữ đang hiện, đầu khẽ gật.
+- **Gương mặt**: thêm bóng tóc mái đổ xuống trán, một nét mũi nhỏ, và màu môi cho các nhân vật nữ.
+
+## 2c. Giao diện tối (ban đêm)
+
+Nút ☾ / ☀ ở góc trên bên phải đổi giữa hai giao diện; lựa chọn được ghi nhớ, và có thể mở thẳng bằng `?theme=dark`.
+
+- **Bầu trời**: xanh đêm, có sao lấp lánh và trăng tròn ở đúng vị trí mặt trời lúc hoàng hôn; núi và mây chìm thành bóng xanh thẫm.
+- **Ánh sáng**: nắng chiều đổi thành ánh trăng lạnh; đèn lồng, đèn ông sao và cửa sổ giấy sáng rực hơn; nhân vật được giữ sáng vừa đủ để vẫn rõ mặt.
+- **Đom đóm** bay quanh ao làng, sân nhà, vòm tre, ruộng lúa Bình Định và hồ sen ở Huế.
+- **Giao diện**: vé tàu, thiệp mời và thẻ cuối đổi sang giấy chàm, chữ vàng.
+
 ## 3. Chuyển cảnh = các chặng đời
 
 | Từ → đến | Chuyển cảnh | Ý nghĩa |

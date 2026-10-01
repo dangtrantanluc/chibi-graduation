@@ -136,8 +136,16 @@ function lightSlot(t: gsap.core.Timeline, at: number, i: number, pos: V3, intens
   t.to(l, { intensity, duration: dur, ease: 'sine.inOut' }, at)
 }
 
-function caption(t: gsap.core.Timeline, at: number, c: Caption | null) {
-  t.call(() => useUI.setState({ caption: c }), undefined, at)
+/** show a line of dialogue (or clear it); `who` are the ones whose mouths move while it is typed */
+function caption(t: gsap.core.Timeline, at: number, c: Caption | null, who: CharId[] = []) {
+  t.call(
+    () => {
+      world.talk.who = who
+      useUI.setState({ caption: c })
+    },
+    undefined,
+    at,
+  )
 }
 function setStep(t: gsap.core.Timeline, at: number, step: Step) {
   t.call(() => useUI.setState({ step }), undefined, at)
@@ -284,7 +292,7 @@ function playHome() {
   beat(t, 3.3, () => act('luc', 'standUp'))
   t.to(world.chars.luc.pos, { y: 0, duration: 0.32, ease: 'sine.out' }, 3.34)
   beat(t, 4.2, () => act('luc', 'scratch'))
-  caption(t, 4.6, CAPTIONS.home())
+  caption(t, 4.6, CAPTIONS.home(), ['luc'])
   // the Bình Định salute — fist into palm, a crisp bow
   beat(t, 5.9, () => act('luc', 'omQuyen'))
   beat(t, 8.1, () => act('luc', 'wave'))
@@ -341,7 +349,7 @@ function playCampus() {
     act('luc', 'wave')
   })
   t.to(world, { bubble: 1, duration: 0.5, ease: 'back.out(2)' }, 7.4)
-  caption(t, 7.6, CAPTIONS.campus())
+  caption(t, 7.6, CAPTIONS.campus(), ['uni'])
   // a high-five
   beat(t, 9.0, () => {
     act('uni', 'hi5')
@@ -399,7 +407,7 @@ function playHanoi() {
     lookAt('luc', 'hanoi')
   })
   beat(t, 4.6, () => act('hanoi', 'wave'))
-  caption(t, 4.8, CAPTIONS.hanoi())
+  caption(t, 4.8, CAPTIONS.hanoi(), ['hanoi'])
   beat(t, 6.4, () => act('hanoi', 'peace'))
   beat(t, 6.9, () => act('luc', 'smile'))
   // … and holds out the daisies to you
@@ -490,7 +498,7 @@ function playVillage() {
     world.chars.mother.faceY = -1.3
     act('luc', 'greet')
   })
-  caption(t, 8.3, CAPTIONS.village())
+  caption(t, 8.3, CAPTIONS.village(), ['luc'])
   // … and out comes his diploma, unrolled for them to read
   beat(t, 10.5, () => act('luc', 'present'))
   t.to(world, { diploma: 1, duration: 1.7, ease: 'power2.out' }, 10.8)
@@ -534,7 +542,7 @@ function playVillage() {
     lookAt('father', 'camera')
     lookAt('mother', 'camera')
   })
-  caption(t, 18.0, CAPTIONS.parents())
+  caption(t, 18.0, CAPTIONS.parents(), ['father', 'mother'])
   beat(t, 19.0, () => {
     act('father', 'usher')
     act('mother', 'usher')
@@ -637,7 +645,7 @@ function playHue(bridge = true) {
     orbit(0.5, 0.28, 0.12, 0.25)
   })
   setStep(t, 7.6, 'hue')
-  caption(t, 7.7, CAPTIONS.hue())
+  caption(t, 7.7, CAPTIONS.hue(), ['princess'])
   beat(t, 7.7, () => {
     lookAt('princess', 'camera')
     act('princess', 'dance')

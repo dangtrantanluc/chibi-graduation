@@ -113,6 +113,8 @@ export const world = {
     mother: char([0.55, 0, -35.3], -0.15),
     princess: char([0, 0, -41.9], 0),
   } as Record<CharId, CharState>,
+  /** who is speaking the current line, and whether it is still being typed (their mouths move) */
+  talk: { who: [] as CharId[], on: false },
   wipe: { kind: 'none' as WipeKind, p: 0 },
   /** morning light pouring through the Hoàng Đế gate as Lực sets off */
   gate: { light: 0 },

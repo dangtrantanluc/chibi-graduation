@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { on, world } from '../../state/world'
 import { mergeKit, G, type Part } from '../lib/kit'
 import { glowTex, silkTex } from '../lib/textures'
-import { uGlow } from '../lib/materials'
+import { uGlow, uNight } from '../lib/materials'
 import { NGOMON } from '../layout'
 import { VILLAGE_POLES } from './Village'
 import { PLAZA0 } from './Hue'
@@ -216,7 +216,7 @@ export function Lanterns() {
         const w = THREE.MathUtils.smoothstep(world.villageWave, th - 0.05, th + 0.08)
         g = 0.05 + 1.3 * w + world.glow.village
       }
-      g *= uGlow.value * (1 + 0.035 * Math.sin(t * 11 + i * 2.1) + 0.02 * Math.sin(t * 23 + i))
+      g *= uGlow.value * (1 + 0.7 * uNight.value) * (1 + 0.035 * Math.sin(t * 11 + i * 2.1) + 0.02 * Math.sin(t * 23 + i))
 
       tmp.q.setFromEuler(tmp.e.set(s.ax, 0, s.az))
       tmp.m.compose(s.anchor, tmp.q, tmp.s.set(1, l.len, 1))

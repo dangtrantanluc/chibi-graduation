@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { INVITE, MUSIC } from '../config'
 import { useUI, type Caption } from '../state/store'
+import { world } from '../state/world'
 import { advance, replay } from '../story/director'
 import { chime, isMuted, onMute, playZone, setMuted } from '../audio/music'
 
@@ -71,6 +72,7 @@ export function Overlay({ webgl }: { webgl: boolean }) {
 
       {phase === 'loading' && <Loader />}
       {phase === 'ready' && <SoundToggle />}
+      {phase === 'ready' && <ThemeToggle />}
       {phase === 'ready' && step === 'intro' && !busy && <IntroTicket />}
 
       <div className="dialogue-slot" aria-live="polite">
@@ -84,7 +86,28 @@ export function Overlay({ webgl }: { webgl: boolean }) {
   )
 }
 
-/** The one small control on screen: music on / off. */
+/** Sunset ⇄ night: the same journey under a moon and lanterns. */
+function ThemeToggle() {
+  const theme = useUI((s) => s.theme)
+  const setTheme = useUI((s) => s.setTheme)
+  const dark = theme === 'dark'
+  return (
+    <button className="sound theme" data-interactive aria-label={dark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'} aria-pressed={dark} onClick={() => setTheme(dark ? 'light' : 'dark')}>
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        {dark ? (
+          <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none" />
+            <path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7" />
+          </g>
+        ) : (
+          <path d="M20.2 14.6A8.6 8.6 0 0 1 9.4 3.8a.7.7 0 0 0-.9-.86A9.6 9.6 0 1 0 21.06 15.5a.7.7 0 0 0-.86-.9z" fill="currentColor" />
+        )}
+      </svg>
+    </button>
+  )
+}
+
+/** Music on / off. */
 function SoundToggle() {
   const [m, setM] = useState(isMuted())
   useEffect(() => onMute(setM), [])
@@ -221,6 +244,7 @@ function Dialogue({ c, ready }: { c: Caption; ready: boolean }) {
   useEffect(() => {
     setShown(0)
     bus.typing = true
+    world.talk.on = true
     const reduced = useUI.getState().reduced
     const id = window.setInterval(() => {
       setShown((n) => {
@@ -228,6 +252,7 @@ function Dialogue({ c, ready }: { c: Caption; ready: boolean }) {
         if (next >= full.length) {
           window.clearInterval(id)
           bus.typing = false
+          world.talk.on = false
           return full.length
         }
         return next
@@ -236,11 +261,13 @@ function Dialogue({ c, ready }: { c: Caption; ready: boolean }) {
     bus.finishTyping = () => {
       window.clearInterval(id)
       bus.typing = false
+      world.talk.on = false
       setShown(full.length)
     }
     return () => {
       window.clearInterval(id)
       bus.typing = false
+      world.talk.on = false
       bus.finishTyping = null
     }
   }, [full])

@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from 'react'
 import { G, mergeKit, type MatKey, type Part, type V3 } from '../lib/kit'
-import { celMat, outlineMat, toonRamp } from '../lib/materials'
+import { celMat, outlineMat, toonRamp, uNight } from '../lib/materials'
 import { shadowTex } from '../lib/textures'
 import { emit, faceProbe, world, type CharId, type CharState } from '../../state/world'
 import { FacePainter, facePatchGeometry, type EyeState, type FaceStyle, type MouthState } from './face'
@@ -15,7 +15,19 @@ export const HEAD_UP = 0.33
 export const SHOULDER_Y = 0.27
 export const SHOULDER_X = 0.19
 export const HEAD_S: V3 = [1, 0.93, 0.95]
+/**
+ * Figure proportions: the body (everything below the neck) is built at the
+ * sizes above and then scaled by BODY, and the head by HEAD — about 2.4 heads
+ * tall, so there is enough body for a pose to read.
+ */
+export const BODY = 1.2
+export const HEAD = 0.95
+/** shoulder → elbow, and elbow → wrist */
+export const UPPER = 0.105
+export const FORE = 0.1
 const Z = new THREE.Vector3(0, 0, 1)
+const FACE_DAY = new THREE.Color('#ffffff')
+export const FACE_NIGHT = new THREE.Color('#c4bcd4')
 
 /** Matrix for a flat/feature part sitting on the head surface, facing outwards. */
 export function faceMatrix(x: number, y: number, off: number, s: V3 = [1, 1, 1], rotZ = 0, local?: THREE.Matrix4) {
@@ -103,6 +115,18 @@ export const TORSO_PROFILE: [number, number][] = [
 ]
 
 // ── Look specification ──────────────────────────────────────
+/**
+ * A signature way of standing:
+ *  rest    arms loose at the sides, elbows a little bent
+ *  pockets hands tucked into the trouser pockets
+ *  akimbo  one hand on the hip, the other holding something
+ *  carry   both hands holding a basket in front
+ *  bouquet one arm cradling flowers against the shoulder, the other behind the back
+ *  clasp   hands clasped in front
+ *  court   hands held together at the waist inside wide sleeves
+ */
+export type IdlePose = 'rest' | 'pockets' | 'akimbo' | 'carry' | 'bouquet' | 'clasp' | 'court'
+
 export interface RibbonSpec {
   anchor: 'neck' | 'head' | 'hips'
   offset: V3
@@ -146,8 +170,8 @@ export interface ChibiLook {
     /** bare feet (farm folk) */
     bare?: boolean
   }
-  /** resting arm pose: 'pockets' tucks the hands into the jacket pockets */
-  idle?: 'rest' | 'pockets'
+  /** how this character stands when nothing is happening (see restArms) */
+  idle?: IdlePose
   ribbons?: RibbonSpec[]
   handR?: ReactNode
   handL?: ReactNode
@@ -168,28 +192,53 @@ function buildHead(look: ChibiLook) {
   return mergeKit(p)
 }
 
+/** Two-part arm: the upper arm hangs from the shoulder, the forearm (and hand) from the elbow. */
 function buildArm(look: ChibiLook) {
-  const p: Part[] = []
+  const up: Part[] = []
+  const fo: Part[] = []
+  const a = look.arm
   const tex = !!look.sleeveTex
-  if (look.arm.wide) {
-    const len = look.arm.long ? 0.3 : 0.22
-    p.push({ g: new THREE.CylinderGeometry(0.065, 0.14, len, 18, 1, true), c: tex ? '#ffffff' : look.arm.sleeve, m: tex ? 'sleeve' : undefined, p: [0, -len / 2 + 0.01, 0] })
-    p.push({ g: new THREE.CylinderGeometry(0.135, 0.135, 0.02, 18), c: look.arm.cuff ?? look.arm.sleeve, p: [0, -len + 0.01, 0] })
-  } else if (look.arm.short) {
-    // puffed short sleeve, then the bare forearm
-    p.push({ g: new THREE.CylinderGeometry(0.064, 0.074, 0.1, 16, 1, false), c: tex ? '#ffffff' : look.arm.sleeve, m: tex ? 'sleeve' : undefined, p: [0, -0.045, 0] })
-    p.push({ g: G.sphere, c: look.arm.sleeve, p: [0, 0, 0], s: 0.064 })
-    if (look.arm.cuff) p.push({ g: new THREE.CylinderGeometry(0.076, 0.076, 0.018, 16), c: look.arm.cuff, p: [0, -0.094, 0] })
-    p.push({ g: new THREE.CapsuleGeometry(0.046, 0.08, 4, 10), c: look.skin, p: [0, -0.13, 0] })
-  } else if (tex) {
-    p.push({ g: new THREE.CylinderGeometry(0.06, 0.068, 0.17, 14, 1, true), c: '#ffffff', m: 'sleeve', p: [0, -0.085, 0] })
-    p.push({ g: G.sphere, c: look.arm.sleeve, p: [0, 0, 0], s: 0.06 })
-  } else {
-    p.push({ g: new THREE.CapsuleGeometry(0.058, 0.1, 4, 10), c: look.arm.sleeve, p: [0, -0.085, 0] })
-    if (look.arm.cuff) p.push({ g: G.cyl, c: look.arm.cuff, p: [0, -0.15, 0], s: [0.063, 0.04, 0.063] })
+  const sleeveC = tex ? '#ffffff' : a.sleeve
+  const sleeveM: MatKey | undefined = tex ? 'sleeve' : undefined
+  /** a sleeve tube whose texture v runs v0 (lower edge) → v1 (upper edge) */
+  const tube = (rTop: number, rBot: number, len: number, y: number, v0: number, v1: number, seg = 16, open = true): Part => {
+    const g = new THREE.CylinderGeometry(rTop, rBot, len, seg, 1, open)
+    const uv = g.attributes.uv as THREE.BufferAttribute
+    for (let i = 0; i < uv.count; i++) uv.setY(i, v0 + (v1 - v0) * uv.getY(i))
+    return { g, c: sleeveC, m: sleeveM, p: [0, y, 0] }
   }
-  p.push({ g: G.sphere, c: look.arm.hand ?? look.skin, p: [0, -0.205, 0], s: 0.066 })
-  return mergeKit(p)
+  if (a.wide) {
+    // a wide court sleeve, flaring from the shoulder to a cuff beyond the hand
+    const len = a.long ? 0.3 : 0.22
+    const k = UPPER / len
+    const rE = 0.065 + (0.14 - 0.065) * k
+    up.push(tube(0.065, rE, UPPER, -UPPER / 2 + 0.01, 1 - k, 1, 18))
+    up.push({ g: G.sphere, c: a.sleeve, p: [0, -UPPER, 0], s: rE })
+    fo.push(tube(rE, 0.14, len - UPPER, -(len - UPPER) / 2 + 0.01, 0, 1 - k, 18))
+    fo.push({ g: new THREE.CylinderGeometry(0.135, 0.135, 0.02, 18), c: a.cuff ?? a.sleeve, p: [0, -(len - UPPER) + 0.01, 0] })
+  } else if (a.short) {
+    // puffed short sleeve on the upper arm, then the bare elbow and forearm
+    up.push(tube(0.064, 0.074, 0.1, -0.045, 0, 1, 16, false))
+    up.push({ g: G.sphere, c: a.sleeve, p: [0, 0, 0], s: 0.064 })
+    if (a.cuff) up.push({ g: new THREE.CylinderGeometry(0.076, 0.076, 0.018, 16), c: a.cuff, p: [0, -0.094, 0] })
+    up.push({ g: G.sphere, c: look.skin, p: [0, -UPPER, 0], s: 0.047 })
+    fo.push({ g: new THREE.CapsuleGeometry(0.044, 0.05, 4, 10), c: look.skin, p: [0, -0.05, 0] })
+  } else if (tex) {
+    up.push(tube(0.06, 0.065, UPPER, -UPPER / 2, 0.42, 1, 14))
+    up.push({ g: G.sphere, c: a.sleeve, p: [0, 0, 0], s: 0.06 })
+    up.push({ g: G.sphere, c: a.sleeve, p: [0, -UPPER, 0], s: 0.065 })
+    fo.push(tube(0.065, 0.069, 0.075, -0.0375, 0, 0.42, 14))
+  } else {
+    up.push({ g: new THREE.CapsuleGeometry(0.058, 0.05, 4, 10), c: a.sleeve, p: [0, -0.05, 0] })
+    up.push({ g: G.sphere, c: a.sleeve, p: [0, -UPPER, 0], s: 0.058 })
+    fo.push({ g: new THREE.CapsuleGeometry(0.056, 0.035, 4, 10), c: a.sleeve, p: [0, -0.04, 0] })
+    if (a.cuff) fo.push({ g: G.cyl, c: a.cuff, p: [0, -0.05, 0], s: [0.063, 0.04, 0.063] })
+  }
+  // the hand: a soft mitten with a thumb (it points forward when the arm hangs)
+  const hc = a.hand ?? look.skin
+  fo.push({ g: G.sphere, c: hc, p: [0, -FORE, 0], s: [0.062, 0.07, 0.056] })
+  fo.push({ g: G.sphereLo, c: hc, p: [0, -FORE + 0.014, 0.048], r: [0.6, 0, 0], s: [0.025, 0.036, 0.025] })
+  return { upper: mergeKit(up), fore: mergeKit(fo) }
 }
 
 function buildLeg(look: ChibiLook) {
@@ -257,7 +306,33 @@ export function Cel({
 }
 
 // ── Animation helpers ──────────────────────────────────────
-const JOINTS = ['hipY', 'bob', 'squash', 'spin', 'tX', 'tY', 'tZ', 'hX', 'hY', 'hZ', 'aLx', 'aLz', 'aRx', 'aRz', 'lLx', 'lRx', 'lLz', 'lRz'] as const
+const JOINTS = [
+  'hipY',
+  'hipX',
+  'hipR',
+  'bob',
+  'squash',
+  'spin',
+  'tX',
+  'tY',
+  'tZ',
+  'hX',
+  'hY',
+  'hZ',
+  // shoulders (x: + back / − forward, z: + toward the character's left), elbows (x: flex forward, z as the shoulder)
+  'aLx',
+  'aLz',
+  'aRx',
+  'aRz',
+  'eLx',
+  'eLz',
+  'eRx',
+  'eRz',
+  'lLx',
+  'lRx',
+  'lLz',
+  'lRz',
+] as const
 type Joint = (typeof JOINTS)[number]
 type Pose = Record<Joint, number>
 const zeroPose = (): Pose => Object.fromEntries(JOINTS.map((k) => [k, 0])) as Pose
@@ -270,6 +345,32 @@ const sstep = (a: number, b: number, x: number) => {
 const env = (t: number, dur: number, att = 0.25, rel = 0.35) => sstep(0, att, t) * (1 - sstep(dur - rel, dur, t))
 const lerp = THREE.MathUtils.lerp
 const wrapPi = (a: number) => Math.atan2(Math.sin(a), Math.cos(a))
+
+/** [shoulder x, shoulder z, elbow flex, elbow z] for the left arm; the right arm mirrors z */
+type ArmPose = [number, number, number, number]
+const ARMS: Record<IdlePose, { l: ArmPose; r: ArmPose }> = {
+  rest: { l: [0.04, 0.17, 0.32, -0.12], r: [0.04, 0.17, 0.32, -0.12] },
+  pockets: { l: [0.3, 0.3, 0.55, -0.4], r: [0.3, 0.3, 0.55, -0.4] },
+  akimbo: { l: [0.25, 0.72, 0.35, -1.75], r: [0.06, 0.2, 0.3, -0.1] },
+  carry: { l: [-0.3, 0.06, 1.2, -0.42], r: [-0.3, 0.06, 1.2, -0.42] },
+  bouquet: { l: [-0.4, 0.08, 1.75, -0.45], r: [0.42, 0.12, 0.25, -0.5] },
+  clasp: { l: [-0.22, 0.05, 0.78, -0.6], r: [-0.22, 0.05, 0.78, -0.6] },
+  court: { l: [-0.25, 0.12, 1.2, -0.55], r: [-0.25, 0.12, 1.2, -0.55] },
+}
+/** poses that hold something in front: the arms keep their place while walking */
+const CARRYING = new Set<IdlePose>(['carry', 'bouquet', 'court'])
+/** put both arms in a standing pose (k = how far toward it, for blending) */
+function restArms(tg: Pose, idle: IdlePose, breathe: number) {
+  const { l, r } = ARMS[idle]
+  tg.aLx = l[0]
+  tg.aLz = l[1] + breathe * 0.02
+  tg.eLx = l[2] + breathe * 0.02
+  tg.eLz = l[3]
+  tg.aRx = r[0]
+  tg.aRz = -r[1] - breathe * 0.02
+  tg.eRx = r[2] + breathe * 0.02
+  tg.eRz = -r[3]
+}
 
 export const ACTION_DUR: Record<string, number> = {
   wave: 2.4,
@@ -334,6 +435,8 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
   const headG = useRef<THREE.Group>(null!)
   const shL = useRef<THREE.Group>(null!)
   const shR = useRef<THREE.Group>(null!)
+  const elL = useRef<THREE.Group>(null!)
+  const elR = useRef<THREE.Group>(null!)
   const legL = useRef<THREE.Group>(null!)
   const legR = useRef<THREE.Group>(null!)
 
@@ -403,35 +506,54 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
     }
 
     // ── base pose ──
+    const idle: IdlePose = look.idle ?? 'rest'
     const breathe = Math.sin(t * 2.3 + a.seed)
-    tg.aLz = 0.13 + breathe * 0.02
-    tg.aRz = -0.13 - breathe * 0.02
+    restArms(tg, idle, breathe)
     tg.squash = breathe * 0.012
-    if (look.idle === 'pockets') {
-      // hands tucked into the jacket pockets, elbows relaxed
-      tg.aLz = -0.02 + breathe * 0.01
-      tg.aRz = 0.02 - breathe * 0.01
-      tg.aLx = 0.16
-      tg.aRx = 0.16
-    }
     if (c.pose === 'sit') {
       tg.hipY = -0.175
       tg.lLx = -1.38 + 0.3 * Math.sin(t * 3.0 + a.seed)
       tg.lRx = -1.38 + 0.3 * Math.sin(t * 3.0 + a.seed + 2.3)
-      tg.aLx = 0.35
-      tg.aLz = 0.42
-      tg.aRx = 0.35
-      tg.aRz = -0.42
+      // hands resting on the seat either side
+      tg.aLx = 0.3
+      tg.aLz = 0.36
+      tg.aRx = 0.3
+      tg.aRz = -0.36
+      tg.eLx = 0.2
+      tg.eRx = 0.2
+      tg.eLz = 0.1
+      tg.eRz = -0.1
       tg.tX = -0.06
+    } else if (!walking) {
+      // contrapposto: the weight settles on one leg, then, after a while, the other
+      const w = Math.sin(t * 0.36 + a.seed * 3)
+      const ws = w / Math.sqrt(w * w + 0.06)
+      tg.hipX = 0.02 * ws
+      tg.hipR = 0.05 * ws
+      tg.hZ += 0.035 * ws
     }
     if (walking) {
       const s = Math.sin(a.phase)
       tg.lLx = 0.62 * s
       tg.lRx = -0.62 * s
-      tg.aLx = -0.55 * s
-      tg.aRx = 0.55 * s
+      if (CARRYING.has(idle)) {
+        // whatever is carried stays put; it only rocks a little with the stride
+        tg.aLx += -0.07 * s
+        tg.aRx += 0.07 * s
+      } else {
+        // arms swing from the shoulder with soft elbows that close on the forward swing
+        tg.aLx = -0.5 * s
+        tg.aRx = 0.5 * s
+        tg.aLz = 0.14
+        tg.aRz = -0.14
+        tg.eLx = 0.55 + 0.3 * Math.max(0, s)
+        tg.eRx = 0.55 + 0.3 * Math.max(0, -s)
+        tg.eLz = -0.1
+        tg.eRz = 0.1
+      }
       tg.bob = 0.045 * Math.abs(s)
       tg.tZ = 0.05 * s
+      tg.tY = -0.1 * s
       tg.tX = 0.07
       tg.squash = 0.035 * Math.cos(2 * a.phase)
     }
@@ -440,11 +562,24 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
     let mood = c.mood
     let eyesWide = false
     let wink = false
+    /** blend the right / left arm toward [shoulder x, shoulder z, elbow flex, elbow z] */
+    const armR = (e: number, sx: number, sz: number, ex: number, ez: number) => {
+      tg.aRx = lerp(tg.aRx, sx, e)
+      tg.aRz = lerp(tg.aRz, sz, e)
+      tg.eRx = lerp(tg.eRx, ex, e)
+      tg.eRz = lerp(tg.eRz, ez, e)
+    }
+    const armL = (e: number, sx: number, sz: number, ex: number, ez: number) => {
+      tg.aLx = lerp(tg.aLx, sx, e)
+      tg.aLz = lerp(tg.aLz, sz, e)
+      tg.eLx = lerp(tg.eLx, ex, e)
+      tg.eLz = lerp(tg.eLz, ez, e)
+    }
     switch (c.action) {
       case 'wave': {
+        // upper arm out and up, the forearm waving from the elbow
         const e = env(tau, ACTION_DUR.wave)
-        tg.aRz = lerp(tg.aRz, -2.55 + 0.34 * Math.sin(tau * 10.5), e)
-        tg.aRx = lerp(tg.aRx, -0.2, e)
+        armR(e, -0.15, -1.75, 0.1, -0.85 + 0.42 * Math.sin(tau * 10.5))
         tg.hZ += 0.12 * e
         tg.tZ += 0.05 * e
         tg.bob += 0.02 * e * Math.abs(Math.sin(tau * 5))
@@ -452,20 +587,21 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         break
       }
       case 'beckon': {
+        // "come on!" — the forearm scoops toward the body
         const e = env(tau, ACTION_DUR.beckon)
-        tg.aRx = lerp(tg.aRx, -1.5 + 0.4 * Math.sin(tau * 9), e)
-        tg.aRz = lerp(tg.aRz, -0.35, e)
+        armR(e, -1.05, -0.3, 0.9 + 0.55 * Math.sin(tau * 9), 0.15)
         tg.hZ += -0.14 * e
+        tg.tX += 0.05 * e
         mood = 'happy'
         break
       }
       case 'bow': {
+        // a hand to the chest, the other swept back
         const e = env(tau, ACTION_DUR.bow, 0.5, 0.6)
         tg.tX += 0.52 * e
         tg.hX += 0.3 * e
-        tg.aRx = lerp(tg.aRx, -1.15, e)
-        tg.aRz = lerp(tg.aRz, 0.5, e)
-        tg.aLx = lerp(tg.aLx, 0.3, e)
+        armR(e, -0.85, 0.3, 1.5, 0.75)
+        armL(e, 0.45, 0.3, 0.3, 0)
         mood = 'happy'
         break
       }
@@ -474,10 +610,8 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         // crisp snap, a short firm bow, then the hands drop smartly
         const snap = sstep(0, 0.18, tau) * (1 - sstep(1.55, 1.85, tau))
         const bow = sstep(0.45, 0.72, tau) * (1 - sstep(1.1, 1.4, tau))
-        tg.aLx = lerp(tg.aLx, -1.32, snap)
-        tg.aRx = lerp(tg.aRx, -1.28, snap)
-        tg.aLz = lerp(tg.aLz, -0.62, snap)
-        tg.aRz = lerp(tg.aRz, 0.66, snap)
+        armL(snap, -0.95, 0.05, 1.45, -0.8)
+        armR(snap, -0.95, -0.05, 1.45, 0.8)
         tg.tX += 0.34 * bow
         tg.hX += 0.2 * bow
         tg.squash += tau < 0.12 ? -0.05 : 0
@@ -487,8 +621,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       case 'scratch': {
         // gãi đầu: a hand to the back of the head, a shy tilt and grin
         const e = env(tau, ACTION_DUR.scratch, 0.3, 0.4)
-        tg.aRx = lerp(tg.aRx, -2.55 + 0.1 * Math.sin(tau * 14), e)
-        tg.aRz = lerp(tg.aRz, 0.95, e)
+        armR(e, 0.25, -2.25, -0.35, -1.65 + 0.1 * Math.sin(tau * 14))
         tg.hZ += 0.16 * e
         tg.hX += 0.08 * e
         tg.tZ += -0.04 * e
@@ -496,11 +629,10 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         break
       }
       case 'peace': {
-        // V-sign held out toward the guest, head tilted, a wink
+        // V-sign held up beside the cheek, head tilted, a wink; the other hand on the hip
         const e = env(tau, ACTION_DUR.peace, 0.18, 0.4)
-        tg.aRx = lerp(tg.aRx, -1.75, e)
-        tg.aRz = lerp(tg.aRz, 0.12, e)
-        tg.aLz = lerp(tg.aLz, 0.45, e)
+        armR(e, -1.05, -0.5, 1.75, 0.35)
+        if (!CARRYING.has(idle)) armL(e, 0.25, 0.72, 0.35, -1.75)
         tg.hZ += 0.2 * e
         tg.tZ += -0.07 * e
         tg.tX += -0.05 * e
@@ -512,8 +644,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       case 'hi5': {
         const up = sstep(0, 0.3, tau) * (1 - sstep(0.75, 1.15, tau))
         const hit = sstep(0.3, 0.38, tau) * (1 - sstep(0.38, 0.6, tau))
-        tg.aRx = lerp(tg.aRx, -2.45, up)
-        tg.aRz = lerp(tg.aRz, 0.18, up)
+        armR(up, -2.2, -0.25, 0.5 - 0.45 * hit, 0.1)
         tg.tX += -0.05 * up + 0.05 * hit
         tg.bob += 0.05 * up
         if (!a.kicked && tau > 0.36) {
@@ -525,11 +656,9 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         break
       }
       case 'type': {
-        // typing on the laptop in her lap: small alternating hand taps
-        tg.aLx = -0.95 + 0.07 * Math.sin(tau * 15)
-        tg.aRx = -0.95 + 0.07 * Math.sin(tau * 15 + 2.1)
-        tg.aLz = -0.12
-        tg.aRz = 0.12
+        // typing on the laptop in her lap: elbows in, small alternating hand taps
+        armL(1, -0.3, 0.1, 1.05 + 0.07 * Math.sin(tau * 15), -0.3)
+        armR(1, -0.3, -0.1, 1.05 + 0.07 * Math.sin(tau * 15 + 2.1), 0.3)
         tg.hX += 0.28
         tg.tX += 0.08
         break
@@ -537,10 +666,8 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       case 'offer': {
         // both hands hold something out toward the guest, a little bashful lean
         const e = env(tau, ACTION_DUR.offer, 0.35, 0.5)
-        tg.aLx = lerp(tg.aLx, -1.4, e)
-        tg.aRx = lerp(tg.aRx, -1.45, e)
-        tg.aLz = lerp(tg.aLz, -0.42, e)
-        tg.aRz = lerp(tg.aRz, 0.4, e)
+        armL(e, -1.05, 0.05, 0.75, -0.4)
+        armR(e, -1.05, -0.05, 0.75, 0.4)
         tg.tX += 0.14 * e
         tg.hZ += 0.12 * e
         tg.bob += 0.03 * Math.abs(Math.sin(tau * 3)) * e
@@ -548,9 +675,10 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         break
       }
       case 'think': {
+        // a hand to the chin, the other arm folded under its elbow
         const e = env(tau, ACTION_DUR.think, 0.35, 0.45)
-        tg.aRx = lerp(tg.aRx, -2.0, e)
-        tg.aRz = lerp(tg.aRz, 0.62, e)
+        armR(e, -0.7, 0.1, 2.25, 0.35)
+        if (!CARRYING.has(idle)) armL(e, -0.45, 0.1, 1.45, -1.05)
         tg.hZ += 0.14 * e
         tg.hX += -0.08 * e
         break
@@ -568,10 +696,8 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         const e = env(tau, ACTION_DUR.dance, 0.3, 0.5)
         const k = tau * 2.2
         tg.spin = sstep(0.2, ACTION_DUR.dance - 0.4, tau) * Math.PI * 2
-        tg.aLz = lerp(tg.aLz, 2.1 + 0.35 * Math.sin(k * 2), e)
-        tg.aRz = lerp(tg.aRz, -1.25 - 0.45 * Math.sin(k * 2 + 1.5), e)
-        tg.aLx = lerp(tg.aLx, -0.3 * Math.sin(k), e)
-        tg.aRx = lerp(tg.aRx, -0.6 + 0.3 * Math.cos(k), e)
+        armL(e, -0.3 * Math.sin(k), 1.75 + 0.35 * Math.sin(k * 2), 0.2, 0.55)
+        armR(e, -0.6 + 0.3 * Math.cos(k), -1.0 - 0.45 * Math.sin(k * 2 + 1.5), 0.45, -0.4)
         tg.tZ += 0.12 * Math.sin(k) * e
         tg.hZ += -0.14 * Math.sin(k) * e
         tg.bob += 0.05 * Math.abs(Math.sin(k * 2)) * e
@@ -580,13 +706,11 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         break
       }
       case 'greet': {
-        // khoanh tay: arms folded across the chest, then a slow, polite bow
+        // khoanh tay: forearms folded across the chest, then a slow, polite bow
         const fold = sstep(0, 0.35, tau) * (1 - sstep(1.95, 2.35, tau))
         const bow = sstep(0.55, 0.95, tau) * (1 - sstep(1.4, 1.85, tau))
-        tg.aLx = lerp(tg.aLx, -1.35, fold)
-        tg.aRx = lerp(tg.aRx, -1.2, fold)
-        tg.aLz = lerp(tg.aLz, -0.9, fold)
-        tg.aRz = lerp(tg.aRz, 0.95, fold)
+        armL(fold, -0.62, 0.1, 1.55, -1.2)
+        armR(fold, -0.5, -0.1, 1.5, 1.25)
         tg.tX += 0.4 * bow
         tg.hX += 0.25 * bow
         mood = tau > 1.5 ? 'happy' : 'calm'
@@ -596,10 +720,8 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         // both hands hold the diploma out; they part as it unrolls
         const e = sstep(0, 0.45, tau)
         const s = world.diploma
-        tg.aLx = lerp(tg.aLx, -1.35, e)
-        tg.aRx = lerp(tg.aRx, -1.35, e)
-        tg.aLz = lerp(tg.aLz, -0.42 + 0.95 * s, e)
-        tg.aRz = lerp(tg.aRz, 0.42 - 0.95 * s, e)
+        armL(e, -0.95, -0.25 + 0.62 * s, 0.85, -0.35)
+        armR(e, -0.95, 0.25 - 0.62 * s, 0.85, 0.35)
         tg.hX += 0.1 * e
         mood = s > 0.5 ? 'happy' : 'calm'
         break
@@ -607,11 +729,15 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       case 'clap': {
         const e = env(tau, ACTION_DUR.clap, 0.2, 0.35)
         const k = Math.sin(tau * 17)
-        tg.aLx = lerp(tg.aLx, -1.25, e)
-        tg.aRx = lerp(tg.aRx, -1.25, e)
-        tg.aLz = lerp(tg.aLz, -0.5 + 0.2 * k, e)
-        tg.aRz = lerp(tg.aRz, 0.5 - 0.2 * k, e)
-        tg.bob += 0.025 * Math.abs(k) * e
+        if (CARRYING.has(idle)) {
+          // hands are full: a happy little bounce instead
+          tg.bob += 0.035 * Math.abs(k) * e
+          tg.hZ += 0.1 * Math.sin(tau * 8.5) * e
+        } else {
+          armL(e, -0.75, 0.05, 1.3, -0.55 + 0.22 * k)
+          armR(e, -0.75, -0.05, 1.3, 0.55 - 0.22 * k)
+          tg.bob += 0.025 * Math.abs(k) * e
+        }
         mood = 'happy'
         break
       }
@@ -619,8 +745,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         // an open palm swept out toward the way ahead, a little nod
         const e = env(tau, ACTION_DUR.usher, 0.3, 0.45)
         const sweep = sstep(0.2, 0.9, tau)
-        tg.aRx = lerp(tg.aRx, -1.15, e)
-        tg.aRz = lerp(tg.aRz, lerp(0.3, -0.85, sweep), e)
+        armR(e, -1.0, lerp(0.3, -0.95, sweep), lerp(1.1, 0.25, sweep), 0)
         tg.tY += -0.25 * e
         tg.hX += 0.12 * sstep(0.6, 0.9, tau) * (1 - sstep(1.2, 1.6, tau))
         mood = 'happy'
@@ -631,8 +756,13 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         const e = env(tau, ACTION_DUR.cheer, 0.15, 0.3)
         tg.bob += 0.2 * hop * e
         tg.squash += (hop > 0.05 ? 0.08 * hop : -0.07) * e
-        tg.aLz = lerp(tg.aLz, 2.55 + 0.2 * Math.sin(tau * 13), e)
-        tg.aRz = lerp(tg.aRz, -2.55 - 0.2 * Math.sin(tau * 13 + 1), e)
+        if (CARRYING.has(idle)) {
+          // one free hand punches the air
+          armR(e, 0, -2.4 - 0.2 * Math.sin(tau * 13 + 1), 0.1, -0.3)
+        } else {
+          armL(e, 0, 2.35 + 0.2 * Math.sin(tau * 13), 0.1, 0.35)
+          armR(e, 0, -2.35 - 0.2 * Math.sin(tau * 13 + 1), 0.1, -0.35)
+        }
         tg.lLx += -0.25 * hop * e
         tg.lRx += -0.25 * hop * e
         mood = 'happy'
@@ -641,8 +771,13 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       case 'surprise': {
         const e = env(tau, ACTION_DUR.surprise, 0.08, 0.4)
         tg.bob += 0.1 * Math.max(0, Math.sin((tau / 0.45) * Math.PI)) * (tau < 0.45 ? 1 : 0)
-        tg.aLz = lerp(tg.aLz, 0.95, e)
-        tg.aRz = lerp(tg.aRz, -0.95, e)
+        if (c.pose !== 'sit' && !CARRYING.has(idle)) {
+          armL(e, -0.3, 0.7, 1.3, 0.3)
+          armR(e, -0.3, -0.7, 1.3, -0.3)
+        } else {
+          tg.aLz = lerp(tg.aLz, 0.95, e)
+          tg.aRz = lerp(tg.aRz, -0.95, e)
+        }
         tg.hX += -0.1 * e
         tg.squash += tau < 0.1 ? -0.08 : 0.04 * e
         eyesWide = e > 0.2
@@ -677,7 +812,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
     const lookTarget = c.look === 'camera' ? camera.position : c.look
     const spinning = c.action === 'dance'
     if (lookTarget && !walking && !spinning) {
-      tmp.v.set(c.pos.x, c.pos.y + 0.95 * scale, c.pos.z)
+      tmp.v.set(c.pos.x, c.pos.y + 0.98 * scale, c.pos.z)
       tmp.w.subVectors(lookTarget, tmp.v)
       const cs = Math.cos(c.rotY)
       const sn = Math.sin(c.rotY)
@@ -699,11 +834,14 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       tg.hX += a.glanceX
     }
     tg.hZ += Math.sin(t * 1.3 + a.seed) * 0.03
+    // a speaker nods along with the words
+    if (world.talk.on && world.talk.who.includes(id)) tg.hX += 0.035 * Math.sin(t * 8.5)
 
     // ── damp toward targets (continuous), show on twos ──
     const fast = ['wave', 'beckon', 'cheer', 'dance', 'peace', 'hi5', 'omQuyen', 'type', 'laugh', 'clap'].includes(c.action)
     for (const k of JOINTS) {
-      const lam = k === 'spin' ? 30 : k === 'hX' || k === 'hY' || k === 'tY' ? 6 : fast && k[0] === 'a' ? 22 : k === 'bob' || k === 'squash' ? 18 : 12
+      const arm = k[0] === 'a' || k[0] === 'e'
+      const lam = k === 'spin' ? 30 : k === 'hipX' || k === 'hipR' ? 2.2 : k === 'hX' || k === 'hY' || k === 'tY' ? 6 : fast && arm ? 22 : k === 'bob' || k === 'squash' ? 18 : 12
       a.cur[k] = THREE.MathUtils.damp(a.cur[k], tg[k], lam, dt)
     }
     a.stepT += dt
@@ -714,18 +852,24 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
     const p = a.shown
 
     // ── apply ──
-    faceProbe(c).set(c.pos.x, c.pos.y + p.bob + 0.95 * scale + (c.pose === 'sit' ? -0.17 : 0), c.pos.z)
+    faceProbe(c).set(c.pos.x, c.pos.y + p.bob + 0.98 * scale + (c.pose === 'sit' ? -0.2 : 0), c.pos.z)
     root.current.position.set(c.pos.x, c.pos.y + p.bob, c.pos.z)
     root.current.rotation.y = c.rotY + p.spin
     const sq = 1 + p.squash
     squashG.current.scale.set(scale / Math.sqrt(sq), scale * sq, scale / Math.sqrt(sq))
-    hips.current.position.y = HIP + p.hipY
-    torsoG.current.rotation.set(p.tX, p.tY, p.tZ)
+    hips.current.position.set(p.hipX, (HIP + p.hipY) * BODY, 0)
+    hips.current.rotation.z = p.hipR
+    // the shoulders tip the other way from the hips
+    torsoG.current.rotation.set(p.tX, p.tY, p.tZ - p.hipR * 1.6)
     headG.current.rotation.set(p.hX, p.hY, p.hZ)
     shL.current.rotation.set(p.aLx, 0, p.aLz)
     shR.current.rotation.set(p.aRx, 0, p.aRz)
-    legL.current.rotation.set(p.lLx, 0, p.lLz)
-    legR.current.rotation.set(p.lRx, 0, p.lRz)
+    elL.current.rotation.set(-p.eLx, 0, p.eLz)
+    elR.current.rotation.set(-p.eRx, 0, p.eRz)
+    // the feet stay planted while the hips shift and roll above them
+    const plant = -p.hipR - p.hipX / (0.2 * BODY)
+    legL.current.rotation.set(p.lLx, 0, p.lLz + plant)
+    legR.current.rotation.set(p.lRx, 0, p.lRz + plant)
 
     // ── painted expression ──
     if (t > a.nextBlink) {
@@ -739,10 +883,14 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
     if (blinking && eyes === 'open') eyes = 'blink'
     const grin = look.face.grin
     const rest: MouthState = look.face.catMouth ? 'cat' : 'smile'
-    const mouth: MouthState = mood === 'surprised' ? 'o' : wink ? 'cat' : mood === 'happy' ? (grin ? 'grin' : 'open') : c.action === 'think' || c.action === 'type' ? 'flat' : rest
+    // speaking: the mouth opens and closes on twos while the line is typed (parents take turns by the syllable)
+    const talking = world.talk.on && world.talk.who.includes(id) && Math.floor(t * 7.5 + (id === 'mother' ? 0.5 : 0)) % 2 === 0
+    const mouth: MouthState = mood === 'surprised' ? 'o' : wink ? 'cat' : talking ? 'talk' : mood === 'happy' ? (grin ? 'grin' : 'open') : c.action === 'think' || c.action === 'type' ? 'flat' : rest
     // the painted irises drift toward idle glances (the head leads, the eyes follow)
     const gaze = !lookTarget && !walking && Math.abs(a.glanceY) > 0.32 ? Math.sign(a.glanceY) : 0
     face.painter.draw(eyes, mouth, gaze)
+    // the painted face is unlit: by night it takes the tone of the moonlit skin around it
+    face.mat.color.lerpColors(FACE_DAY, FACE_NIGHT, uNight.value)
   })
 
   return (
@@ -751,7 +899,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         <planeGeometry args={[0.95 * (look.scale ?? 1), 0.8 * (look.scale ?? 1)]} />
       </mesh>
       <group ref={squashG}>
-        <group ref={hips} position-y={HIP}>
+        <group ref={hips} position-y={HIP * BODY} scale={BODY}>
           <group ref={legL} position={[0.085, 0, 0]}>
             {!look.leg?.hidden && <Cel geos={leg} />}
           </group>
@@ -763,16 +911,22 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
             <Cel geos={torso} tex={tex} />
             {look.torsoExtra}
             <group ref={shL} position={[SHOULDER_X, SHOULDER_Y, 0]}>
-              <Cel geos={arm} tex={tex} />
-              <group position={[0, -0.21, 0]}>{look.handL}</group>
+              <Cel geos={arm.upper} tex={tex} />
+              <group ref={elL} position={[0, -UPPER, 0]}>
+                <Cel geos={arm.fore} tex={tex} />
+                <group position={[0, -FORE - 0.005, 0]}>{look.handL}</group>
+              </group>
             </group>
             <group ref={shR} position={[-SHOULDER_X, SHOULDER_Y, 0]}>
-              <Cel geos={arm} tex={tex} />
-              <group position={[0, -0.21, 0]}>{look.handR}</group>
+              <Cel geos={arm.upper} tex={tex} />
+              <group ref={elR} position={[0, -UPPER, 0]}>
+                <Cel geos={arm.fore} tex={tex} />
+                <group position={[0, -FORE - 0.005, 0]}>{look.handR}</group>
+              </group>
             </group>
             <group ref={neck} position-y={NECK}>
               <group ref={headG}>
-                <group position-y={HEAD_UP} scale={1.07}>
+                <group position-y={(HEAD_UP * HEAD) / (1.07 * BODY)} scale={HEAD / BODY}>
                   <Cel geos={head} />
                   <mesh geometry={face.geo} material={face.mat} renderOrder={2} />
                   {look.headExtra}

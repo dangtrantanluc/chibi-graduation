@@ -12,7 +12,7 @@ import { HEAD_S, R } from './Chibi'
  */
 
 export type EyeState = 'open' | 'blink' | 'happy' | 'surprised' | 'wink'
-export type MouthState = 'smile' | 'open' | 'o' | 'grin' | 'cat' | 'flat'
+export type MouthState = 'smile' | 'open' | 'o' | 'grin' | 'cat' | 'flat' | 'talk'
 
 export interface FaceStyle {
   /** iris gradient: top (dark) → bottom (light) */
@@ -43,6 +43,8 @@ export interface FaceStyle {
   lashWeight?: number
   /** little freckle dots across the cheeks */
   freckles?: boolean
+  /** a soft lip tint under the mouth line */
+  lip?: string
 }
 
 // canvas covers head-local x ∈ [−0.4, 0.4], y ∈ [−0.3, 0.15]
@@ -127,6 +129,24 @@ export class FacePainter {
     const eh = (s.eyeH ?? 0.178) * PX
     const ex = s.eyeX ?? 0.152
     const ey = s.eyeY ?? -0.048
+
+    // the fringe (or a hat brim) throws a soft shadow across the top of the face
+    {
+      const sh = g.createLinearGradient(0, cy(Y1), 0, cy(0.035))
+      sh.addColorStop(0, 'rgba(150,84,84,0.3)')
+      sh.addColorStop(0.55, 'rgba(160,96,92,0.14)')
+      sh.addColorStop(1, 'rgba(170,104,96,0)')
+      g.fillStyle = sh
+      g.fillRect(0, 0, CW, cy(0.035))
+    }
+    // a hint of a nose: one small shadow stroke
+    g.strokeStyle = 'rgba(176,104,96,0.5)'
+    g.lineWidth = 2.6
+    g.lineCap = 'round'
+    g.beginPath()
+    g.moveTo(cx(-0.008), cy(-0.108))
+    g.quadraticCurveTo(cx(0), cy(-0.118), cx(0.01), cy(-0.11))
+    g.stroke()
 
     // cheeks: soft blush with a few hatch strokes
     for (const side of [-1, 1]) {
@@ -337,8 +357,29 @@ export class FacePainter {
     const y = cy(-0.158)
     const u = PX
     g.lineCap = 'round'
+    if (this.s.lip && m !== 'o') {
+      // lip tint: a soft bead of colour just under the mouth line
+      const lg = g.createRadialGradient(x, y + 0.012 * u, 0, x, y + 0.012 * u, 0.03 * u)
+      lg.addColorStop(0, this.s.lip)
+      lg.addColorStop(1, 'rgba(255,255,255,0)')
+      g.globalAlpha = 0.5
+      g.fillStyle = lg
+      g.beginPath()
+      g.ellipse(x, y + 0.012 * u, 0.03 * u, 0.014 * u, 0, 0, Math.PI * 2)
+      g.fill()
+      g.globalAlpha = 1
+    }
     g.strokeStyle = '#5a2430'
     g.lineWidth = 3.2
+    if (m === 'talk') {
+      // mid-word: a small open mouth
+      g.fillStyle = '#8a2f3c'
+      g.beginPath()
+      g.ellipse(x, y + 0.006 * u, 0.02 * u, 0.014 * u, 0, 0, Math.PI * 2)
+      g.fill()
+      g.stroke()
+      return
+    }
     if (m === 'smile') {
       g.beginPath()
       g.moveTo(x - 0.028 * u, y - 0.004 * u)

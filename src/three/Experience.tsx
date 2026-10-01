@@ -23,6 +23,7 @@ import { Sparkles } from './fx/Sparkles'
 import { HangingScroll } from './fx/HangingScroll'
 import { Father, Hanoi, Luc, Mother, Princess, Uni } from './characters/Cast'
 import { PottedMai } from './world/Foliage'
+import { Fireflies, NightBackdrop } from './fx/Night'
 import { MAI_POTS } from './layout'
 
 const MAI: [number, number, number][] = MAI_POTS.map(([x, z]) => [x, 0.4, z])
@@ -95,6 +96,7 @@ export default function Experience() {
         flipflops={2}
       />
       <Ticker />
+      <NightBackdrop />
       <CameraRig />
       <Lighting />
       <Suspense fallback={null}>
@@ -109,6 +111,7 @@ export default function Experience() {
         <Lanterns />
         <Leaves />
         <GateLight />
+        <Fireflies />
         <Luc />
         <Sparkles />
         <Lazy at={2}>

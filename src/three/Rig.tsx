@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { Environment, Lightformer } from '@react-three/drei'
 import { useUI } from '../state/store'
 import { world } from '../state/world'
-import { uTime } from './lib/materials'
+import { uNight, uTime } from './lib/materials'
 import { SUN_DIR } from './world/Sky'
 
 /** Advances the shared clock (world.time + shader time). Runs first. */
@@ -12,6 +12,8 @@ export function Ticker() {
   useFrame((_, dt) => {
     world.time += Math.min(dt, 0.1)
     uTime.value = world.time
+    // dusk falls (or lifts) over a second or two when the guest switches theme
+    uNight.value = THREE.MathUtils.damp(uNight.value, useUI.getState().theme === 'dark' ? 1 : 0, 2.6, Math.min(dt, 0.1))
   }, -2)
   return null
 }
@@ -89,10 +91,19 @@ export function CameraRig() {
   return null
 }
 
+const SUN_C = new THREE.Color('#ffc28a')
+const MOON_C = new THREE.Color('#a9bdff')
+const SKY_C = new THREE.Color('#b9c5f2')
+const SKY_N = new THREE.Color('#5263b8')
+const GROUND_C = new THREE.Color('#d9a27e')
+const GROUND_N = new THREE.Color('#2f2c52')
+
 /** Sunset key light, sky/bounce fill, and three pooled lantern point lights. */
 export function Lighting() {
   const quality = useUI((s) => s.quality)
   const sun = useRef<THREE.DirectionalLight>(null!)
+  const hemi = useRef<THREE.HemisphereLight>(null!)
+  const fill = useRef<THREE.DirectionalLight>(null!)
   const target = useMemo(() => new THREE.Object3D(), [])
   const pts = useRef<THREE.PointLight[]>([])
   const scene = useThree((s) => s.scene)
@@ -129,19 +140,29 @@ export function Lighting() {
     target.updateMatrixWorld()
     // low tier: a single point light borrows whichever slot is brightest
     const slots = quality === 'high' ? world.lights : [world.lights.reduce((a, b) => (b.intensity > a.intensity ? b : a))]
+    // the dark theme: the sun becomes a cool moon, the sky light sinks to deep blue; the lantern pools
+    // are turned down a little, because against the dark they bloom much more readily
+    const n = uNight.value
+    sun.current.color.lerpColors(SUN_C, MOON_C, n)
+    sun.current.intensity = THREE.MathUtils.lerp(3.4, 1.35, n)
+    hemi.current.color.lerpColors(SKY_C, SKY_N, n)
+    hemi.current.groundColor.lerpColors(GROUND_C, GROUND_N, n)
+    hemi.current.intensity = THREE.MathUtils.lerp(0.85, 0.7, n)
+    fill.current.intensity = THREE.MathUtils.lerp(0.38, 0.3, n)
+    scene.environmentIntensity = THREE.MathUtils.lerp(0.45, 0.14, n)
     slots.forEach((l, i) => {
       const p = pts.current[i]
       if (!p) return
       p.position.copy(l.pos)
       p.color.copy(l.color)
-      p.intensity = l.intensity
-      p.distance = l.distance
+      p.intensity = l.intensity * (1 - 0.3 * n)
+      p.distance = l.distance * (1 + 0.25 * n)
     })
   })
 
   return (
     <>
-      <hemisphereLight args={['#b9c5f2', '#d9a27e', 0.85]} />
+      <hemisphereLight ref={hemi} args={['#b9c5f2', '#d9a27e', 0.85]} />
       <directionalLight
         ref={sun}
         color="#ffc28a"
@@ -152,7 +173,7 @@ export function Lighting() {
         shadow-camera-near={1}
         shadow-camera-far={140}
       />
-      <directionalLight color="#9fb2e8" intensity={0.38} position={[30, 20, 40]} />
+      <directionalLight ref={fill} color="#9fb2e8" intensity={0.38} position={[30, 20, 40]} />
       {(quality === 'high' ? [0, 1, 2] : [0]).map((i) => (
         <pointLight key={`${quality}${i}`} ref={(el) => void (pts.current[i] = el!)} intensity={0} decay={2} distance={9} />
       ))}

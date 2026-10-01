@@ -6,6 +6,8 @@ import { agedTex, lacquerTex, thatchTex } from './textures'
 export const uTime = { value: 0 }
 /** 0‥1+ — how brightly the paper lanterns / windows glow (finale pushes it up). */
 export const uGlow = { value: 1 }
+/** 0 (the sunset) ‥ 1 (the dark theme: night) — eased by <Ticker/> when the guest switches theme */
+export const uNight = { value: 0 }
 
 interface Features {
   /** read the toon ramp as RGB so the shade colour can be tinted */
@@ -14,6 +16,8 @@ interface Features {
   tile?: boolean
   sway?: { amp: number; start: number }
   selfLit?: number
+  /** by night, keep this much of the surface's own colour (figures stay readable under the moon) */
+  nightLift?: number
   /** world-space weathering: rain streaks + moss, projected along the dominant axis */
   aged?: boolean
 }
@@ -32,10 +36,11 @@ export function patchMaterial<T extends THREE.MeshStandardMaterial>(mat: T, f: F
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uTime = uTime
     sh.uniforms.uGlow = uGlow
+    sh.uniforms.uNight = uNight
     let vs = sh.vertexShader
     let fs = sh.fragmentShader
     vs = vs.replace('#include <common>', '#include <common>\nuniform float uTime;')
-    fs = fs.replace('#include <common>', '#include <common>\nuniform float uTime;\nuniform float uGlow;')
+    fs = fs.replace('#include <common>', '#include <common>\nuniform float uTime;\nuniform float uGlow;\nuniform float uNight;')
 
     if (f.tintRamp) fs = fs.replace('#include <gradientmap_pars_fragment>', TINT_RAMP)
 
@@ -125,7 +130,7 @@ export function patchMaterial<T extends THREE.MeshStandardMaterial>(mat: T, f: F
       )
     }
 
-    if (f.rim || f.selfLit) {
+    if (f.rim || f.selfLit || f.nightLift) {
       let add = ''
       if (f.rim) {
         sh.uniforms.uRimColor = { value: new THREE.Color(f.rim.color) }
@@ -133,11 +138,18 @@ export function patchMaterial<T extends THREE.MeshStandardMaterial>(mat: T, f: F
         fs = fs.replace('#include <common>', '#include <common>\nuniform vec3 uRimColor;\nuniform float uRim;')
         add += `
         float rimNV = 1.0 - saturate(dot(normalize(vViewPosition), normal));
-        totalEmissiveRadiance += uRimColor * (0.45 + 0.55 * diffuseColor.rgb) * uRim * pow(rimNV, ${(f.rim.power ?? 2.8).toFixed(2)});`
+        // by night the warm rim cools to moonlight and all but fades
+        totalEmissiveRadiance += mix(uRimColor, vec3(0.6, 0.7, 1.0), uNight * 0.8) * (0.45 + 0.55 * diffuseColor.rgb) * uRim * mix(1.0, 0.3, uNight) * pow(rimNV, ${(f.rim.power ?? 2.8).toFixed(2)});`
       }
       if (f.selfLit) {
         add += `
-        totalEmissiveRadiance += diffuseColor.rgb * ${f.selfLit.toFixed(3)} * uGlow;`
+        // lit paper and windows burn brighter against the dark
+        totalEmissiveRadiance += diffuseColor.rgb * ${f.selfLit.toFixed(3)} * uGlow * (1.0 + 0.3 * uNight);`
+      }
+      if (f.nightLift) {
+        add += `
+        // (a warm lift, so moonlit skin does not go chalk-blue)
+        totalEmissiveRadiance += diffuseColor.rgb * vec3(1.0, 0.9, 0.8) * ${f.nightLift.toFixed(3)} * uNight;`
       }
       fs = fs.replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>${add}`)
     }
@@ -296,7 +308,7 @@ export function celMat(key: 'skin' | 'cloth' | 'gloss' = 'cloth', map?: THREE.Te
   const m = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: toonRamp(), map: map ?? null })
   // a touch of self-light keeps shadow sides from going muddy (anime shadows are tinted, not black)
   m.emissive = new THREE.Color(key === 'gloss' ? '#262233' : '#1d1520')
-  patchMaterial(m as unknown as THREE.MeshStandardMaterial, { tintRamp: true, rim: { color: '#fff1dc', strength: key === 'gloss' ? 0.2 : 0.38, power: 4.5 } }, `cel-${key}`)
+  patchMaterial(m as unknown as THREE.MeshStandardMaterial, { tintRamp: true, nightLift: 0.34, rim: { color: '#fff1dc', strength: key === 'gloss' ? 0.2 : 0.38, power: 4.5 } }, `cel-${key}`)
   cache.set(k, m)
   return m
 }
@@ -358,6 +370,7 @@ export function cardMat(map: THREE.Texture, key: string, sway = 0.02) {
   m.customProgramCacheKey = () => `card-${sway}`
   m.onBeforeCompile = (sh) => {
     sh.uniforms.uTime = uTime
+    sh.uniforms.uNight = uNight
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nuniform float uTime;')
       .replace(
@@ -375,6 +388,7 @@ export function cardMat(map: THREE.Texture, key: string, sway = 0.02) {
       )
     // keep the clump normal on both faces of a card (no back-face flip)
     sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nuniform float uNight;')
       .replace('#include <gradientmap_pars_fragment>', TINT_RAMP)
       .replace(
         '#include <normal_fragment_begin>',
@@ -386,7 +400,7 @@ export function cardMat(map: THREE.Texture, key: string, sway = 0.02) {
         '#include <emissivemap_fragment>',
         `#include <emissivemap_fragment>
         float cardRim = 1.0 - saturate(dot(normalize(vViewPosition), normal));
-        totalEmissiveRadiance += diffuseColor.rgb * pow(cardRim, 3.0) * 0.55;`,
+        totalEmissiveRadiance += diffuseColor.rgb * pow(cardRim, 3.0) * 0.55 * mix(1.0, 0.25, uNight);`,
       )
   }
   cache.set(k, m)

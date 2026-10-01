@@ -23,6 +23,8 @@ type TiltRef = { blur: number }
  */
 export function Effects() {
   const quality = useUI((s) => s.quality)
+  // by night the lanterns and lit windows bloom wider, and the frame closes in a little
+  const dark = useUI((s) => s.theme === 'dark')
   const dof = useRef<DepthOfFieldEffect>(null)
   const tilt = useRef<TiltRef>(null)
   const high = quality === 'high'
@@ -43,19 +45,19 @@ export function Effects() {
         <N8AO halfRes aoRadius={1.1} distanceFalloff={0.7} intensity={2.4} quality="performance" color="#3b2432" />
         <DepthOfField ref={dof} worldFocusRange={3.2} bokehScale={3} resolutionScale={0.5} />
         <TiltShift2 ref={tilt as never} blur={0} taper={0.6} samples={8} />
-        <Bloom mipmapBlur intensity={0.55} luminanceThreshold={0.92} luminanceSmoothing={0.25} radius={0.72} />
+        <Bloom mipmapBlur intensity={dark ? 0.95 : 0.55} luminanceThreshold={dark ? 0.7 : 0.92} luminanceSmoothing={0.25} radius={dark ? 0.8 : 0.72} />
         <HueSaturation saturation={0.06} />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-        <Vignette offset={0.28} darkness={0.5} />
+        <Vignette offset={0.28} darkness={dark ? 0.66 : 0.5} />
       </EffectComposer>
     )
   }
   return (
     <EffectComposer multisampling={0} stencilBuffer={false}>
       <TiltShift2 ref={tilt as never} blur={0.12} taper={0.6} samples={6} />
-      <Bloom mipmapBlur intensity={0.5} luminanceThreshold={0.92} luminanceSmoothing={0.25} radius={0.65} />
+      <Bloom mipmapBlur intensity={dark ? 0.9 : 0.5} luminanceThreshold={dark ? 0.7 : 0.92} luminanceSmoothing={0.25} radius={dark ? 0.75 : 0.65} />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-      <Vignette offset={0.28} darkness={0.5} />
+      <Vignette offset={0.28} darkness={dark ? 0.66 : 0.5} />
     </EffectComposer>
   )
 }
