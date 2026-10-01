@@ -377,7 +377,12 @@ function Lamp() {
     const t = world.time
     const flick = 1 + 0.06 * Math.sin(t * 11.3) + 0.04 * Math.sin(t * 23.7 + 1.3)
     const k = 0.3 + 0.7 * grade.lamp
-    glow.globe.color.setRGB(2.0 * flick * k, 1.25 * flick * k, 0.52 * k)
+    // under the grey sky the whole picture is drained of colour: the flame is pushed the other
+    // way by as much, so that it alone comes out warm
+    const boost = 1 / Math.max(0.4, 1 + Math.min(grade.sat, 0))
+    const warm = (v: number) => Math.max(0, 1.26 + (v - 1.26) * boost)
+    glow.globe.color.setRGB(warm(2.0) * flick * k, warm(1.25) * flick * k, warm(0.52) * k)
+    glow.halo.color.setRGB(1, Math.max(0, 0.6 + (0.46 - 0.6) * boost), Math.max(0, 0.6 + (0.1 - 0.6) * boost))
     glow.halo.opacity = (0.14 + 0.36 * grade.lamp) * flick
     haloRef.current.scale.setScalar(0.26 + 0.26 * grade.lamp)
   })

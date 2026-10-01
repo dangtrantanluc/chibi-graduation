@@ -16,7 +16,8 @@ import { setGrade } from '../three/grade'
  *       Bình Định martial salute, then he walks into the light
  *   II  Nông Lâm — the North–South express carries him to Sài Gòn; his CNTT
  *       friend looks up from her laptop, "</>", a high-five
- *   III Hà Nội — a gust of autumn leaves; by a bicycle loaded with daisies his
+ *   III Hà Nội — a gust of autumn leaves; a golden dragon rises from behind Đoan
+ *       Môn (Thăng Long, 'the dragon rises'); by a bicycle loaded with daisies his
  *       Hà Nội friend flashes a V-sign and gives you a bunch of cúc họa mi
  *   IV  home — through Đoan Môn and the village gate to his parents, waiting
  *       in the yard of their thatched house; he greets them, shows his
@@ -166,6 +167,23 @@ function beat(t: gsap.core.Timeline, at: number, fn: () => void) {
 function mount(n: number) {
   useUI.setState({ mounted: Math.max(ui().mounted, n) })
 }
+let dragonTween: gsap.core.Tween | null = null
+/**
+ * Send the golden dragon along one of its routes (0 Thăng Long, 1 Huế). It flies on its own
+ * clock, not the chapter's: if the guest moves on, it finishes its flight.
+ */
+function flyDragon(route: 0 | 1, duration: number) {
+  dragonTween?.kill()
+  world.dragon.route = route
+  world.dragon.k = 0
+  dragonTween = gsap.to(world.dragon, { k: 1, duration, ease: 'none', onComplete: () => void (world.dragon.k = -1) })
+  wind(Math.min(duration, 5), 0.07)
+  bell(196, 0.2)
+}
+/** move the flight of Lạc birds to wheel over (x, z) at height y, radius r */
+function birdsTo(x: number, y: number, z: number, r: number) {
+  Object.assign(world.birds, { x, y, z, r })
+}
 /** a flash of warm light over the whole screen (walking into the light, a cut) */
 function flash(t: gsap.core.Timeline, at: number, peak: number, up: number, down: number) {
   const fl = { f: 0 }
@@ -278,6 +296,7 @@ export function startIntro() {
   resetWorld()
   // before dawn: the board asleep under the stars, one lamp alight on the bench beside him
   setGrade('predawn')
+  birdsTo(0, 5.7, 3.4, 5.6)
   const t = newTimeline()
   setCam(SHOTS.intro)
   orbit(0.6, 0.3, 0.1, 0.3)
@@ -344,7 +363,11 @@ function playCampus() {
   beat(t, 3.8, () => {
     mount(3)
     setGrade('overcast')
-    setCam({ pos: [-1.9, 1.3, -0.3], target: [0.1, 1.0, 3.4], fov: 36, focus: [0, 0.9, 3.2], dof: 0.8, tilt: 0.1, range: 3.5, backoff: 0.3 })
+    birdsTo(5, 7.4, -7, 6)
+    world.city = true
+    world.veil = 0
+    // (from over the heads of the people on the near pavement)
+    setCam({ pos: [-2.1, 2.2, -0.7], target: [0.1, 0.7, 3.4], fov: 36, focus: [0, 0.9, 3.2], dof: 0.8, tilt: 0.1, range: 3.5, backoff: 0.3 })
     world.gate.light = 0
     world.lights[0].intensity = 0
     world.shadowFocus.set(0, 0, 2)
@@ -427,6 +450,7 @@ function playHanoi() {
   beat(t, 1.9, () => {
     mount(4)
     setGrade('autumn')
+    birdsTo(-6, 7.2, -22, 6.5)
     setCam({ ...SHOTS.hanoi, pos: [2.8, 2.1, -13.8], target: [-0.6, 1.6, -22.6] })
     world.shadowFocus.set(-1, 0, -21)
     orbit(0.5, 0.28, 0.1)
@@ -440,26 +464,40 @@ function playHanoi() {
   beat(t, 3.1, () => (world.wipe.kind = 'none'))
   camTo(t, 1.9, 3.6, SHOTS.hanoi, 'power2.out')
   setStep(t, 2.6, 'hanoi')
-  for (const at of [3.0, 4.6, 6.4]) beat(t, at, () => emit({ type: 'gust', x: -1 + Math.random() * 2, z: -21 + Math.random() * 2, strength: 0.7, radius: 4 }))
-  // she spots them, hops, waves big
-  beat(t, 4.0, () => {
+  for (const at of [3.0, 4.6, 6.4, 9.0, 12.5]) beat(t, at, () => emit({ type: 'gust', x: -1 + Math.random() * 2, z: -21 + Math.random() * 2, strength: 0.7, radius: 4 }))
+  // Thăng Long — "the dragon rises". As he comes up to the gate a golden dragon lifts out from
+  // behind it, winds once about the pavilion and is gone into the autumn sky. They both look up;
+  // so does the lens.
+  beat(t, 5.2, () => flyDragon(0, 7))
+  beat(t, 5.6, () => {
+    act('hanoi', 'surprise')
+    world.chars.hanoi.faceY = -2.6
+    world.chars.hanoi.look = world.dragonPos
+    world.chars.luc.look = world.dragonPos
+  })
+  beat(t, 6.2, () => act('luc', 'surprise'))
+  camTo(t, 5.6, 2.0, { pos: [1.9, 1.15, -15.2], target: [-0.6, 4.6, -27.4], fov: 46, focus: [0, 5, -27], dof: 0.25, range: 12 })
+  beat(t, 8.4, () => act('hanoi', 'cheer'))
+  camTo(t, 10.2, 2.0, SHOTS.hanoi)
+  // she turns to you, hops, waves big
+  beat(t, 11.8, () => {
     lookAt('hanoi', 'camera')
     world.chars.hanoi.faceY = 0.9
     act('hanoi', 'hop')
     lookAt('luc', 'hanoi')
   })
-  beat(t, 4.6, () => act('hanoi', 'wave'))
-  caption(t, 4.8, CAPTIONS.hanoi(), ['hanoi'])
-  beat(t, 6.4, () => act('hanoi', 'peace'))
-  beat(t, 6.9, () => act('luc', 'smile'))
+  beat(t, 12.4, () => act('hanoi', 'wave'))
+  caption(t, 12.6, CAPTIONS.hanoi(), ['hanoi'])
+  beat(t, 14.2, () => act('hanoi', 'peace'))
+  beat(t, 14.7, () => act('luc', 'smile'))
   // … and holds out the daisies to you
-  beat(t, 8.6, () => {
+  beat(t, 16.4, () => {
     act('hanoi', 'offer')
     const p = world.chars.hanoi.pos
     emit({ type: 'sparkle', pos: new THREE.Vector3(p.x + 0.3, 0.85, p.z + 0.3), count: 10, color: '#fff6d0' })
   })
-  allowContinue(t, 9.0)
-  beat(t, 11.8, () => {
+  allowContinue(t, 16.8)
+  beat(t, 19.6, () => {
     fidget('hanoi', ['peace', 'hop', 'laugh', 'wave'], 3.2)
     fidget('luc', ['smile', 'scratch'], 4.4)
   })
@@ -493,7 +531,10 @@ function playVillage() {
     walk('luc', [[0.1, 0, -24.2], [0, 0, -26.4], [0, 0, z - 1.6], [0, 0, gz + 0.8], [0, 0, gz - 1.6], [1.55, 0, -38.5], [...MARKS.lucVillage] as V3], 2.9, TO_FATHER)
   })
   // the afternoon goes down toward sunset as he comes through the gates
-  beat(t, 2.2, () => setGrade('sunset', 5))
+  beat(t, 2.2, () => {
+    setGrade('sunset', 5)
+    birdsTo(3, 6.4, -40, 6)
+  })
   camPath(
     t,
     1.5,
@@ -670,7 +711,10 @@ function playHue(bridge = true) {
   })
   beat(t, SHIFT + 1.1, () => act('mother', 'wave'))
   // night comes on as he leaves the village: by Ngọ Môn it is all lanterns
-  beat(t, SHIFT + 1.4, () => setGrade('night', 5))
+  beat(t, SHIFT + 1.4, () => {
+    setGrade('night', 5)
+    birdsTo(0, 8.6, NGOMON.z + 3, 8)
+  })
   const hp = huePose()
   if (narrow())
     camPath(t, SHIFT + 0.3, 7.4, [[0, 1.7, -38.1], [0, 1.95, -39.9], hp.pos], [[0, 1.4, -48], [0, 1.5, -52], hp.target], 'sine.inOut')
@@ -821,6 +865,8 @@ function playHue(bridge = true) {
     }
   })
   beat(t, SHIFT + 23.3, () => duckMusic(1, 2.5))
+  // … and the golden dragon of Thăng Long passes once more, across the roofs of Ngọ Môn
+  beat(t, SHIFT + 25.4, () => flyDragon(1, 7))
   // it hangs open: a last soft bell, and light runs down the writing
   beat(t, SHIFT + 23.9, () => bell(523, 0.16))
   t.fromTo(world, { scrollSheen: -0.1 }, { scrollSheen: 1.1, duration: 1.7, ease: 'sine.inOut' }, SHIFT + 23.9)
@@ -843,6 +889,7 @@ function playFinale() {
   const foot = HALL.terraceFront + 1.5 // the foot of the stairs
   // the golden list rolls back up: the way in is open
   world.scrollSheen = -1
+  birdsTo(0, 6.0, HALL.bodyFront + 1.5, 6.2)
   t.to(world, { scroll: 0, duration: 1.5, ease: 'power2.inOut' }, 0)
   beat(t, 0.1, () => bell(392, 0.2))
   // in single file through the central arch, over the Trung Đạo bridge, up to the hall
@@ -969,6 +1016,8 @@ export function skipToInvite() {
   world.bubble = 0
   useUI.setState({ mounted: 6, caption: null, flash: 0 })
   setGrade('night')
+  world.city = true
+  world.veil = 0
   place('luc', [...MARKS.lucGo] as V3, Math.PI)
   place('father', [asideX(), 0, MARKS.fatherAside[2]], -0.2)
   place('mother', [-asideX(), 0, MARKS.motherAside[2]], 0.2)
@@ -1007,6 +1056,10 @@ export function resetWorld() {
   world.bubble = 0
   world.wipe.kind = 'none'
   world.wipe.p = 0
+  world.city = false
+  world.veil = 1
+  dragonTween?.kill()
+  world.dragon.k = -1
   world.cam.drift = 1
   world.shadowFocus.set(0, 0, 5)
   world.shadowSize = 14

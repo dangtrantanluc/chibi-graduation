@@ -10,7 +10,8 @@ import {
   ToneMapping,
   Vignette,
 } from '@react-three/postprocessing'
-import { ToneMappingMode, type DepthOfFieldEffect } from 'postprocessing'
+import { ToneMappingMode, type DepthOfFieldEffect, type HueSaturationEffect } from 'postprocessing'
+import { grade } from './grade'
 import { useUI } from '../state/store'
 import { world } from '../state/world'
 
@@ -27,6 +28,7 @@ export function Effects() {
   const dark = useUI((s) => s.theme === 'dark')
   const dof = useRef<DepthOfFieldEffect>(null)
   const tilt = useRef<TiltRef>(null)
+  const hue = useRef<HueSaturationEffect>(null)
   const high = quality === 'high'
 
   useFrame(() => {
@@ -38,6 +40,8 @@ export function Effects() {
       dof.current.bokehScale = 3.2 * c.dof * (1 - map)
       dof.current.cocMaterial.worldFocusRange = c.range
     }
+    // the grey city drains the colour out of the picture; it comes back with the sun
+    if (hue.current) hue.current.saturation = grade.sat
     if (tilt.current) tilt.current.blur = (high ? 0.22 * c.tilt : 0.1 + 0.18 * Math.max(c.tilt, c.dof * 0.5)) * (1 - map) + 0.16 * map
   })
 
@@ -48,7 +52,7 @@ export function Effects() {
         <DepthOfField ref={dof} worldFocusRange={3.2} bokehScale={3} resolutionScale={0.5} />
         <TiltShift2 ref={tilt as never} blur={0} taper={0.6} samples={8} />
         <Bloom mipmapBlur intensity={dark ? 0.95 : 0.55} luminanceThreshold={dark ? 0.7 : 0.92} luminanceSmoothing={0.25} radius={dark ? 0.8 : 0.72} />
-        <HueSaturation saturation={0.06} />
+        <HueSaturation ref={hue} saturation={0.06} />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
         <Vignette offset={0.28} darkness={dark ? 0.66 : 0.5} />
       </EffectComposer>
@@ -58,6 +62,7 @@ export function Effects() {
     <EffectComposer multisampling={0} stencilBuffer={false}>
       <TiltShift2 ref={tilt as never} blur={0.12} taper={0.6} samples={6} />
       <Bloom mipmapBlur intensity={dark ? 0.9 : 0.5} luminanceThreshold={dark ? 0.7 : 0.92} luminanceSmoothing={0.25} radius={dark ? 0.75 : 0.65} />
+      <HueSaturation ref={hue} saturation={0.06} />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       <Vignette offset={0.28} darkness={dark ? 0.66 : 0.5} />
     </EffectComposer>

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { G, blob, offsetParts, type Part, type V3 } from '../lib/kit'
 import { taperTube } from '../characters/hair'
+import { dragonHead, dragonParts, type DragonStyle } from './dragon'
 
 /** Shared palette + small architectural parts used by every region. */
 export const C = {
@@ -60,29 +61,166 @@ export function windowPane(w: number, h: number, p: V3, ry = 0, frame = C.woodDk
   return offsetParts(parts, p, ry)
 }
 
-/** "Lưỡng long chầu nhật": two dragons facing a flaming sun on a ridge. */
-export function ridgeDragons(cx: number, y: number, z: number, span: number, body = C.jade, scale = 1): Part[] {
+/**
+ * The crowning ornament of a palace roof, in ceramic mosaic: two dragons
+ * facing a flaming sun ("lưỡng long chầu nhật", Ngọ Môn) or a wine gourd
+ * ("lưỡng long triều hồ lô", Điện Thái Hòa). The dragons are Lý dragons: each
+ * rears its head toward the centre, its slender body riding the ridge in many
+ * soft bends that ease toward the tail.
+ */
+export function ridgeDragons(cx: number, y: number, z: number, span: number, body = C.jade, scale = 1, centre: 'sun' | 'gourd' = 'sun'): Part[] {
   const p: Part[] = []
   const k = scale
-  p.push({ g: G.cyl, c: '#c8412b', m: 'paint', p: [cx, y + 0.3 * k, z], r: [Math.PI / 2, 0, 0], s: [0.24 * k, 0.06 * k, 0.24 * k] })
-  p.push({ g: G.torus, c: C.gold, m: 'gold', p: [cx, y + 0.3 * k, z], s: 0.24 * k })
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2
-    p.push({ g: G.cone, c: C.gold, m: 'gold', p: [cx + Math.cos(a) * 0.36 * k, y + (0.3 + Math.sin(a) * 0.36) * k, z], r: [0, 0, a - Math.PI / 2], s: [0.05 * k, 0.14 * k, 0.03 * k] })
+  if (centre === 'sun') {
+    // a red disc in a gold ring, wreathed in flames, on a little cloud pedestal
+    const sy = y + 0.36 * k
+    p.push({ g: G.cyl, c: '#c8412b', m: 'paint', p: [cx, sy, z], r: [Math.PI / 2, 0, 0], s: [0.24 * k, 0.07 * k, 0.24 * k] })
+    p.push({ g: G.torus, c: C.gold, m: 'gold', p: [cx, sy, z], s: 0.24 * k })
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2
+      const long = i % 2 === 0
+      p.push({ g: G.cone, c: long ? C.gold : '#e8742e', m: 'gold', p: [cx + Math.cos(a) * (long ? 0.4 : 0.34) * k, sy + Math.sin(a) * (long ? 0.4 : 0.34) * k, z], r: [0, 0, a - Math.PI / 2], s: [0.05 * k, (long ? 0.2 : 0.12) * k, 0.03 * k] })
+    }
+  } else {
+    // hồ lô: a glazed wine gourd on a lotus base, a flame at its mouth, ribbons streaming either side
+    p.push({ g: G.sphere, c: '#2f7fb8', m: 'ceramic', p: [cx, y + 0.3 * k, z], s: [0.25 * k, 0.24 * k, 0.2 * k] })
+    p.push({ g: G.sphere, c: '#3f9a6b', m: 'ceramic', p: [cx, y + 0.63 * k, z], s: [0.15 * k, 0.15 * k, 0.13 * k] })
+    p.push({ g: G.torus, c: C.gold, m: 'gold', p: [cx, y + 0.5 * k, z], r: [Math.PI / 2, 0, 0], s: [0.11 * k, 0.11 * k, 0.2 * k] })
+    p.push({ g: G.cyl, c: C.gold, m: 'gold', p: [cx, y + 0.8 * k, z], s: [0.045 * k, 0.1 * k, 0.045 * k] })
+    for (const a of [-0.5, 0, 0.5]) p.push({ g: G.cone, c: a ? '#e8742e' : C.gold, m: 'gold', p: [cx + a * 0.12 * k, y + (0.98 - Math.abs(a) * 0.1) * k, z], r: [0, 0, -a * 0.7], s: [0.05 * k, (0.26 - Math.abs(a) * 0.12) * k, 0.03 * k] })
+    for (const s of [-1, 1]) {
+      p.push({ g: taperTube([new THREE.Vector3(cx + s * 0.1 * k, y + 0.5 * k, z), new THREE.Vector3(cx + s * 0.34 * k, y + 0.66 * k, z), new THREE.Vector3(cx + s * 0.46 * k, y + 0.42 * k, z), new THREE.Vector3(cx + s * 0.36 * k, y + 0.22 * k, z)], 0.035 * k, 0.012 * k, 10, 5, 0.4), c: '#c8412b', m: 'ceramic' })
+    }
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2
+      p.push({ g: G.sphereLo, c: i % 2 ? '#f7c3d3' : '#f4efe6', m: 'ceramic', p: [cx + Math.cos(a) * 0.2 * k, y + 0.07 * k, z + Math.sin(a) * 0.14 * k], s: [0.08 * k, 0.05 * k, 0.06 * k] })
+    }
   }
-  for (const s of [-1, 1]) p.push(...dragon(cx + s * 0.5 * k, y, z, s, span, body, k))
+  for (const s of [-1, 1]) p.push({ g: G.sphereLo, c: '#f4efe6', m: 'ceramic', p: [cx + s * 0.4 * k, y + 0.06 * k, z], s: [0.14 * k, 0.07 * k, 0.1 * k] })
+  const r = Math.min(0.12 * k, span * 0.1)
+  for (const s of [-1, 1]) {
+    const x0 = cx + s * 0.66 * k
+    const pts: THREE.Vector3[] = [new THREE.Vector3(x0 - s * r * 0.7, y + r * 4.5, z), new THREE.Vector3(x0 + s * r * 1.0, y + r * 3.3, z)]
+    const n = 13
+    for (let i = 1; i <= n; i++) {
+      const t = i / n
+      // the bends tighten and flatten as the body runs out to the tail
+      const wave = 0.5 + 0.5 * Math.sin(t * Math.PI * 8.5 - 1.3)
+      pts.push(new THREE.Vector3(x0 + s * (r + (span - r) * t), y + r * (0.95 + 1.35 * wave * (1 - 0.5 * t)), z + Math.sin(t * Math.PI * 4) * r * 0.5 * (1 - t)))
+    }
+    p.push(...dragonParts({ pts, r, style: 'ly', body, belly: '#f4efe6', fin: '#e6b53a', mane: '#e6b53a', horn: C.gold, m: 'ceramic', accent: 'gold', head: 1.6, detail: r > 0.07 ? 'full' : 'low' }))
+  }
   return p
 }
 
-/** A sinuous ridge dragon: a wavy tapering body, a head, horns and spines. */
-export function dragon(hx: number, y: number, z: number, dir: number, span: number, body = C.jade, k = 1): Part[] {
+/**
+ * A Lý dragon lying along x: its head at hx, the slender body running `span`
+ * the way of `dir` in many soft bends (ridge beams, wall heads, roof hips).
+ */
+export function dragon(hx: number, y: number, z: number, dir: number, span: number, body = C.jade, k = 1, style: DragonStyle = 'ly'): Part[] {
+  const r = Math.min(0.115 * k, span * 0.11)
+  const ly = style === 'ly'
+  const pts: THREE.Vector3[] = [new THREE.Vector3(hx - dir * r * 0.5, y + r * (ly ? 3.6 : 4.2), z), new THREE.Vector3(hx + dir * r * 1.2, y + r * (ly ? 2.6 : 3.2), z)]
+  const n = ly ? 11 : 6
+  for (let i = 1; i <= n; i++) {
+    const t = i / n
+    const hump = ly ? 0.5 + 0.5 * Math.sin(t * Math.PI * 7 - 1.2) : Math.max(0, Math.sin(t * Math.PI * 2.5 - 0.5))
+    pts.push(new THREE.Vector3(hx + dir * (r * 1.2 + (span - r * 1.2) * t), y + r * (0.95 + (ly ? 1.25 : 1.5) * hump * (1 - t * 0.5)), z + Math.sin(t * Math.PI * (ly ? 4 : 3)) * r * 0.5 * (1 - t)))
+  }
+  return dragonParts({ pts, r, style, body, m: 'ceramic', accent: 'gold', horn: C.gold, detail: r > 0.075 ? 'full' : 'low', head: 1.55 })
+}
+
+/**
+ * A pair of palace door leaves standing open inside a gateway: red lacquer,
+ * rows of gilt bosses, a ring pull. The gateway is `hw` half-wide at cx; the
+ * leaves lie back against its sides, from zFace into the passage.
+ */
+export function doorLeaves(cx: number, hw: number, h: number, zFace: number, color = '#7a231f'): Part[] {
   const p: Part[] = []
-  const pts = [0, 0.2, 0.4, 0.6, 0.8, 1].map((t) => new THREE.Vector3(hx + dir * span * t, y + (0.12 + Math.sin(t * Math.PI * 2.5) * 0.12 + (1 - t) * 0.2) * k, z))
-  p.push({ g: taperTube(pts, 0.11 * k, 0.04 * k, 18, 7), c: body, m: 'ceramic' })
-  p.push({ g: G.sphere, c: body, m: 'ceramic', p: [hx + dir * 0.05 * k, y + 0.45 * k, z], s: [0.14 * k, 0.11 * k, 0.1 * k] })
-  p.push({ g: G.cone, c: C.gold, m: 'gold', p: [hx + dir * 0.12 * k, y + 0.6 * k, z], r: [0, 0, -dir * 0.6], s: [0.03 * k, 0.16 * k, 0.03 * k] })
-  for (let i = 1; i < 6; i++) p.push({ g: G.sphereXs, c: C.gold, m: 'gold', p: [pts[i].x, pts[i].y + 0.09 * k, z], s: 0.035 * k })
+  const w = hw * 0.92
+  for (const s of [-1, 1]) {
+    const x = cx + s * (hw - 0.04)
+    p.push(box(0.05, h, w, [x, h / 2 + 0.02, zFace - 0.08 - w / 2], color, 'paint'))
+    for (let i = 0; i < 4; i++)
+      for (let j = 0; j < 3; j++) p.push({ g: G.sphereXs, c: C.gold, m: 'gold', p: [x - s * 0.03, h * (0.2 + i * 0.2), zFace - 0.08 - w * (0.2 + j * 0.3)], s: 0.028 })
+    p.push({ g: G.torusLo, c: C.gold, m: 'gold', p: [x - s * 0.035, h * 0.5, zFace - 0.08 - w * 0.86], r: [0, Math.PI / 2, 0], s: 0.05 })
+  }
   return p
+}
+
+/** Voi đá: a Cham stone elephant, standing, on a low plinth (the pair before the Hoàng Đế citadel). */
+export function stoneElephant(x: number, z: number, ry: number, s = 1, c = '#8d867a'): Part[] {
+  const p: Part[] = [
+    box(1.0, 0.12, 1.5, [0, 0.06, 0], '#77716a', 'aged'),
+    { g: G.sphere, c, m: 'aged', p: [0, 0.74, -0.08], s: [0.4, 0.42, 0.6] },
+    { g: G.sphere, c, m: 'aged', p: [0, 0.92, 0.5], s: [0.3, 0.32, 0.3] },
+    // the domed brow, the ears lying back
+    { g: G.sphereLo, c, m: 'aged', p: [0, 1.14, 0.46], s: [0.2, 0.14, 0.2] },
+    { g: G.sphereLo, c, m: 'aged', p: [0.3, 0.92, 0.36], r: [0, 0.5, 0.15], s: [0.06, 0.26, 0.22] },
+    { g: G.sphereLo, c, m: 'aged', p: [-0.3, 0.92, 0.36], r: [0, -0.5, -0.15], s: [0.06, 0.26, 0.22] },
+    // trunk curling in at the tip, tusks, tail
+    { g: taperTube([new THREE.Vector3(0, 0.86, 0.74), new THREE.Vector3(0, 0.6, 0.9), new THREE.Vector3(0, 0.3, 0.86), new THREE.Vector3(0, 0.2, 0.74)], 0.12, 0.05, 12, 7), c, m: 'aged' },
+    { g: G.cone, c: '#d6cfc0', m: 'aged', p: [0.13, 0.7, 0.8], r: [1.9, 0, -0.15], s: [0.035, 0.26, 0.035] },
+    { g: G.cone, c: '#d6cfc0', m: 'aged', p: [-0.13, 0.7, 0.8], r: [1.9, 0, 0.15], s: [0.035, 0.26, 0.035] },
+    { g: taperTube([new THREE.Vector3(0, 0.84, -0.66), new THREE.Vector3(0, 0.56, -0.76), new THREE.Vector3(0, 0.34, -0.7)], 0.035, 0.015, 8, 5), c, m: 'aged' },
+    // a carved saddle cloth and a bell collar
+    box(0.5, 0.03, 0.5, [0, 1.14, -0.1], '#9a9386', 'aged'),
+    { g: G.torusLo, c: '#9a9386', m: 'aged', p: [0, 0.86, 0.3], r: [0.2, 0, 0], s: [0.3, 0.3, 0.2] },
+    { g: G.sphereXs, c: '#2a2422', m: 'aged', p: [0.2, 1.0, 0.72], s: 0.03 },
+    { g: G.sphereXs, c: '#2a2422', m: 'aged', p: [-0.2, 1.0, 0.72], s: 0.03 },
+  ]
+  for (const [lx, lz] of [
+    [0.22, 0.3],
+    [-0.22, 0.3],
+    [0.22, -0.42],
+    [-0.22, -0.42],
+  ]) {
+    p.push({ g: G.cyl, c, m: 'aged', p: [lx, 0.34, lz], s: [0.13, 0.5, 0.13] })
+    p.push({ g: G.cyl, c: '#9a9386', m: 'aged', p: [lx, 0.14, lz], s: [0.145, 0.05, 0.145] })
+  }
+  return offsetParts(p, [x, 0, z], ry, s)
+}
+
+/**
+ * Kỳ lân: the gilt-bronze qilin that guard the court of Điện Thái Hòa — a
+ * dragon's head on the body of a hoofed beast, standing four-square on a
+ * stone plinth, flames at its shoulders and a flame for a tail.
+ */
+export function kyLan(x: number, z: number, ry: number, s = 1): Part[] {
+  const B = '#b98f3e'
+  const F = '#dcb558'
+  const p: Part[] = [
+    box(0.74, 0.3, 1.2, [0, 0.15, 0], '#bdb2a1', 'aged'),
+    box(0.84, 0.06, 1.3, [0, 0.03, 0], '#948a7b', 'aged'),
+    box(0.8, 0.05, 1.26, [0, 0.31, 0], '#d6cdbc', 'aged'),
+    // barrel, chest and the rise of the neck
+    { g: G.sphere, c: B, m: 'bronze', p: [0, 0.82, -0.06], s: [0.2, 0.2, 0.36] },
+    { g: G.sphere, c: B, m: 'bronze', p: [0, 0.9, 0.2], s: [0.19, 0.22, 0.2] },
+    { g: taperTube([new THREE.Vector3(0, 0.94, 0.24), new THREE.Vector3(0, 1.12, 0.34), new THREE.Vector3(0, 1.26, 0.36)], 0.14, 0.11, 8, 8), c: B, m: 'bronze' },
+    // a saddle cloth with a gilt border, a bell at the breast
+    box(0.44, 0.02, 0.3, [0, 1.02, -0.08], '#a3302a', 'paint'),
+    box(0.46, 0.015, 0.32, [0, 1.012, -0.08], C.gold, 'gold'),
+    { g: G.sphereLo, c: C.gold, m: 'gold', p: [0, 0.78, 0.4], s: 0.05 },
+  ]
+  for (const [lx, lz] of [
+    [0.13, 0.22],
+    [-0.13, 0.22],
+    [0.13, -0.3],
+    [-0.13, -0.3],
+  ]) {
+    p.push({ g: G.cyl, c: B, m: 'bronze', p: [lx, 0.56, lz], s: [0.055, 0.44, 0.055] })
+    p.push({ g: G.cyl, c: '#8a6a2c', m: 'bronze', p: [lx, 0.365, lz + 0.01], s: [0.07, 0.06, 0.08] })
+    // a tuft of flame at each elbow
+    p.push({ g: G.coneLo, c: F, m: 'gold', p: [lx * 1.25, 0.74, lz - 0.08], r: [-1.0, 0, -Math.sign(lx) * 0.4], s: [0.04, 0.2, 0.025] })
+  }
+  // flames along the spine, and the tail
+  for (let i = 0; i < 5; i++) p.push({ g: G.coneLo, c: F, m: 'gold', p: [0, 1.04 - i * 0.012, 0.16 - i * 0.12], r: [-0.6, 0, 0], s: [0.035, 0.16, 0.02] })
+  for (const k of [-1, 0, 1]) p.push({ g: G.coneLo, c: F, m: 'gold', p: [k * 0.07, 1.0 - Math.abs(k) * 0.05, -0.5], r: [-0.75, 0, -k * 0.4], s: [0.05, 0.4, 0.025] })
+  // the head: a dragon's, mane streaming
+  const h = 0.2
+  const M = new THREE.Matrix4().makeBasis(new THREE.Vector3(h, 0, 0), new THREE.Vector3(0, h, 0), new THREE.Vector3(0, 0, h)).setPosition(0, 1.34, 0.4)
+  p.push(...dragonHead(M, 'ly', { body: B, belly: '#d2b06a', mane: F, horn: '#f3d98a' }, 'bronze', 'gold', true, false))
+  return offsetParts(p, [x, 0, z], ry, s)
 }
 
 /** Bronze đỉnh urn (after Huế's Nine Dynastic Urns). */

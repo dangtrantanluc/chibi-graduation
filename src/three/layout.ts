@@ -80,6 +80,8 @@ export const STREET = {
 /** Đoan Môn — south gate of the Forbidden City, Hoàng thành Thăng Long */
 export const DOANMON = { x: 0, z: -27.6, w: 11.2, d: 2.4, h: 2.55, archW: 1.5, archH: 2.05 }
 export const BIKE = { x: -3.1, z: -20.4, ry: 0.5 }
+/** Cột cờ Hà Nội — the flag tower of the citadel, off to the west of the esplanade */
+export const FLAG_TOWER = { x: -13.4, z: -21.4 }
 
 // ── IV · Làng Bắc Bộ ────────────────────────────────────────
 /** the village gate, set into the bamboo hedge (lũy tre) across a green from Đoan Môn: the way INTO the village */
@@ -134,6 +136,8 @@ export const MAI_POTS: [number, number][] = [
 export const SCROLL = { x: 0, top: 3.86, z: NGOMON.z + NGOMON.depth / 2 + 0.2 }
 /** how far the list is unrolled (world.scroll) when only its upper half, the proclamation, shows */
 export const SCROLL_HALF = 0.56
+/** the bronze-drum medallion set into the paving of the Ngọ Môn plaza */
+export const DRUM = { x: 0, z: -49.4, r: 1.75 }
 
 /** The main walking path (painted into the ground), front to back. */
 export const PATH: [number, number][] = [

@@ -4,10 +4,11 @@ import { G, offsetParts, rng, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { hipRoof } from '../lib/roof'
 import { canvas, toTexture } from '../lib/textures'
-import { BIKE, BOARD, DOANMON } from '../layout'
+import { BIKE, BOARD, DOANMON, FLAG_TOWER } from '../layout'
 import { PLAQUES } from '../../config'
-import { archRing, archedWall, box, cyl, dragon, lotusBud, panel, skirting } from './parts'
-import { Plaque, Sign } from './Common'
+import { archRing, archedWall, box, cyl, doorLeaves, dragon, lotusBud, panel, skirting } from './parts'
+import { dragonParts } from './dragon'
+import { Flags, Plaque, Sign } from './Common'
 
 /*
  * III · HOÀNG THÀNH THĂNG LONG — autumn in Hà Nội.
@@ -92,6 +93,25 @@ function gateParts(): Part[] {
     p.push(...panel(0.46, 0.7, [s * 3.35, 1.72, D.d / 2 + 0.02], OCHRE_LT, '#c4923e'))
     p.push(...panel(0.34, 0.95, [s * 5.25, 1.2, D.d / 2 + 0.02], OCHRE_LT, '#c4923e'))
   }
+  // Thềm rồng — the emblem of the citadel: a pair of stone dragons flanking the way into the
+  // central arch, as dragons flank the steps of Điện Kính Thiên. Lý dragons: slender, hornless,
+  // a flame crest, the body in soft bends along a low plinth, the head reared toward whoever comes.
+  for (const s of [-1, 1]) {
+    const x = s * 1.14
+    const z0 = D.d / 2
+    p.push(box(0.3, 0.2, 1.62, [x, 0.1, z0 + 0.81], '#8f897b', 'aged'))
+    p.push(box(0.36, 0.06, 1.68, [x, 0.03, z0 + 0.81], '#7d776a', 'aged'))
+    const R = 0.115
+    const pts: THREE.Vector3[] = [new THREE.Vector3(x, 0.2 + R * 4.2, z0 + 1.8), new THREE.Vector3(x, 0.2 + R * 3.1, z0 + 1.54)]
+    for (let i = 1; i <= 11; i++) {
+      const t = i / 11
+      const wave = 0.5 + 0.5 * Math.sin(t * Math.PI * 7 - 1.2)
+      pts.push(new THREE.Vector3(x + Math.sin(t * Math.PI * 4) * 0.04 * (1 - t), 0.2 + R * (0.95 + 1.3 * wave * (1 - 0.5 * t)), z0 + 1.54 - t * 1.44))
+    }
+    p.push(...dragonParts({ pts, r: R, style: 'ly', body: '#a9a493', belly: '#bdb8a7', fin: '#989382', mane: '#989382', horn: '#bdb8a7', m: 'aged', accent: 'aged', head: 1.65 }))
+  }
+  // the ironwood doors of the three middle gateways stand open
+  for (const [cx, hw, sp] of ARCHES.slice(0, 3)) p.push(...doorLeaves(cx, hw, sp, D.d / 2 - 0.04, '#5e3122'))
   // cornice
   p.push(box(D.w + 0.22, 0.12, D.d + 0.22, [0, D.h + 0.06, 0], OCHRE_LT, 'aged'))
   p.push(box(D.w + 0.1, 0.06, D.d + 0.1, [0, D.h - 0.06, 0], '#b8883c', 'aged'))
@@ -144,7 +164,7 @@ function gateParts(): Part[] {
     [1, -1],
     [-1, -1],
   ]) {
-    const d = dragon(sx * (pw / 2 + 0.35), py + ph + 0.12, sz * (pd / 2 + 0.35), -sx, 0.55, '#8c8a82', 0.62)
+    const d = dragon(sx * (pw / 2 + 0.35), py + ph + 0.12, sz * (pd / 2 + 0.35), -sx, 0.62, '#8c8a82', 0.62)
     p.push(...d.map((q) => ({ ...q, m: 'aged' as const })))
   }
   // upper storey + a hip-and-gable roof whose gable faces the front
@@ -258,6 +278,73 @@ function ganhParts(): Part[] {
   return offsetParts(p, [2.6, 0, -19.6], -0.4)
 }
 
+/**
+ * Cột cờ Hà Nội (1812): three stepped square terraces of brick, an octagonal
+ * tower with small star- and fan-shaped windows, a lookout at the top, and the
+ * flag above it.
+ */
+export const FLAG_TOWER_H = 8.3
+function flagTowerParts(): Part[] {
+  const BR = '#8f6a55'
+  const BR_DK = '#73513f'
+  const p: Part[] = []
+  let y = 0
+  for (const [w, h] of [
+    [4.4, 0.85],
+    [3.3, 0.85],
+    [2.3, 0.95],
+  ]) {
+    // battered walls: a wider foot
+    p.push(box(w + 0.16, 0.16, w + 0.16, [0, y + 0.08, 0], BR_DK, 'aged'))
+    p.push(box(w, h, w, [0, y + h / 2, 0], BR, 'aged'))
+    p.push(box(w + 0.1, 0.07, w + 0.1, [0, y + h, 0], '#a88a74', 'aged'))
+    // a parapet of little brick merlons
+    for (let k = -w / 2 + 0.2; k <= w / 2 - 0.19; k += 0.4)
+      for (const [dx, dz] of [
+        [k, w / 2 - 0.07],
+        [k, -w / 2 + 0.07],
+        [w / 2 - 0.07, k],
+        [-w / 2 + 0.07, k],
+      ])
+        p.push(box(0.2, 0.16, 0.12, [dx, y + h + 0.11, dz], BR, 'aged', Math.abs(dz) > Math.abs(dx) ? undefined : [0, Math.PI / 2, 0]))
+    y += h
+  }
+  // doorways on the terraces (the east one is "Nghênh Húc", to greet the morning sun)
+  for (const [ry, wy] of [
+    [0, 0.85],
+    [Math.PI / 2, 1.7],
+  ] as const) {
+    const g = new THREE.Shape()
+    g.moveTo(-0.22, 0)
+    g.lineTo(-0.22, 0.34)
+    g.absarc(0, 0.34, 0.22, Math.PI, 0, true)
+    g.lineTo(0.22, 0)
+    const door = new THREE.ExtrudeGeometry(g, { depth: 0.04, bevelEnabled: false, curveSegments: 10 })
+    const half = wy < 1 ? 1.65 : 1.15
+    p.push({ g: door, c: '#2e2420', m: 'aged', p: [Math.sin(ry) * (half - 0.01), wy + 0.02, Math.cos(ry) * (half - 0.01)], r: [0, ry, 0] })
+  }
+  // the octagonal tower, tapering, with its windows
+  const th = 3.5
+  p.push({ g: new THREE.CylinderGeometry(0.4, 0.54, th, 8), c: BR, m: 'aged', p: [0, y + th / 2, 0], r: [0, Math.PI / 8, 0] })
+  for (let k = 0; k < 4; k++)
+    for (const a of [0, Math.PI / 2, Math.PI, -Math.PI / 2]) {
+      const yy = y + 0.6 + k * 0.72
+      const rr = 0.52 - (yy - y) * (0.14 / th) - 0.02
+      p.push({ g: G.box, c: '#2e2420', m: 'aged', p: [Math.sin(a + (k % 2) * (Math.PI / 4)) * rr, yy, Math.cos(a + (k % 2) * (Math.PI / 4)) * rr], r: [0, a + (k % 2) * (Math.PI / 4), 0], s: [0.1, 0.16, 0.06] })
+    }
+  y += th
+  // the lookout: an octagonal room wider than the shaft, a window on every face, a flat cap
+  p.push({ g: new THREE.CylinderGeometry(0.56, 0.5, 0.12, 8), c: '#a88a74', m: 'aged', p: [0, y + 0.06, 0], r: [0, Math.PI / 8, 0] })
+  p.push({ g: new THREE.CylinderGeometry(0.5, 0.5, 0.52, 8), c: BR, m: 'aged', p: [0, y + 0.38, 0], r: [0, Math.PI / 8, 0] })
+  for (let k = 0; k < 8; k++) {
+    const a = (k / 8) * Math.PI * 2
+    p.push({ g: G.box, c: '#2e2420', m: 'aged', p: [Math.sin(a) * 0.47, y + 0.4, Math.cos(a) * 0.47], r: [0, a, 0], s: [0.16, 0.26, 0.04] })
+  }
+  p.push({ g: new THREE.CylinderGeometry(0.6, 0.56, 0.1, 8), c: '#a88a74', m: 'aged', p: [0, y + 0.69, 0], r: [0, Math.PI / 8, 0] })
+  p.push({ g: new THREE.CylinderGeometry(0.14, 0.2, 0.3, 8), c: BR_DK, m: 'aged', p: [0, y + 0.89, 0] })
+  return offsetParts(p, [FLAG_TOWER.x, 0, FLAG_TOWER.z])
+}
+
 /** half the span of the lantern string in front of Đoan Môn */
 export const LAMP_X = 4.9
 
@@ -328,6 +415,8 @@ export function ThangLong() {
       <KitMesh build={gateParts} />
       <KitMesh build={wallParts} />
       <KitMesh build={streetParts} />
+      <KitMesh build={flagTowerParts} />
+      <Flags spots={[[FLAG_TOWER.x, FLAG_TOWER.z]]} kind="vn" h={FLAG_TOWER_H} />
       {rails.map((r, i) => (
         <Sign key={i} map={lat} w={r.w} h={0.36} position={r.p} ry={r.ry} />
       ))}

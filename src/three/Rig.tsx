@@ -117,8 +117,9 @@ export function CameraRig() {
     }
     // from that far off the haze would wash the board out: push it back
     if (scene.fog instanceof THREE.Fog) {
-      scene.fog.near = THREE.MathUtils.lerp(70, 260, e)
-      scene.fog.far = THREE.MathUtils.lerp(280, 700, e)
+      // (and under a grey sky it stands much closer: the far end of the street is already lost)
+      scene.fog.near = THREE.MathUtils.lerp(THREE.MathUtils.lerp(70, 9, grade.haze), 260, e)
+      scene.fog.far = THREE.MathUtils.lerp(THREE.MathUtils.lerp(280, 62, grade.haze), 700, e)
     }
     camera.lookAt(tmp.tgt)
     camera.rotateZ(Math.sin(t * 0.21) * 0.004 * drift * (1 - e))
@@ -192,6 +193,9 @@ export function Lighting() {
     const luc = world.chars.luc
     lamp.pos.set(luc.pos.x + Math.sin(luc.rotY) * 0.5 + Math.cos(luc.rotY) * 0.3, luc.pos.y + 0.5, luc.pos.z + Math.cos(luc.rotY) * 0.5 - Math.sin(luc.rotY) * 0.3)
     lamp.intensity = 0.85 * grade.lamp * grade.lamp * (1 + 0.07 * Math.sin(world.time * 11.3) + 0.05 * Math.sin(world.time * 23.7 + 1.3))
+    // (its colour is pushed warmer as the picture is drained, so its pool on the wet road stays amber)
+    const boost = 1 / Math.max(0.4, 1 + Math.min(grade.sat, 0))
+    lamp.color.setRGB(1, Math.max(0, 0.62 + (0.43 - 0.62) * boost), Math.max(0, 0.62 + (0.12 - 0.62) * boost))
     const count = quality === 'high' ? 3 : 1
     const slots = [...world.lights, lamp].sort((a, b) => b.intensity - a.intensity).slice(0, count)
     // the time of day (grade.ts): by night the sun becomes a cool moon and the sky light sinks to

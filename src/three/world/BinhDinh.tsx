@@ -3,10 +3,10 @@ import { useMemo } from 'react'
 import { G, offsetParts, rng, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { canvas, FONT_CJK, toTexture } from '../lib/textures'
-import { taperTube } from '../characters/hair'
 import { BENCH, BOARD, CHAM, GATE, PADDY } from '../layout'
 import { PLAQUES } from '../../config'
-import { bench, box, cyl, dragon, lotusBud, plinth } from './parts'
+import { bench, box, cyl, dragon, lotusBud, plinth, stoneElephant } from './parts'
+import { dragonParts } from './dragon'
 import { Couplet, Sign } from './Common'
 
 /*
@@ -203,21 +203,20 @@ function dragonColumn(x: number, h: number): Part[] {
     cyl(0.12, h - 0.26, [x, 0.26 + (h - 0.26) / 2, z], '#c9c1b2', 'aged'),
     box(0.3, 0.08, 0.3, [x, h + 0.04, z], '#6b645b', 'aged'),
   ]
-  const pts: THREE.Vector3[] = []
+  // the dragon: red mosaic, a white belly, green fins — coiling up the column, its head reared
+  // at the top and turned toward the opening
+  const coil: THREE.Vector3[] = []
   const turns = 3.2
   for (let k = 0; k <= 40; k++) {
     const t = k / 40
     const a = t * Math.PI * 2 * turns + (x > 0 ? Math.PI : 0)
-    pts.push(new THREE.Vector3(x + Math.cos(a) * 0.15, 0.4 + t * (h - 0.75), z + Math.sin(a) * 0.15))
+    coil.push(new THREE.Vector3(x + Math.cos(a) * 0.185, 0.42 + t * (h - 0.95), z + Math.sin(a) * 0.185))
   }
-  p.push({ g: taperTube(pts, 0.045, 0.075, 90, 7), c: '#c4453a', m: 'ceramic' })
-  for (let k = 2; k < 40; k += 2) p.push({ g: G.sphereXs, c: k % 4 ? '#f2ede2' : '#3f9a6b', m: 'ceramic', p: [pts[k].x, pts[k].y + 0.05, pts[k].z], s: 0.03 })
-  // the head rears at the top, facing the opening
-  const top = pts[pts.length - 1]
+  const top = coil[coil.length - 1]
   const dir = x > 0 ? -1 : 1
-  p.push({ g: G.sphere, c: '#c4453a', m: 'ceramic', p: [top.x + dir * 0.06, top.y + 0.12, top.z + 0.1], s: [0.1, 0.08, 0.13] })
-  p.push({ g: G.sphere, c: '#f2ede2', m: 'ceramic', p: [top.x + dir * 0.06, top.y + 0.08, top.z + 0.2], s: [0.06, 0.04, 0.06] })
-  for (const s of [-1, 1]) p.push({ g: G.cone, c: '#e0b04a', m: 'gold', p: [top.x + dir * 0.06 + s * 0.04, top.y + 0.22, top.z + 0.04], r: [-0.6, 0, s * 0.3], s: [0.02, 0.12, 0.02] })
+  const pts = [new THREE.Vector3(top.x + dir * 0.16, top.y + 0.2, z + 0.34), new THREE.Vector3(top.x + dir * 0.08, top.y + 0.12, z + 0.25), ...coil.reverse()]
+  const out = (q: THREE.Vector3) => new THREE.Vector3(q.x - x, 0, q.z - z)
+  p.push(...dragonParts({ pts, r: 0.058, style: 'ly', body: '#c4453a', belly: '#f2ede2', fin: '#3f9a6b', mane: '#e0b04a', horn: '#e0b04a', m: 'ceramic', accent: 'ceramic', up: out, head: 1.75 }))
   return p
 }
 
@@ -403,6 +402,9 @@ function countryParts(): Part[] {
   hut.push({ g: roof, c: '#b58f4a', m: 'foliage', p: [0, 1.97, 0], s: [1.2, 0.9, 1.1] })
   hut.push(box(0.08, 0.8, 0.08, [0.55, 0.4, 0.8], '#8a6a3a', 'wood', [0.5, 0, 0]))
   p.push(...offsetParts(hut, [PADDY.x1 - 1.2, 0, PADDY.z1 - 1.4], 0.3))
+  // voi đá: the pair of Cham stone elephants that stand before the citadel
+  p.push(...stoneElephant(-4.5, GATE.z + 1.8, 0.25, 0.95))
+  p.push(...stoneElephant(4.5, GATE.z + 1.8, -0.25, 0.95))
   // Lực's stone bench under the gate, and a low stone planter
   p.push(...bench([BENCH.x, 0, BENCH.z], 0, '#d9d3c7', '#b9b1a3', 1.15))
   p.push(...bench([-1.9, 0, 7.6], 0, '#d9d3c7', '#b9b1a3', 1.15))

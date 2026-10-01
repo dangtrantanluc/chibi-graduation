@@ -132,10 +132,20 @@ export const world = {
   wipe: { kind: 'none' as WipeKind, p: 0 },
   /** morning light pouring through the Hoàng Đế gate as Lực sets off */
   gate: { light: 0 },
+  /** chapter I: the gate opens onto a haze of light — what lies beyond is not shown yet (0‥1) */
+  veil: 1,
+  /** the city street behind the citadel wall is there (people, traffic, poles) — only from chapter II */
+  city: false,
   /** extra brightness per lantern zone */
   glow: { hanoi: 0, village: 0, hue: 0 },
   /** 0‥1 village lanterns lighting up one after another */
   villageWave: 0,
+  /** the flight of Lạc birds: where their ring wheels (centre, height, radius) and whether they show (0‥1) */
+  birds: { x: 0, y: 5.6, z: 4.4, r: 5.4, on: 1 },
+  /** the golden dragon in flight: progress along its route (−1 = not flying); route 0 Thăng Long, 1 Huế */
+  dragon: { k: -1, route: 0 },
+  /** where its head is (updated by its rig) — everyone looks up at it */
+  dragonPos: new THREE.Vector3(0, 8, -28),
   /** bảng vàng unfurl 0‥1 */
   scroll: 0,
   /** a band of light running down the bảng vàng: 0 (top) ‥ 1 (bottom); −1 = none */

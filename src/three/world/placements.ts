@@ -1,5 +1,5 @@
 import { rng } from '../lib/kit'
-import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, WELL } from '../layout'
+import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, FLAG_TOWER, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, WELL } from '../layout'
 import { CAMPUS_TREES } from './Campus'
 
 /** Deterministic placement of buildings, trees, rocks and flowers, region by region. */
@@ -43,10 +43,10 @@ const HAND_TREES: TreeDef[] = [
   { x: 5.2, z: -17.6, s: 1.1, ry: 2.2, kind: 'autumn' },
   { x: -7.4, z: -24.2, s: 1.2, ry: 1.4, kind: 'hoasua' },
   { x: 7.2, z: -24.0, s: 1.15, ry: 0.6, kind: 'autumn' },
-  { x: -10.6, z: -19.6, s: 1.0, ry: 2.9, kind: 'autumn' },
+  { x: -9.4, z: -16.6, s: 1.0, ry: 2.9, kind: 'autumn' },
   { x: 10.4, z: -20.4, s: 1.05, ry: 1.9, kind: 'hoasua' },
   { x: 3.6, z: -15.4, s: 0.9, ry: 3.3, kind: 'hoasua' },
-  { x: -14.6, z: -23.6, s: 1.1, ry: 0.2, kind: 'autumn' },
+  { x: -18.2, z: -24.6, s: 1.1, ry: 0.2, kind: 'autumn' },
   { x: 14.6, z: -16.6, s: 1.1, ry: 4.2, kind: 'autumn' },
   // IV · the village — the banyan just inside the gate
   { x: BANYAN.x, z: BANYAN.z, s: 1.0, ry: 0.6, kind: 'banyan' },
@@ -126,7 +126,10 @@ export function isFree(x: number, z: number, m = 0) {
   if (x > RANGDONG.xf - 1.4 - m && x < RANGDONG.xf + RANGDONG.d + 1.2 + m && Math.abs(z - RANGDONG.zc) < RANGDONG.w / 2 + 1.2 + m) return false
   if (x > -0.4 - m && x < RANGDONG.xf + m && Math.abs(z - RANGDONG.zc) < RANGDONG.w / 2 + 0.2 + m) return false
   if (Math.hypot(x - TOPIARY.x, z - TOPIARY.z) < TOPIARY.r + 1.2 + m) return false
-  // Thăng Long: the bicycle, the gánh, lamps and benches
+  // the stone elephants before the Hoàng Đế citadel
+  if (Math.abs(Math.abs(x) - 4.5) < 1.2 + m && Math.abs(z - (GATE.z + 1.8)) < 1.5 + m) return false
+  // Thăng Long: the flag tower, the bicycle, the gánh, lamps and benches
+  if (Math.abs(x - FLAG_TOWER.x) < 3.0 + m && Math.abs(z - FLAG_TOWER.z) < 3.0 + m) return false
   if (Math.hypot(x - BIKE.x, z - BIKE.z) < 1.3 + m) return false
   if (Math.hypot(x - 2.6, z + 19.6) < 1.3 + m) return false
   // the village
@@ -142,6 +145,9 @@ export function isFree(x: number, z: number, m = 0) {
   for (const [x0, x1, z0, z1] of HUE_PONDS) if (x > x0 - 0.8 - m && x < x1 + 0.8 + m && z > z0 - 0.8 - m && z < z1 + 0.8 + m) return false
   if (Math.abs(x - HALL.x) < 8.2 + m && z < HALL.terraceFront + 1.4 + m) return false
   if (Math.abs(x) < 2.2 + m && z < NGOMON.z && z > HALL.terraceFront) return false
+  // the kỳ lân in the court, the dismounting steles beside Ngọ Môn
+  if (Math.abs(Math.abs(x) - 3.7) < 1.2 + m && Math.abs(z - (HALL.terraceFront + 1.75)) < 1.3 + m) return false
+  if (Math.abs(Math.abs(x) - (NGOMON.w / 2 + 0.85)) < 0.8 + m && Math.abs(z - (NGOMON.z + NGOMON.depth / 2 + NGOMON.wing - 0.9)) < 0.8 + m) return false
   for (const h of HOUSES) {
     const c = Math.cos(h.ry)
     const s = Math.sin(h.ry)

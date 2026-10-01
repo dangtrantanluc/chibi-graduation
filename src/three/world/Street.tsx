@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { G, mergeKit, rng, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
-import { kitMat } from '../lib/materials'
+import { kitMat, uTime } from '../lib/materials'
+import { canvas, toTexture } from '../lib/textures'
 import { taperTube } from '../characters/hair'
 import { world } from '../../state/world'
 import { grade } from '../grade'
@@ -19,6 +20,12 @@ import { box, cyl } from './parts'
  * faceless on purpose. He is the only one with a face; nobody here knows him
  * yet. Everyone gives way to him (nothing ever walks through him), and the
  * traffic stops at the crossing while he is on it.
+ *
+ * It is a cold place when he first sees it: everything here is painted in
+ * greys and tired colours, the lamps are a cold white, the road shines wet
+ * under a fine rain. The one warm thing is the lamp in his hand.
+ * None of it exists in chapter I (world.city): home is not overlooked by the
+ * city, and the gate opens onto a haze of light.
  */
 
 const S = STREET
@@ -43,7 +50,7 @@ function pole(x: number, z: number, lampSide: number, transformer: boolean): Par
   // the street lamp on its arm, out over the road
   p.push({ g: taperTube([new THREE.Vector3(x, 3.3, z), new THREE.Vector3(x, 3.75, z + lampSide * 0.35), new THREE.Vector3(x, 3.8, z + lampSide * 0.9)], 0.03, 0.022, 10, 6), c: '#5a5f66', m: 'paint' })
   p.push({ g: G.sphere, c: '#5a5f66', m: 'paint', p: [x, 3.78, z + lampSide * 1.0], s: [0.1, 0.06, 0.2] })
-  p.push({ g: G.sphere, c: '#ffe2a0', m: 'paperLit', p: [x, 3.73, z + lampSide * 1.0], s: [0.075, 0.035, 0.16] })
+  p.push({ g: G.sphere, c: '#dfe8f6', m: 'paperLit', p: [x, 3.73, z + lampSide * 1.0], s: [0.075, 0.035, 0.16] })
   return p
 }
 
@@ -78,18 +85,18 @@ function trafficLight(x: number, z: number): Part[] {
     box(0.2, 0.52, 0.16, [x, 2.66, z], '#2a2c30', 'paint'),
     { g: G.sphereLo, c: '#5a2a26', m: 'paint', p: [x, 2.82, z - 0.08], s: 0.055 },
     { g: G.sphereLo, c: '#5a4a22', m: 'paint', p: [x, 2.66, z - 0.08], s: 0.055 },
-    { g: G.sphereLo, c: '#8dffb0', m: 'paperLit', p: [x, 2.5, z - 0.08], s: 0.058 },
+    { g: G.sphereLo, c: '#a9e6d0', m: 'paperLit', p: [x, 2.5, z - 0.08], s: 0.058 },
   ]
 }
 
 /** xe bánh mì: a glass-fronted cart under a striped parasol */
 function cart(x: number, z: number): Part[] {
   const p: Part[] = [
-    box(0.9, 0.5, 0.5, [x, 0.5, z], '#d94f3a', 'paint'),
-    box(0.94, 0.05, 0.54, [x, 0.77, z], '#e9e2d0', 'paint'),
+    box(0.9, 0.5, 0.5, [x, 0.5, z], '#7d5650', 'paint'),
+    box(0.94, 0.05, 0.54, [x, 0.77, z], '#bdb8ac', 'paint'),
     box(0.86, 0.34, 0.46, [x, 0.97, z], '#cfe6ee', 'glass'),
-    box(0.94, 0.05, 0.54, [x, 1.16, z], '#d94f3a', 'paint'),
-    box(0.9, 0.2, 0.03, [x, 1.3, z - 0.24], '#f2c84a', 'paint'),
+    box(0.94, 0.05, 0.54, [x, 1.16, z], '#7d5650', 'paint'),
+    box(0.9, 0.2, 0.03, [x, 1.3, z - 0.24], '#a59a72', 'paint'),
     cyl(0.02, 2.0, [x + 0.3, 1.0, z + 0.2], '#8a8f98', 'gloss'),
   ]
   for (const sx of [-1, 1]) {
@@ -99,10 +106,10 @@ function cart(x: number, z: number): Part[] {
   // parasol: eight gores, red and white
   for (let k = 0; k < 8; k++) {
     const a0 = (k / 8) * Math.PI * 2
-    p.push({ g: new THREE.ConeGeometry(0.85, 0.3, 3, 1, true, a0, Math.PI / 4), c: k % 2 ? '#f4efe4' : '#d94f3a', m: 'paint', p: [x + 0.3, 2.02, z + 0.2] })
+    p.push({ g: new THREE.ConeGeometry(0.85, 0.3, 3, 1, true, a0, Math.PI / 4), c: k % 2 ? '#b9b6ae' : '#7d5650', m: 'paint', p: [x + 0.3, 2.02, z + 0.2] })
   }
   // loaves on top
-  for (const dx of [-0.25, -0.05, 0.15]) p.push({ g: G.sphereLo, c: '#d9a55a', m: 'toy', p: [x + dx, 0.84, z + 0.05], r: [0, 0.4, 0], s: [0.09, 0.04, 0.045] })
+  for (const dx of [-0.25, -0.05, 0.15]) p.push({ g: G.sphereLo, c: '#a8926a', m: 'toy', p: [x + dx, 0.84, z + 0.05], r: [0, 0.4, 0], s: [0.09, 0.04, 0.045] })
   return p
 }
 
@@ -151,12 +158,12 @@ function propParts(): Part[] {
   p.push(...wires(xs, 4.3))
   p.push(...trafficLight(S.cross + 0.5, S.z1 + 0.25))
   p.push(...cart(-6.6, 4.05))
-  p.push(...parkedBike(8.8, 4.15, 1.2, '#3f6fb8'))
-  p.push(...parkedBike(9.5, 4.2, 1.35, '#c8442e'))
-  p.push(...parkedBike(-15.2, 4.15, 1.9, '#e2e4e8'))
+  p.push(...parkedBike(8.8, 4.15, 1.2, '#55647c'))
+  p.push(...parkedBike(9.5, 4.2, 1.35, '#7a5650'))
+  p.push(...parkedBike(-15.2, 4.15, 1.9, '#9a9da3'))
   // a bus stop sign on the campus side
   p.push(cyl(0.03, 2.1, [10.6, 1.05, 0.95], '#8a8f98', 'gloss'))
-  p.push({ g: G.cyl, c: '#2f63b8', m: 'paint', p: [10.6, 2.05, 0.95], r: [Math.PI / 2, 0, 0], s: [0.2, 0.03, 0.2] })
+  p.push({ g: G.cyl, c: '#51627e', m: 'paint', p: [10.6, 2.05, 0.95], r: [Math.PI / 2, 0, 0], s: [0.2, 0.03, 0.2] })
   return p
 }
 
@@ -174,7 +181,9 @@ interface Agent {
 }
 const HALF = BOARD.maxX - 0.7
 const MUTED = ['#7f8898', '#8e98a8', '#6f7a8c', '#9aa2ae', '#5f6b80', '#a8a49c', '#8a7f78', '#74808f']
-const BIKES = ['#c8442e', '#3f6fb8', '#e2e4e8', '#2f3238', '#3f9a6b', '#e0a83a']
+// tired paint: the reds, blues and greens of the real thing with most of the colour gone
+const BIKES = ['#74524e', '#4f5d74', '#9a9da3', '#2f3238', '#55685f', '#857a5c']
+const HELMETS = ['#b5b2aa', '#6f5754', '#55627a', '#2a2c30']
 
 function Crowd() {
   const sys = useMemo(() => {
@@ -208,14 +217,14 @@ function Crowd() {
     const lampGeo = new THREE.SphereGeometry(0.055, 8, 6)
     lampGeo.scale(1, 1, 0.5)
     lampGeo.translate(0, 0.5, 0.36)
-    const lampMat = new THREE.MeshBasicMaterial({ color: '#fff0c0', toneMapped: false })
+    const lampMat = new THREE.MeshBasicMaterial({ color: '#e6eeff', toneMapped: false })
     const bikeLamp = new THREE.InstancedMesh(lampGeo, lampMat, bikes.length)
     const c = new THREE.Color()
     peds.forEach((_, i) => ped.setColorAt(i, c.set(MUTED[Math.floor(r() * MUTED.length)])))
     bikes.forEach((_, i) => {
       bikeBody.setColorAt(i, c.set(BIKES[Math.floor(r() * BIKES.length)]))
       bikeRider.setColorAt(i, c.set(MUTED[Math.floor(r() * MUTED.length)]))
-      bikeHelm.setColorAt(i, c.set(['#e8e4da', '#d94f3a', '#3f6fb8', '#2a2c30'][Math.floor(r() * 4)]))
+      bikeHelm.setColorAt(i, c.set(HELMETS[Math.floor(r() * HELMETS.length)]))
     })
     const meshes = [ped, bikeBody, bikeRider, bikeHelm, bikeLamp]
     for (const m of meshes) {
@@ -274,9 +283,9 @@ function Crowd() {
       sys.bikeLamp.setMatrixAt(i, m)
     })
     for (const m of sys.meshes) m.instanceMatrix.needsUpdate = true
-    // headlights are on whenever the light is poor
+    // headlights are on whenever the light is poor — a cold white, never warm
     const on = Math.max(grade.night, grade.lamp)
-    sys.lampMat.color.setRGB(0.5 + 2.2 * on, 0.46 + 1.9 * on, 0.36 + 1.2 * on)
+    sys.lampMat.color.setRGB(0.45 + 1.7 * on, 0.5 + 1.9 * on, 0.58 + 2.2 * on)
   })
 
   return (
@@ -288,11 +297,119 @@ function Crowd() {
   )
 }
 
-export function Street() {
+/** where the wet shows: an alpha map of broad puddles and thinner sheen, tiling along the street */
+function wetTex() {
+  const [c, g] = canvas(512, 64)
+  g.fillStyle = 'rgb(96,96,96)'
+  g.fillRect(0, 0, 512, 64)
+  const r = rng(31)
+  for (let i = 0; i < 46; i++) {
+    const x = r() * 512
+    const y = r() * 64
+    const rx = 14 + r() * 46
+    const ry = 4 + r() * 12
+    for (const dx of [-512, 0, 512]) {
+      const grd = g.createRadialGradient(x + dx, y, 0, x + dx, y, rx)
+      const v = r() < 0.6 ? 235 : 20
+      grd.addColorStop(0, `rgba(${v},${v},${v},0.9)`)
+      grd.addColorStop(1, `rgba(${v},${v},${v},0)`)
+      g.save()
+      g.translate(x + dx, y)
+      g.scale(1, ry / rx)
+      g.translate(-(x + dx), -y)
+      g.fillStyle = grd
+      g.fillRect(x + dx - rx, y - rx, rx * 2, rx * 2)
+      g.restore()
+    }
+  }
+  const t = toTexture(c, false, true)
+  t.repeat.set(3, 1)
+  return t
+}
+
+/** The street after rain: a dark, glossy film over the asphalt that catches the sky — and his lamp. */
+function WetRoad() {
+  const mesh = useRef<THREE.Mesh>(null!)
+  const mat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#151a22', roughness: 0.05, metalness: 0, transparent: true, opacity: 0, alphaMap: wetTex(), depthWrite: false, envMapIntensity: 1.4 }), [])
+  useFrame(() => {
+    mat.opacity = 0.8 * grade.rain
+    mesh.current.visible = grade.rain > 0.01
+  })
+  const w = BOARD.maxX - BOARD.minX - 0.6
   return (
-    <group>
+    <mesh ref={mesh} rotation-x={-Math.PI / 2} position={[0, 0.008, (S.z0 + S.z1) / 2]} material={mat} receiveShadow visible={false}>
+      <planeGeometry args={[w, S.z1 - S.z0]} />
+    </mesh>
+  )
+}
+
+const rainVert = /* glsl */ `
+  attribute vec2 aSeed;
+  uniform float uTime;
+  varying float vA;
+  void main() {
+    vec3 p = position;
+    // each streak falls on its own clock and starts again at the top
+    float fall = mod(aSeed.x * 9.0 - uTime * (6.5 + aSeed.y * 3.0), 9.0);
+    p.y += fall;
+    p.x += fall * 0.06;
+    vA = smoothstep(0.0, 0.8, fall) * (0.5 + 0.5 * aSeed.y);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+  }
+`
+const rainFrag = /* glsl */ `
+  uniform float uOpacity;
+  varying float vA;
+  void main() {
+    gl_FragColor = vec4(0.78, 0.83, 0.9, vA * uOpacity);
+  }
+`
+
+/** Mưa bụi: a fine rain over the street, thin grey streaks. */
+function Rain() {
+  const lines = useMemo(() => {
+    const r = rng(77)
+    const N = 900
+    const pos = new Float32Array(N * 6)
+    const seed = new Float32Array(N * 4)
+    for (let i = 0; i < N; i++) {
+      const x = -15 + r() * 30
+      const z = -4.5 + r() * 12
+      const len = 0.16 + r() * 0.14
+      pos.set([x, 0, z, x + len * 0.06, len, z], i * 6)
+      const a = r()
+      const b = r()
+      seed.set([a, b, a, b], i * 4)
+    }
+    const g = new THREE.BufferGeometry()
+    g.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+    g.setAttribute('aSeed', new THREE.BufferAttribute(seed, 2))
+    const m = new THREE.ShaderMaterial({ uniforms: { uTime, uOpacity: { value: 0 } }, vertexShader: rainVert, fragmentShader: rainFrag, transparent: true, depthWrite: false })
+    const l = new THREE.LineSegments(g, m)
+    l.frustumCulled = false
+    l.renderOrder = 6
+    return l
+  }, [])
+  useFrame(() => {
+    const m = lines.material as THREE.ShaderMaterial
+    m.uniforms.uOpacity.value = 0.42 * grade.rain
+    lines.visible = grade.rain > 0.01
+  })
+  return <primitive object={lines} />
+}
+
+export function Street() {
+  // the city is not there in chapter I
+  const group = useRef<THREE.Group>(null!)
+  useFrame(() => {
+    group.current.visible = world.city
+  })
+  return (
+    <group ref={group} visible={false}>
       <KitMesh build={propParts} />
       <Crowd />
+      <WetRoad />
+      <Rain />
     </group>
   )
 }

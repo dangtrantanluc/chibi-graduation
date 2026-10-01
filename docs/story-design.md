@@ -206,6 +206,10 @@ Giữ nguyên: **múa hoa đăng** trước Ngọ Môn khi bảng vàng mở ra.
 
 **Chương II-a — lạc giữa phố đông.** Sau đoàn tàu không phải sân trường mà là một con phố Sài Gòn chạy ngang bàn, ngay sau tường thành: cột điện dây chằng chịt, xe bánh mì, đèn giao thông, hai làn xe máy và người đi bộ hai bên. Đám đông không có mặt; chỉ Lực có gương mặt. Cậu dừng trên vạch giữa đường, nhỏ dần trong khung hình, nhìn bên này bên kia. Rồi bạn gọi tên, nắng lên, cậu băng qua đường tới sân trường. Xe và người luôn nhường đường cho Lực nên không ai đi xuyên qua cậu.
 
+**Con phố lạnh, và cổng thành không nhìn ra phố.**
+- Dưới trời xám, cả khung hình bị rút bớt màu, bóng đổ mềm và nhạt, sương kéo gần lại, có mưa bụi và mặt đường ướt bóng. Xe, mũ, xe bánh mì đều sơn màu trầm; đèn đường và đèn xe là ánh trắng lạnh. Thứ ấm duy nhất là ngọn đèn của Lực (màu lửa được đẩy ấm lên đúng bằng mức khung hình bị rút màu).
+- Con phố (xe, người, cột điện) chỉ tồn tại từ chương II. Ở màn mở đầu và chương I, các ô cổng thành phủ một lớp sương sáng: dày sát mặt đất, mỏng dần lên trên, chỉ lờ mờ thấy ngọn cây phía sau.
+
 **Chương IV — gần như không lời, có chạm.**
 - Lực khoanh tay cúi thật sâu; **bố đặt tay xoa đầu con**; mẹ đưa tay lên má, mắt rưng rưng.
 - Khi tiễn con đi tiếp, **mẹ bước tới sau lưng vỗ hai cái vào lưng con**, rồi Lực mới bước qua vòm tre.
@@ -260,6 +264,29 @@ Nhân vật không thuyết minh nơi chốn hay lịch sử (dòng địa đi�
 | IV | Lực | "Bố mẹ ơi… con làm được rồi." |
 | IV | Bố & Mẹ | "Về là mừng rồi. Đi đi con, mọi người đang đợi." |
 | V | Công nương | "Tân khoa Lực!" |
+
+### Rồng thời Lý, chim Lạc và chi tiết di tích
+
+**Rồng thời Lý** là hình tượng rồng dùng cho toàn bộ thế giới (`world/dragon.ts`): thân thon, uốn nhiều khúc mềm thu nhỏ dần về đuôi; không sừng, mào lửa uốn chữ S trên môi, bờm dài bay ngược, miệng ngậm ngọc, vây thấp, chân nhỏ ba móng, đuôi thuôn nhọn. Thân có bụng nhạt màu và các vòng đậm nhạt xen kẽ như hàng vảy.
+
+| Nơi | Rồng |
+| --- | --- |
+| Cổng thành Hoàng Đế | Đôi rồng khảm sành quấn cột; rồng trên xà và trên đầu tường |
+| Đoan Môn | **Thềm rồng** đá hai bên lối vào cửa giữa (theo thềm điện Kính Thiên); rồng trên các góc mái |
+| Ngọ Môn | Lưỡng long chầu nhật trên nóc lầu Ngũ Phụng |
+| Điện Thái Hòa | Lưỡng long triều **hồ lô** trên nóc; rồng đá chạy theo hai lan can bậc thềm; rồng vàng quấn hai cột giữa |
+
+**Rồng vàng Thăng Long** (`fx/CloudDragon.tsx`): khi Lực tới Hà Nội, một con rồng vàng bay lên từ sau Đoan Môn, lượn một vòng quanh lầu rồi bay vào trời thu, theo tích Lý Thái Tổ thấy rồng vàng bay lên mà đặt tên Thăng Long. Hai người cùng ngước nhìn, máy quay ngước theo. Rồng lướt qua mái Ngọ Môn một lần nữa khi bảng vàng mở hết.
+
+**Chim Lạc** (hình chim trên trống đồng Đông Sơn), dùng ở hai chỗ:
+- Một đàn tám con bay vòng ngược chiều kim đồng hồ (như trên mặt trống) trên bầu trời của cảnh đang diễn; ẩn đi khi trời mưa ở cảnh phố.
+- **Mặt trống đồng** khắc trên nền sân Ngọ Môn: mặt trời 14 tia, vành chim Lạc bay, vành răng cưa.
+
+**Chi tiết di tích thêm vào:**
+- *Cổng thành Hoàng Đế*: đôi **voi đá** Chăm đứng trước thành.
+- *Hoàng thành Thăng Long*: **Cột cờ Hà Nội** (ba tầng đế gạch, thân bát giác, vọng canh, cờ đỏ sao vàng); cánh cửa gỗ lim mở ở ba cửa giữa Đoan Môn.
+- *Ngọ Môn*: cánh cửa sơn son đinh vàng mở ở ba cửa; bia "khuynh cái hạ mã" hai bên; **trống lớn và chuông** trên lầu Ngũ Phụng; bầu hồ lô trên nóc các lầu phụ.
+- *Điện Thái Hòa*: gian giữa mở, thấy **ngai vàng** trên bệ ba cấp dưới bửu tán; đôi **kỳ lân** đồng ở sân chầu.
 
 ## 3. Chuyển cảnh = các chặng đời
 

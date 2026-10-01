@@ -26,6 +26,8 @@ import { HangingScroll } from './fx/HangingScroll'
 import { Father, Hanoi, Luc, Mother, Princess, Uni } from './characters/Cast'
 import { PottedMai } from './world/Foliage'
 import { Fireflies, NightBackdrop } from './fx/Night'
+import { CloudDragon } from './fx/CloudDragon'
+import { LacBirds } from './fx/LacBirds'
 import { MAI_POTS } from './layout'
 
 const MAI: [number, number, number][] = MAI_POTS.map(([x, z]) => [x, 0.4, z])
@@ -116,6 +118,7 @@ export default function Experience() {
         <Leaves />
         <GateLight />
         <Fireflies />
+        <LacBirds />
         <Luc />
         <Sparkles />
         <Lazy at={2}>
@@ -123,6 +126,7 @@ export default function Experience() {
         </Lazy>
         <Lazy at={3}>
           <Hanoi />
+          <CloudDragon />
         </Lazy>
         <Lazy at={4}>
           <Father />
