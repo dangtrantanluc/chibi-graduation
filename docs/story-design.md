@@ -279,9 +279,7 @@ Thân rồng nào cũng có bụng nhạt màu và các vòng đậm nhạt xen 
 
 **Rồng vàng Thăng Long** (`fx/CloudDragon.tsx`): khi Lực tới Hà Nội, một con rồng vàng bay lên từ sau Đoan Môn, lượn một vòng quanh lầu rồi bay vào trời thu, theo tích Lý Thái Tổ thấy rồng vàng bay lên mà đặt tên Thăng Long. Hai người cùng ngước nhìn, máy quay ngước theo. Rồng lướt qua mái Ngọ Môn một lần nữa khi bảng vàng mở hết.
 
-**Chim Lạc** (hình chim trên trống đồng Đông Sơn), dùng ở hai chỗ:
-- Một đàn tám con bay vòng ngược chiều kim đồng hồ (như trên mặt trống) trên bầu trời của cảnh đang diễn; ẩn đi khi trời mưa ở cảnh phố.
-- **Mặt trống đồng** khắc trên nền sân Ngọ Môn: mặt trời 14 tia, vành chim Lạc bay, vành răng cưa.
+**Chim Lạc** (hình chim trên trống đồng Đông Sơn): một đàn tám con bay vòng ngược chiều kim đồng hồ, như trên mặt trống, trên bầu trời của cảnh đang diễn; ẩn đi khi trời mưa ở cảnh phố.
 
 **Chi tiết di tích thêm vào:**
 - *Cổng thành Hoàng Đế*: đôi **voi đá** Chăm đứng trước thành.

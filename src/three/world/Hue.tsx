@@ -3,9 +3,7 @@ import { G, offsetParts, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { hipRoof } from '../lib/roof'
 import { taperTube } from '../characters/hair'
-import { useMemo } from 'react'
-import { BOARD, DRUM, HALL, HUE_PONDS, HUE_WALL_Z, MAI_POTS, NGOMON, NGOMON_INNER, VILLAGE_END } from '../layout'
-import { canvas, toTexture } from '../lib/textures'
+import { BOARD, HALL, HUE_PONDS, HUE_WALL_Z, MAI_POTS, NGOMON, NGOMON_INNER, VILLAGE_END } from '../layout'
 
 /** where the Ngọ Môn plaza begins, just past the bamboo at the end of the village */
 export const PLAZA0 = VILLAGE_END - 1.2
@@ -385,143 +383,10 @@ const FLAG_SPOTS: [number, number][] = [
   [7.6, PLAZA0 - 4.4],
 ]
 
-/**
- * The face of a Đông Sơn bronze drum (after the Ngọc Lũ drum), carved into the
- * paving of the plaza: the many-rayed sun at the centre, bands of dots and
- * running spirals, and a ring of Lạc birds flying counter-clockwise round it.
- */
-function drumTexture() {
-  const S = 1024
-  const [c, g] = canvas(S, S)
-  g.clearRect(0, 0, S, S)
-  g.translate(S / 2, S / 2)
-  const R = S / 2 - 8
-  const INK = 'rgba(74,44,26,0.82)'
-  const WASH = 'rgba(232,196,140,0.5)'
-  // the worn bronze of the disc
-  const disc = g.createRadialGradient(0, 0, 0, 0, 0, R)
-  disc.addColorStop(0, 'rgba(214,170,104,0.62)')
-  disc.addColorStop(0.7, 'rgba(176,128,78,0.55)')
-  disc.addColorStop(1, 'rgba(120,84,52,0.6)')
-  g.fillStyle = disc
-  g.beginPath()
-  g.arc(0, 0, R, 0, Math.PI * 2)
-  g.fill()
-  const ring = (r: number, w = 3) => {
-    g.strokeStyle = INK
-    g.lineWidth = w
-    g.beginPath()
-    g.arc(0, 0, r, 0, Math.PI * 2)
-    g.stroke()
-  }
-  // the sun: fourteen rays, a small triangle between each pair
-  const RAYS = 14
-  g.fillStyle = INK
-  g.beginPath()
-  for (let i = 0; i < RAYS * 2; i++) {
-    const a = (i / (RAYS * 2)) * Math.PI * 2
-    const r = i % 2 ? R * 0.1 : R * 0.27
-    g.lineTo(Math.cos(a) * r, Math.sin(a) * r)
-  }
-  g.closePath()
-  g.fill()
-  g.fillStyle = WASH
-  g.beginPath()
-  g.arc(0, 0, R * 0.07, 0, Math.PI * 2)
-  g.fill()
-  ring(R * 0.29)
-  // a band of dots, a band of running tangent circles
-  ring(R * 0.34, 2)
-  for (let i = 0; i < 44; i++) {
-    const a = (i / 44) * Math.PI * 2
-    g.fillStyle = INK
-    g.beginPath()
-    g.arc(Math.cos(a) * R * 0.315, Math.sin(a) * R * 0.315, 4, 0, Math.PI * 2)
-    g.fill()
-  }
-  ring(R * 0.42, 2)
-  for (let i = 0; i < 30; i++) {
-    const a = (i / 30) * Math.PI * 2
-    g.strokeStyle = INK
-    g.lineWidth = 2.5
-    g.beginPath()
-    g.arc(Math.cos(a) * R * 0.38, Math.sin(a) * R * 0.38, R * 0.026, 0, Math.PI * 2)
-    g.stroke()
-    g.beginPath()
-    g.arc(Math.cos(a) * R * 0.38, Math.sin(a) * R * 0.38, 3, 0, Math.PI * 2)
-    g.fill()
-  }
-  // the ring of Lạc birds, flying counter-clockwise
-  ring(R * 0.45)
-  ring(R * 0.74)
-  const BIRDS = 8
-  for (let i = 0; i < BIRDS; i++) {
-    const a = (i / BIRDS) * Math.PI * 2
-    g.save()
-    g.rotate(a)
-    g.translate(0, -R * 0.595)
-    // (on the canvas "counter-clockwise" is toward −x at the top of the ring)
-    g.scale(-R * 0.115, -R * 0.115)
-    g.fillStyle = INK
-    g.beginPath()
-    const body: [number, number][] = [[1.08, 0.1], [0.56, 0.2], [0.46, 0.3], [0.02, 0.66], [0.3, 0.3], [0.18, 0.2], [-0.28, 0.13], [-1.18, 0.17], [-1.34, 0.02], [-1.12, -0.06], [-0.3, -0.08], [0.14, -0.15], [0.42, -0.03], [0.5, 0.05], [0.6, 0.07]]
-    body.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y)))
-    g.closePath()
-    g.fill()
-    // the raised wing, feathered
-    g.beginPath()
-    const wing: [number, number][] = [[0.28, 0.14], [-0.1, 1.0], [-0.34, 0.76], [-0.28, 0.6], [-0.5, 0.5], [-0.4, 0.36], [-0.56, 0.24], [-0.36, 0.12]]
-    wing.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y)))
-    g.closePath()
-    g.fill()
-    g.fillStyle = WASH
-    g.beginPath()
-    g.arc(0.44, 0.19, 0.05, 0, Math.PI * 2)
-    g.fill()
-    g.restore()
-  }
-  // a band of saw-teeth, and the rim
-  ring(R * 0.78, 2)
-  const TEETH = 56
-  g.fillStyle = INK
-  for (let i = 0; i < TEETH; i++) {
-    const a0 = (i / TEETH) * Math.PI * 2
-    const a1 = ((i + 1) / TEETH) * Math.PI * 2
-    const am = (a0 + a1) / 2
-    g.beginPath()
-    g.moveTo(Math.cos(a0) * R * 0.8, Math.sin(a0) * R * 0.8)
-    g.lineTo(Math.cos(am) * R * 0.89, Math.sin(am) * R * 0.89)
-    g.lineTo(Math.cos(a1) * R * 0.8, Math.sin(a1) * R * 0.8)
-    g.closePath()
-    g.fill()
-  }
-  ring(R * 0.91, 2)
-  for (let i = 0; i < 64; i++) {
-    const a = (i / 64) * Math.PI * 2
-    g.beginPath()
-    g.arc(Math.cos(a) * R * 0.95, Math.sin(a) * R * 0.95, 4.5, 0, Math.PI * 2)
-    g.fill()
-  }
-  ring(R * 0.99, 5)
-  const t = toTexture(c)
-  t.anisotropy = 8
-  return t
-}
-
-function DrumMedallion() {
-  const mat = useMemo(() => new THREE.MeshStandardMaterial({ map: drumTexture(), transparent: true, depthWrite: false, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), [])
-  return (
-    <mesh rotation-x={-Math.PI / 2} position={[DRUM.x, 0.024, DRUM.z]} material={mat} receiveShadow renderOrder={1}>
-      <circleGeometry args={[DRUM.r, 48]} />
-    </mesh>
-  )
-}
-
 export function Hue() {
   const bf = HALL.bodyFront
   return (
     <group>
-      <DrumMedallion />
       <KitMesh build={() => [...citadelWall(BOARD.minX + 0.3, NGOMON.x - NGOMON.w / 2, HUE_WALL_Z), ...citadelWall(NGOMON.x + NGOMON.w / 2, BOARD.maxX - 0.3, HUE_WALL_Z)]} />
       <KitMesh build={ngoMonParts} />
       <KitMesh build={plazaParts} />

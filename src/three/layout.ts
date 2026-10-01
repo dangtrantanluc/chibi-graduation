@@ -136,8 +136,6 @@ export const MAI_POTS: [number, number][] = [
 export const SCROLL = { x: 0, top: 3.86, z: NGOMON.z + NGOMON.depth / 2 + 0.2 }
 /** how far the list is unrolled (world.scroll) when only its upper half, the proclamation, shows */
 export const SCROLL_HALF = 0.56
-/** the bronze-drum medallion set into the paving of the Ngọ Môn plaza */
-export const DRUM = { x: 0, z: -49.4, r: 1.75 }
 
 /** The main walking path (painted into the ground), front to back. */
 export const PATH: [number, number][] = [
