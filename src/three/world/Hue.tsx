@@ -3,10 +3,10 @@ import { G, offsetParts, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { hipRoof } from '../lib/roof'
 import { taperTube } from '../characters/hair'
-import { BOARD, CONGLANG, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON } from '../layout'
+import { BOARD, HALL, HUE_PONDS, HUE_WALL_Z, MAI_POTS, NGOMON, VILLAGE_END } from '../layout'
 
-/** where the Ngọ Môn plaza begins, just past the village gate */
-export const PLAZA0 = CONGLANG.z - 1.6
+/** where the Ngọ Môn plaza begins, just past the bamboo at the end of the village */
+export const PLAZA0 = VILLAGE_END - 1.2
 import { PLAQUES } from '../../config'
 import { HOUSES, type HouseDef } from './placements'
 import { C, archRing, archedWall, box, cauldron, column, cyl, mosaic, ridgeDragons, skirting, windowPane } from './parts'
@@ -127,6 +127,8 @@ function ngoMonParts(): Part[] {
 function plazaParts(): Part[] {
   const p: Part[] = []
   const front = NGOMON.z + NGOMON.depth / 2 + NGOMON.wing
+  // glazed pots for the mai either side of the central gate
+  for (const [x, z] of MAI_POTS) p.push({ g: new THREE.CylinderGeometry(0.3, 0.23, 0.44, 14), c: '#3f6aa8', m: 'ceramic', p: [x, 0.22, z] })
   for (const s of [-1, 1]) {
     // bamboo poles for the đèn ông sao at the plaza entrance
     p.push(cyl(0.035, 2.9, [s * 2.6, 1.45, PLAZA0 - 0.2], '#b9a064', 'wood'))
@@ -139,8 +141,6 @@ function plazaParts(): Part[] {
       pts.push(new THREE.Vector3(s * 5.2, 3.25 - 0.45 * Math.sin(Math.PI * t), PLAZA0 + t * (front + 0.2 - PLAZA0)))
     }
     p.push({ g: new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 30, 0.016, 4), c: '#4a3328', m: 'wood' })
-    // potted mai either side of the central gate
-    p.push({ g: new THREE.CylinderGeometry(0.34, 0.26, 0.5, 14), c: '#3f6aa8', m: 'ceramic', p: [s * 1.55, 0.25, front - NGOMON.wing + 0.5] })
     // bronze đỉnh in the courtyard of the U
     p.push(...cauldron([s * 3.7, 0, front - NGOMON.wing + 1.2], 0.7, true))
   }
@@ -256,7 +256,8 @@ function hallParts(): Part[] {
   p.push(...mosaic(cx + 0.9, cx + 2.5, ty + colH + 1.72 + 2.2 + 0.28, bz, 0.16, 0.045))
   for (const x of [cx - 4.8, cx + 4.8]) p.push(...mosaic(x - 0.6, x + 0.6, ty + colH + 0.28 + 1.05 + 0.12, bz + 2.4, 0.15, 0.04))
   // rank steles (phẩm sơn) lining the Trung Đạo path to the hall
-  for (let z = HUE_PONDS[0][3] - 0.4; z >= HUE_PONDS[0][2] + 0.2; z -= 0.95) for (const sx of [-1, 1]) p.push(...phamSon(cx + sx * 1.08, z))
+  // (set against the balustrades, and stopping short of the court, where the farewell row stands)
+  for (let z = HUE_PONDS[0][3] - 0.4; z >= HUE_PONDS[0][2] + 1.0; z -= 0.95) for (const sx of [-1, 1]) p.push(...phamSon(cx + sx * 1.26, z))
   // two bronze đỉnh urns, after Huế's Nine Dynastic Urns
   p.push(...cauldron([cx - 5.4, 0, front + 0.9], 0.85, true))
   p.push(...cauldron([cx + 5.4, 0, front + 0.9], 0.85, true))
@@ -272,13 +273,14 @@ function trungDaoParts(): Part[] {
     for (let z = z0; z >= z1 - 1e-3; z -= 0.55) p.push(box(0.1, 0.34, 0.1, [HALL.x + s * 1.5, 0.17, z], C.marble))
     p.push(box(0.07, 0.06, z0 - z1, [HALL.x + s * 1.5, 0.32, (z0 + z1) / 2], C.marble))
   }
-  // bronze nghi môn: two pairs of pillars with a cross-beam at the bridge head
+  // bronze nghi môn at the head of the bridge, as you come out of Ngọ Môn: two tall pillars and a cross-beam
+  const gz = z0 + 0.45
   for (const s of [-1, 1]) {
-    p.push(cyl(0.09, 2.2, [HALL.x + s * 1.1, 1.1, z1 - 0.3], '#6f7f5f', 'bronze'))
-    p.push({ g: G.sphere, c: '#8a8a5a', m: 'bronze', p: [HALL.x + s * 1.1, 2.3, z1 - 0.3], s: 0.13 })
+    p.push(cyl(0.09, 3.3, [HALL.x + s * 1.3, 1.65, gz], '#6f7f5f', 'bronze'))
+    p.push({ g: G.sphere, c: '#8a8a5a', m: 'bronze', p: [HALL.x + s * 1.3, 3.4, gz], s: 0.13 })
   }
-  p.push(box(2.6, 0.18, 0.14, [HALL.x, 1.95, z1 - 0.3], '#6f7f5f', 'bronze'))
-  p.push({ g: taperTube([new THREE.Vector3(HALL.x - 1.2, 2.05, z1 - 0.3), new THREE.Vector3(HALL.x, 2.45, z1 - 0.3), new THREE.Vector3(HALL.x + 1.2, 2.05, z1 - 0.3)], 0.05, 0.05, 16, 6), c: '#7b8a64', m: 'bronze' })
+  p.push(box(3.0, 0.18, 0.14, [HALL.x, 3.0, gz], '#6f7f5f', 'bronze'))
+  p.push({ g: taperTube([new THREE.Vector3(HALL.x - 1.4, 3.1, gz), new THREE.Vector3(HALL.x, 3.55, gz), new THREE.Vector3(HALL.x + 1.4, 3.1, gz)], 0.05, 0.05, 16, 6), c: '#7b8a64', m: 'bronze' })
   return p
 }
 

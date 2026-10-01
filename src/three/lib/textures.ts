@@ -253,7 +253,7 @@ export async function loadFonts(guest: string) {
     document.fonts.load(`700 80px "Fraunces Variable"`, guest || 'Welcome'),
     document.fonts.load(`italic 400 80px "Fraunces Variable"`, 'Welcome'),
     document.fonts.load(`800 40px "Nunito"`, '10'),
-    document.fonts.load(`80px "Yuji Boku"`, Object.values(PLAQUES).join('') + '招'),
+    document.fonts.load(`80px "Yuji Boku"`, Object.values(PLAQUES).join('') + '招邀文憑畢業印'),
   ]
   await Promise.race([Promise.allSettled(jobs), new Promise((r) => setTimeout(r, 3500))])
 }

@@ -902,7 +902,7 @@ export const motherSleeve = () =>
   })
 
 // ═══════════════════════════════════════════════════════════
-//  The graduation notice, in the manner of a sớ
+//  The diploma (bằng tốt nghiệp), made in the manner of a sớ
 // ═══════════════════════════════════════════════════════════
 export const diplomaTex = () =>
   once('diploma', () => {
@@ -933,7 +933,7 @@ export const diplomaTex = () =>
       [DW - 48, DH - 48],
     ])
       cloud(g, x + (x < DW / 2 ? 16 : -16), y + (y < DH / 2 ? 10 : -6), 12, '#c8962e', 3)
-    // vertical Hán columns at both ends: 捷報 (news of success) and 畢業 (graduation)
+    // vertical Hán columns at both ends: 文憑 (diploma) and 畢業 (graduation)
     const col = (x: number, text: string) => {
       g.fillStyle = '#b3262e'
       g.fillRect(x - 34, 66, 68, DH - 132)
@@ -943,14 +943,14 @@ export const diplomaTex = () =>
       g.font = `52px ${FONT_CJK}`
       ;[...text].forEach((ch, i) => g.fillText(ch, x, 130 + i * 70))
     }
-    col(DW - 96, '捷報')
+    col(DW - 96, '文憑')
     col(96, '畢業')
     // the body, centred
     g.fillStyle = '#b3262e'
     g.textAlign = 'center'
     g.textBaseline = 'alphabetic'
-    g.font = `900 46px ${FONT_UI}`
-    g.fillText('GIẤY BÁO TỐT NGHIỆP', DW / 2, 104)
+    g.font = `900 50px ${FONT_UI}`
+    g.fillText('BẰNG TỐT NGHIỆP', DW / 2, 106)
     g.fillStyle = '#3a2418'
     g.font = `700 22px ${FONT_UI}`
     g.fillText('TRƯỜNG ĐẠI HỌC NÔNG LÂM TP. HỒ CHÍ MINH', DW / 2, 146)
@@ -963,7 +963,7 @@ export const diplomaTex = () =>
     g.fillText('đã hoàn thành chương trình đào tạo đại học', DW / 2, 286)
     // a big red seal, slightly askew
     g.save()
-    g.translate(DW / 2 + 250, 300)
+    g.translate(DW / 2 + 322, 306)
     g.rotate(-0.18)
     g.strokeStyle = 'rgba(190,30,36,0.85)'
     g.lineWidth = 6

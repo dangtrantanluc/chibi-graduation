@@ -22,7 +22,7 @@ export type Action =
   | 'dance'
   /** arms folded, a bow — how a Vietnamese child greets their parents (khoanh tay chào) */
   | 'greet'
-  /** holding the graduation notice open in both hands */
+  /** holding the diploma open in both hands */
   | 'present'
   | 'clap'
   /** an open-palmed sweep of the arm: "go on, in you go" */
@@ -118,14 +118,14 @@ export const world = {
   gate: { light: 0 },
   /** extra brightness per lantern zone */
   glow: { hanoi: 0, village: 0, hue: 0 },
-  /** 0‥1 village lanterns lighting up one after another (golden threads) */
+  /** 0‥1 village lanterns lighting up one after another */
   villageWave: 0,
   /** bảng vàng unfurl 0‥1 */
   scroll: 0,
-  /** Lực's graduation notice 0 (rolled) ‥ 1 (open) */
+  /** a band of light running down the bảng vàng: 0 (top) ‥ 1 (bottom); −1 = none */
+  scrollSheen: -1,
+  /** Lực's diploma 0 (rolled) ‥ 1 (open) */
   diploma: 0,
-  /** where the notice is (updated by its rig) — the golden threads start here */
-  diplomaPos: new THREE.Vector3(0, -50, 0),
   /** IT friend's laptop lid 0 (closed) ‥ 1 (open) */
   laptop: 0,
   /** "</>" speech bubble over the IT friend 0‥1 */

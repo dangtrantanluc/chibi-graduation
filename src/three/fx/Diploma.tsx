@@ -5,11 +5,11 @@ import { emit, world } from '../../state/world'
 import { diplomaTex } from '../characters/garments'
 
 /**
- * Lực's graduation notice, made in the manner of a sớ: warm yellow paper in a
- * red double border, 捷報 / 畢業 in red columns at the ends, rolled on two
+ * Lực's diploma, made in the manner of a sớ: warm yellow paper in a
+ * red double border, 文憑 / 畢業 in red columns at the ends, rolled on two
  * lacquered rods with gold caps. He holds a rod in each hand; as his hands
  * part the paper unrolls from the middle outward, then it glows and sheds
- * golden motes — the threads that light the village lanterns start here.
+ * golden motes.
  */
 const PH = 0.21 // paper height
 const FULL = PH * (1024 / 400) // paper width when fully open
@@ -32,10 +32,7 @@ export function Diploma({ handL, handR }: { handL: RefObject<THREE.Group | null>
     const on = luc.action === 'present'
     tmp.show = THREE.MathUtils.damp(tmp.show, on ? 1 : 0, 9, dt)
     group.current.visible = tmp.show > 0.02
-    if (!group.current.visible || !handL.current || !handR.current) {
-      world.diplomaPos.set(0, -50, 0)
-      return
-    }
+    if (!group.current.visible || !handL.current || !handR.current) return
     handL.current.getWorldPosition(tmp.a)
     handR.current.getWorldPosition(tmp.b)
     tmp.x.subVectors(tmp.a, tmp.b).setY(0)
@@ -49,7 +46,6 @@ export function Diploma({ handL, handR }: { handL: RefObject<THREE.Group | null>
     group.current.quaternion.setFromRotationMatrix(tmp.m)
     group.current.rotateX(-0.12)
     group.current.scale.setScalar(tmp.show)
-    world.diplomaPos.copy(group.current.position)
 
     // the paper spans the hands; its UV window opens from the centre
     const w = THREE.MathUtils.clamp(span - 0.02, 0.02, FULL)

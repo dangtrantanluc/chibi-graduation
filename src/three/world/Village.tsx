@@ -4,7 +4,7 @@ import { G, offsetParts, rng, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { canvas, toTexture } from '../lib/textures'
 import { taperTube } from '../characters/hair'
-import { CONGLANG, HOUSE, WELL } from '../layout'
+import { CONGLANG, HAYSTACK, HOUSE, VILLAGE_END, WELL, houseToWorld } from '../layout'
 import { hipRoof } from '../lib/roof'
 import { matTex } from '../characters/garments'
 import { PLAQUES } from '../../config'
@@ -12,14 +12,17 @@ import { archRing, archedWall, box, cyl, nghe, panel, plinth, skirting } from '.
 import { Flags, Plaque, Sign } from './Common'
 
 /*
- * IV · A NORTHERN VILLAGE — the gate set into the bamboo hedge.
- * After the photograph: a round-arched central gate of weathered grey
- * plaster, a calligraphy band (地靈人傑) crowned by a "cuốn thư" scroll crest;
- * two tall trụ biểu with lantern-box capitals carrying nghê guardians; lower
- * side walls with "chữ thọ" openwork, small pillars with little lions, and
- * walls that end in a curling scroll. Around it: lũy tre, the banyan, the
- * well with its cần vọt lever, a village pond, herring-bone brick paving,
- * red lanterns on bamboo poles and five-colour festival flags.
+ * IV · A NORTHERN VILLAGE — home.
+ * You come in through the village gate, set into the bamboo hedge just
+ * behind Đoan Môn. After the photograph: a round-arched central gate of
+ * weathered grey plaster, a calligraphy band (地靈人傑) crowned by a "cuốn thư"
+ * scroll crest; two tall trụ biểu with lantern-box capitals carrying nghê
+ * guardians; lower side walls with "chữ thọ" openwork, small pillars with
+ * little lions, and walls that end in a curling scroll.
+ * Inside: the herring-bone brick lane, the banyan with its little shrine, the
+ * well with its cần vọt lever, the village pond — and on the right bố mẹ's
+ * thatched house in its yard, a haystack beside it. At the far end the lane
+ * leaves the village under arching bamboo (Foliage.tsx), toward Huế.
  */
 
 const K = CONGLANG
@@ -267,10 +270,10 @@ function houseParts(): Part[] {
   const ry = ey + 0.42 + 1.2 + 0.08
   p.push({ g: G.cyl, c: '#b8944e', m: 'thatch', p: [0, ry, 0], r: [0, 0, Math.PI / 2], s: [0.14, rl, 0.14] })
   for (const x of [-rl / 2 + 0.1, 0, rl / 2 - 0.1]) p.push({ g: G.torusLo, c: '#6f5a32', m: 'wood', p: [x, ry, 0], r: [0, Math.PI / 2, 0], s: [0.15, 0.15, 0.25] })
-  return offsetParts(p, [HOUSE.x, 0, HOUSE.z], HOUSE.ry)
+  return offsetParts(p, [HOUSE.x, 0, HOUSE.z], HOUSE.ry, HOUSE.s)
 }
 
-/** the yard in front of the house: two nón lá, a basket of corn, a big chum */
+/** the yard in front of the house (in the house's own frame): two nón lá, a basket of corn, a big chum */
 function yardParts(): Part[] {
   const p: Part[] = []
   const nonLa = (x: number, z: number, tilt: number, ry: number) => {
@@ -278,11 +281,11 @@ function yardParts(): Part[] {
     p.push({ g: cone, c: '#e2cf9a', m: 'wood', p: [x, 0.08, z], r: [tilt, ry, 0] })
     for (let k = 1; k <= 3; k++) p.push({ g: G.torusLo, c: '#c9b27a', m: 'wood', p: [x, 0.08 + 0.07 - k * 0.035, z], r: [Math.PI / 2 + tilt, 0, 0], s: [0.28 * (k / 4), 0.28 * (k / 4), 0.1] })
   }
-  nonLa(3.2, -34.6, 0, 0)
-  nonLa(3.42, -34.85, 0.5, 0.6)
+  nonLa(MAT[0] - 0.3, MAT[1] - 0.1, 0, 0)
+  nonLa(MAT[0] + 0.28, MAT[1] + 0.22, 0.5, 0.6)
   // a basket of corn cobs in their husks
-  const bx = 4.75
-  const bz = -35.05
+  const bx = 1.3
+  const bz = 1.9
   for (let k = 0; k < 4; k++) p.push({ g: new THREE.CylinderGeometry(0.22 + k * 0.015, 0.2 + k * 0.015, 0.05, 18, 1, true), c: k % 2 ? '#c9a45a' : '#b38a44', m: 'wood', p: [bx, 0.03 + k * 0.05, bz] })
   p.push({ g: G.torus, c: '#a8803e', m: 'wood', p: [bx, 0.22, bz], r: [Math.PI / 2, 0, 0], s: [0.27, 0.27, 0.3] })
   for (let k = 0; k < 6; k++) {
@@ -305,19 +308,55 @@ function yardParts(): Part[] {
     ].map(([a, b]) => new THREE.Vector2(a, b)),
     20,
   )
-  p.push({ g: jar, c: '#8a5a3c', m: 'aged', p: [HOUSE.x + 1.95, 0, HOUSE.z + 1.05] })
-  p.push({ g: G.torusLo, c: '#6f4630', m: 'aged', p: [HOUSE.x + 1.95, 0.55, HOUSE.z + 1.05], r: [Math.PI / 2, 0, 0], s: [0.42, 0.42, 0.2] })
-  return p
+  p.push({ g: jar, c: '#8a5a3c', m: 'aged', p: [2.0, 0, 1.4] })
+  p.push({ g: G.torusLo, c: '#6f4630', m: 'aged', p: [2.0, 0.55, 1.4], r: [Math.PI / 2, 0, 0], s: [0.42, 0.42, 0.2] })
+  return offsetParts(p, [HOUSE.x, 0, HOUSE.z], HOUSE.ry, HOUSE.s)
+}
+/** where the sedge mat lies, in the house's frame */
+const MAT: [number, number] = [1.2, 3.2]
+
+/** cây rơm: a haystack built around a bamboo pole, bound with straw ropes */
+function haystackParts(): Part[] {
+  const stack = new THREE.LatheGeometry(
+    [
+      [0.5, 0],
+      [0.64, 0.12],
+      [0.66, 0.55],
+      [0.58, 0.95],
+      [0.4, 1.28],
+      [0.16, 1.5],
+      [0.04, 1.56],
+    ].map(([a, b]) => new THREE.Vector2(a, b)),
+    18,
+  )
+  // finer straw: the thatch texture is authored for the long slopes of a roof
+  const uv = stack.attributes.uv as THREE.BufferAttribute
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 2.6, uv.getY(i) * 0.9)
+  const p: Part[] = [{ g: stack, c: '#ecc97e', m: 'thatch' }, cyl(0.028, 2.0, [0, 1.0, 0], '#8f7a44', 'wood')]
+  for (const [y, r] of [
+    [0.5, 0.67],
+    [1.0, 0.56],
+  ])
+    p.push({ g: G.torusLo, c: '#a8803e', m: 'wood', p: [0, y, 0], r: [Math.PI / 2, 0, 0], s: [r, r, 0.12] })
+  // loose straw at its foot
+  const rnd = rng(717)
+  for (let k = 0; k < 22; k++) {
+    const a = rnd() * Math.PI * 2
+    const d = 0.6 + rnd() * 0.3
+    p.push({ g: G.coneLo, c: ['#c9a45e', '#b8944e', '#e0bd72'][k % 3], m: 'thatch', p: [Math.cos(a) * d, 0.03, Math.sin(a) * d], r: [Math.PI / 2 + (rnd() - 0.5) * 0.3, 0, a + (rnd() - 0.5)], s: [0.05, 0.3 + rnd() * 0.2, 0.02] })
+  }
+  return offsetParts(p, [HAYSTACK.x, 0, HAYSTACK.z])
 }
 
-/** bamboo lantern poles along the brick path (the lanterns themselves live in Lanterns.tsx) */
+/**
+ * bamboo lantern poles along the brick lane (the lanterns themselves live in
+ * Lanterns.tsx). The right of the lane is kept clear in front of the yard.
+ */
 export const VILLAGE_POLES: [number, number][] = [
-  [-1.25, -30.6],
-  [1.25, -31.8],
-  [-1.25, -33.0],
-  [1.25, -34.2],
-  [-1.25, -35.4],
-  [1.25, -36.6],
+  [-1.45, -34.0],
+  [-1.45, -36.2],
+  [-1.45, -38.45],
+  [1.45, -38.45],
 ]
 function poleParts(): Part[] {
   const p: Part[] = []
@@ -341,14 +380,15 @@ function mieuParts(): Part[] {
     // incense pot
     cyl(0.06, 0.06, [0, 0.39, 0.26], '#6f7f5f', 'bronze'),
   ]
-  return offsetParts(p, [-3.2, 0, -36.9], 0.5)
+  return offsetParts(p, [-3.7, 0, -35.5], 1.2)
 }
 
 /** the woven sedge mat (chiếu) spread in the yard */
 function ChieuMat() {
   const mat = useMemo(() => new THREE.MeshStandardMaterial({ map: matTex(), roughness: 0.95 }), [])
+  const [x, z] = houseToWorld(...MAT)
   return (
-    <mesh position={[3.55, 0.018, -34.85]} rotation={[-Math.PI / 2, 0, 0.1]} material={mat} receiveShadow>
+    <mesh position={[x, 0.018, z]} rotation={[-Math.PI / 2, 0, HOUSE.ry + 0.1]} scale={HOUSE.s} material={mat} receiveShadow>
       <planeGeometry args={[1.35, 1.0]} />
     </mesh>
   )
@@ -362,6 +402,7 @@ export function Village() {
       <KitMesh build={wellParts} />
       <KitMesh build={houseParts} />
       <KitMesh build={yardParts} />
+      <KitMesh build={haystackParts} />
       <ChieuMat />
       <KitMesh build={poleParts} />
       <KitMesh build={mieuParts} />
@@ -372,10 +413,8 @@ export function Village() {
       <Plaque text={PLAQUES.village} w={2.0} h={0.44} position={[K.x, 3.22, K.z - 0.41]} tilt={0} style="stone" ry={Math.PI} />
       <Flags
         spots={[
-          [-2.9, -37.6],
-          [2.9, -37.6],
-          [-3.6, -31.2],
-          [3.6, -30.6],
+          [-2.9, K.z + 1.15],
+          [2.9, K.z + 1.15],
         ]}
         h={3.6}
       />
@@ -383,17 +422,26 @@ export function Village() {
   )
 }
 
-/** Lũy tre: bamboo clumps along the hedge line, leaving the gate clear. */
+/**
+ * Lũy tre: bamboo clumps along the two hedge lines that enclose the village —
+ * one either side of the gate, one at the far end, where it leaves a gap for
+ * the lane (spanned by the bamboo arch) and steps back behind the house.
+ */
 export const HEDGE: [number, number, number][] = (() => {
   const out: [number, number, number][] = []
-  for (let x = 4.6; x < 19.5; x += 1.55) {
-    if (x > 2.2 && x < 7.2) {
-      out.push([-x, K.z + (Math.cos(x * 1.3) * 0.25), 0.95 + 0.15 * Math.cos(x * 2.3)])
-      continue
-    }
-    out.push([x, K.z + (Math.sin(x * 1.7) * 0.25), 0.95 + 0.15 * Math.sin(x * 3.1)])
-    out.push([-x, K.z + (Math.cos(x * 1.3) * 0.25), 0.95 + 0.15 * Math.cos(x * 2.3)])
+  for (let x = 5.3; x < 19.5; x += 1.7) {
+    out.push([x, K.z + Math.sin(x * 1.7) * 0.2, 0.95 + 0.15 * Math.sin(x * 3.1)])
+    out.push([-x, K.z + Math.cos(x * 1.3) * 0.2, 0.95 + 0.15 * Math.cos(x * 2.3)])
+  }
+  // the corner of the thatch nearest the hedge
+  const [hx, hz] = houseToWorld(-2.2, -1.8)
+  for (let x = 3.1; x < 19.5; x += 1.6) {
+    const behindHouse = x > 2.4 && x < 7.4
+    const z = VILLAGE_END - (behindHouse ? 0.3 : 0) + Math.sin(x * 1.7) * (behindHouse ? 0.05 : 0.25)
+    // a clump that would grow through the eave stands a step aside instead
+    const hit = Math.hypot(x - hx, z - hz) < 1.35
+    out.push([hit ? x - 0.75 : x, hit ? z - 0.2 : z, 0.95 + 0.15 * Math.sin(x * 3.1)])
+    out.push([-x, VILLAGE_END + Math.cos(x * 1.3) * 0.25, 0.95 + 0.15 * Math.cos(x * 2.3)])
   }
   return out
 })()
-

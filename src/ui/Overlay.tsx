@@ -118,7 +118,7 @@ function Petals({ n = 14 }: { n?: number }) {
   )
 }
 
-const STOPS = ['Bình Định', 'Sài Gòn', 'Hà Nội', 'Cổng làng', 'Huế']
+const STOPS = ['Bình Định', 'Sài Gòn', 'Hà Nội', 'Về nhà', 'Huế']
 
 /**
  * Name entry, on a journey ticket: the guest becomes the passenger on Lực's
@@ -312,7 +312,7 @@ function InviteCard({ guest, ready }: { guest: string; ready: boolean }) {
       <Details compact={compactInvite()} />
       {ready && (
         <p className="card-cue" aria-hidden="true">
-          chạm để lùi ra xem toàn cảnh <b>▼</b>
+          chạm để cùng vào Đại Nội <b>▼</b>
         </p>
       )}
     </section>

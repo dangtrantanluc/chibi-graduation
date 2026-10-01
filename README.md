@@ -7,13 +7,16 @@ per chapter, all on one axis of the diorama:
 | Chapter | Place | Who | What happens |
 | --- | --- | --- | --- |
 | I | Bình Định · Cổng thành Hoàng Đế | Lực | sitting on a stone bench under his home town's gate, he grins shyly, greets you with a Bình Định martial salute (ôm quyền) and walks into the light |
-| II | Sài Gòn · ĐH Nông Lâm, giảng đường Rạng Đông | Hội bạn CNTT | the North–South express carries him south; his friend in the Khoa CNTT polo looks up from her stickered laptop, "`</>`", a high-five |
-| III | Hà Nội · Hoàng thành Thăng Long (autumn) | Hội bạn Hà Nội | a gust of golden leaves; by a bicycle loaded with daisies she flashes a V-sign and offers you a bunch of cúc hoạ mi |
-| IV | Home · the village gate | Bố & Mẹ | he says goodbye to his Hà Nội friend and walks through Đoan Môn to his parents, waiting by their thatched house; arms folded, he bows, then unrolls his graduation notice (made like a sớ) — threads of gold light the lanterns — and his parents step aside to cheer him on toward Huế |
-| V | Huế · Ngọ Môn | Công nương (áo nhật bình) + everyone | through the village gate to Ngọ Môn: the princess dances and the golden list (bảng vàng) unrolls from Lầu Ngũ Phụng with "Welcome, {name} · You are invited" |
+| II | Sài Gòn · ĐH Nông Lâm, giảng đường Rạng Đông | his CNTT friends | the North–South express carries him south; his friend in the Khoa CNTT polo looks up from her stickered laptop, "`</>`", a high-five |
+| III | Hà Nội · Hoàng thành Thăng Long (autumn) | his Hà Nội friends | a gust of golden leaves; by a bicycle loaded with daisies she flashes a V-sign and offers you a bunch of cúc hoạ mi |
+| IV | Home · the village | Bố & Mẹ | he says goodbye to his Hà Nội friend and walks through Đoan Môn and the village gate to his parents, waiting in the yard of their thatched house; arms folded, he bows, then unrolls his diploma (made like a sớ) — the lanterns along the lane light up — and his parents step to either side of the lane to see him off toward Huế |
+| V | Huế · Ngọ Môn | Công nương (áo nhật bình) + everyone | out of the village under arching bamboo to Ngọ Môn: the princess dances and the golden list (bảng vàng) is lowered from Lầu Ngũ Phụng like a rite — a hush, a bell, a band of gold, a second bell — with "Welcome, {name} · You are invited" |
 
-Then the camera rises over the village and looks back at Ngọ Môn: the whole
-journey laid out like a map.
+Then the golden list rolls back up and they all walk in through Ngọ Môn, over
+the Trung Đạo bridge, to stand before Điện Thái Hòa — "See you inside."
+
+The two friends speak without a name tag: their lines are headed only by the
+place (Sài Gòn, Hà Nội).
 
 The design analysis — character sheets → 3D, landmarks → models, and why each
 animation and transition was chosen — is in
@@ -55,7 +58,7 @@ Everything a host needs is in **`src/config.ts`**:
 | `event`, `date`, `time`, `location` | The invitation details (currently `[EVENT]` etc.) |
 | `startISO`, `endISO` | Optional. When both are set, an "Add to calendar" (.ics) link appears |
 | `defaultGuest` | Name used when the guest leaves the ticket empty |
-| `CAST` | The dialogue name tags — rename the two friend groups here |
+| `CAST` | The dialogue name tags (Lực, Bố & Mẹ, Công nương) |
 | `PLAQUES` | Calligraphy and signs: the Hoàng Đế lintel and couplets, the Rạng Đông name, Đoan Môn, the village gate, Ngọ Môn, the hall and its couplets (graduation wishes 金榜題名 / 前程萬里) |
 
 | `MUSIC` | Volume and the two tracks (village, Huế) with their credits |
@@ -70,11 +73,13 @@ correctly everywhere, including the golden list.
 
 ## Music
 
-Music starts on the guest's first tap (browsers block audio before a gesture)
-and crossfades from the journey theme to the Huế theme as the guest steps
-through the village gate. A temple bell marks the train, the golden list
-unrolling and its last line, and each tap plays a soft pentatonic chime — both
-synthesized, no files.
+Music starts on the guest's first tap (browsers block audio before a gesture).
+Leaving the village, the journey theme dies away behind footsteps, wind in the
+bamboo and one small bell before the Huế theme rises — the music changes
+region rather than track. The music is hushed while the golden list is
+lowered: a bell as the lens looks up, a second as it starts down, a third when
+it hangs open. Bells, the tap chime, footsteps and wind are synthesized — no
+files.
 
 | Part | Track | License |
 | --- | --- | --- |

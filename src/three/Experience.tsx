@@ -22,13 +22,10 @@ import { Wipe } from './fx/Wipe'
 import { Sparkles } from './fx/Sparkles'
 import { HangingScroll } from './fx/HangingScroll'
 import { Father, Hanoi, Luc, Mother, Princess, Uni } from './characters/Cast'
-import { Lightning } from './fx/Lightning'
 import { PottedMai } from './world/Foliage'
-import { NGOMON } from './layout'
+import { MAI_POTS } from './layout'
 
-const MAI_FRONT = NGOMON.z + NGOMON.depth / 2 + 0.5
-const MAI_L: [number, number, number] = [-1.55, 0.45, MAI_FRONT]
-const MAI_R: [number, number, number] = [1.55, 0.45, MAI_FRONT]
+const MAI: [number, number, number][] = MAI_POTS.map(([x, z]) => [x, 0.4, z])
 
 /** Signals "ready" once the first frames have actually been drawn. */
 function ReadySignal() {
@@ -123,13 +120,13 @@ export default function Experience() {
         <Lazy at={4}>
           <Father />
           <Mother />
-          <Lightning />
         </Lazy>
         <Lazy at={5}>
           <Princess />
           <HangingScroll />
-          <PottedMai position={MAI_L} />
-          <PottedMai position={MAI_R} />
+          {MAI.map((p, i) => (
+            <PottedMai key={i} position={p} />
+          ))}
         </Lazy>
         <Wipe />
         <ReadySignal />

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-/** intro → I Bình Định → II Nông Lâm → III Thăng Long → IV cổng làng → V Ngọ Môn → finale */
+/** intro → I Bình Định → II Nông Lâm → III Thăng Long → IV về nhà → V Ngọ Môn → finale (Điện Thái Hòa) */
 export type Step = 'intro' | 'home' | 'campus' | 'hanoi' | 'village' | 'hue' | 'finale'
 export const STEP_ORDER: Step[] = ['intro', 'home', 'campus', 'hanoi', 'village', 'hue', 'finale']
 

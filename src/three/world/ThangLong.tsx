@@ -258,6 +258,9 @@ function ganhParts(): Part[] {
   return offsetParts(p, [2.6, 0, -19.6], -0.4)
 }
 
+/** half the span of the lantern string in front of Đoan Môn */
+export const LAMP_X = 4.9
+
 /** old Hà Nội cast-iron street lamp (the green ones around Hoàn Kiếm) */
 export function hanoiLamp(x: number, z: number): Part[] {
   const G1 = '#2f4a3a'
@@ -292,8 +295,14 @@ function streetParts(): Part[] {
   return [
     ...bikeParts(),
     ...ganhParts(),
-    ...hanoiLamp(-2.6, -24.8),
-    ...hanoiLamp(2.6, -24.8),
+    // the two lamps that carry the lantern string stand wide, clear of the pair by the bicycle
+    ...hanoiLamp(-LAMP_X, -24.8),
+    ...hanoiLamp(LAMP_X, -24.8),
+    {
+      g: new THREE.TubeGeometry(new THREE.CatmullRomCurve3(Array.from({ length: 21 }, (_, i) => new THREE.Vector3(-LAMP_X + (i / 20) * 2 * LAMP_X, 2.62 - 0.42 * Math.sin((Math.PI * i) / 20), -24.8))), 40, 0.012, 4),
+      c: '#3b2a22',
+      m: 'wood',
+    },
     ...hanoiLamp(-3.2, -16.4),
     ...parkBench(-5.6, -22.4, 0.9),
     ...parkBench(5.4, -21.8, -0.9),
@@ -335,7 +344,7 @@ export function ThangLong() {
 }
 
 export const HANOI_LAMPS: [number, number, number][] = [
-  [-2.6, 2.75, -24.8],
-  [2.6, 2.75, -24.8],
+  [-LAMP_X, 2.75, -24.8],
+  [LAMP_X, 2.75, -24.8],
   [-3.2, 2.75, -16.4],
 ]

@@ -8,6 +8,7 @@ import { uGlow } from '../lib/materials'
 import { NGOMON } from '../layout'
 import { VILLAGE_POLES } from './Village'
 import { PLAZA0 } from './Hue'
+import { LAMP_X } from './ThangLong'
 
 /*
  * Every lantern in the world, two kinds:
@@ -34,10 +35,10 @@ export const LANTERNS: LanternDef[] = (() => {
   const L: LanternDef[] = []
   let h = 0
   // Hà Nội, Mid-Autumn: a string of star and round lanterns across the esplanade
-  for (let k = 0; k < 7; k++) {
-    const t = (k + 0.5) / 7
-    const x = -2.6 + t * 5.2
-    const y = 2.62 - 0.35 * Math.sin(Math.PI * t)
+  for (let k = 0; k < 9; k++) {
+    const t = (k + 0.5) / 9
+    const x = -LAMP_X + t * 2 * LAMP_X
+    const y = 2.62 - 0.42 * Math.sin(Math.PI * t)
     L.push({ a: [x, y, -24.8], len: 0.1, size: k % 2 ? 0.7 : 0.8, zone: 'hanoi', style: k % 2 ? 'hoian' : 'star', color: k % 2 ? HOIAN[h++ % HOIAN.length] : ['#e8453a', '#f2c14e', '#e9577f'][k % 3] })
   }
   // the village: red lanterns on bamboo arms, lit one by one by threads of gold

@@ -388,10 +388,12 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         c.path.shift()
       } else {
         walking = true
-        const step = Math.min(dist, c.speed * dt)
+        // travel keeps to real time even when frames are slow, so walks still land on the story's beats
+        const step = Math.min(dist, c.speed * Math.min(rawDt, 0.12))
         c.pos.x += (tmp.v.x / dist) * step
         c.pos.z += (tmp.v.z / dist) * step
-        c.pos.y = lerp(c.pos.y, next.y, Math.min(1, dt * 10))
+        // climb (or descend) evenly along the leg, so stairs are walked, not jumped
+        c.pos.y += (next.y - c.pos.y) * (step / dist)
         const heading = Math.atan2(tmp.v.x, tmp.v.z)
         c.rotY += wrapPi(heading - c.rotY) * Math.min(1, dt * 9)
         a.phase += dt * c.speed * 8.2
@@ -591,7 +593,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         break
       }
       case 'present': {
-        // both hands hold the notice out; they part as it unrolls
+        // both hands hold the diploma out; they part as it unrolls
         const e = sstep(0, 0.45, tau)
         const s = world.diploma
         tg.aLx = lerp(tg.aLx, -1.35, e)

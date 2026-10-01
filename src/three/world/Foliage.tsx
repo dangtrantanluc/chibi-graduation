@@ -7,7 +7,7 @@ import { frondTex, leafAtlas, type LeafKind } from '../lib/foliageTex'
 import { taperTube } from '../characters/hair'
 import { BAMBOO, BUSHES, FLOWERS, GRASS, ROCKS, TREES, type TreeKind } from './placements'
 import { HEDGE } from './Village'
-import { TOPIARY } from '../layout'
+import { TOPIARY, VILLAGE_END } from '../layout'
 import { RICE, riceKit } from './BinhDinh'
 
 /*
@@ -313,6 +313,44 @@ function Bamboo({ items }: { items: Item[] }) {
   )
 }
 
+/** Where the lane leaves the village: bamboo leaning in from both sides until it meets overhead. */
+function BambooArch({ z }: { z: number }) {
+  const meshes = useMemo(() => {
+    const r = rng(41)
+    const culms: Part[] = []
+    const clumps: Clump[] = []
+    for (const s of [-1, 1]) {
+      for (let i = 0; i < 7; i++) {
+        const bx = s * (1.55 + r() * 0.6)
+        const bz = (r() - 0.5) * 1.1
+        const h = 3.4 + r() * 0.9
+        const reach = 1.5 + r() * 0.9
+        const tz = bz + (r() - 0.5) * 0.5
+        const mz = (bz + tz) / 2
+        const pts = [new THREE.Vector3(bx, 0, bz), new THREE.Vector3(bx - s * 0.06, h * 0.45, bz), new THREE.Vector3(bx - s * reach * 0.38, h * 0.82, mz), new THREE.Vector3(bx - s * reach, h * 0.94, tz)]
+        culms.push({ g: taperTube(pts, 0.05, 0.018, 14, 6), c: i % 3 ? '#86b35e' : '#9cc36b', m: 'wood' })
+        clumps.push({ c: [bx - s * reach * 0.9, h * 0.94, tz], r: 0.52, n: 16, flat: 0.75, size: [0.6, 0.9] })
+        clumps.push({ c: [bx - s * reach * 0.42, h * 0.87, mz], r: 0.4, n: 9, flat: 0.75, size: [0.5, 0.8] })
+      }
+    }
+    const a = new THREE.Mesh(mergeKit(culms).get('wood')!, kitMat('wood'))
+    const b = new THREE.Mesh(cardCanopy(78, clumps), cardMat(leafAtlas('bamboo'), 'bamboo', 0.03))
+    for (const m of [a, b]) {
+      m.position.set(0, 0, z)
+      m.castShadow = true
+      m.receiveShadow = true
+    }
+    return [a, b]
+  }, [z])
+  return (
+    <>
+      {meshes.map((m, i) => (
+        <primitive key={i} object={m} />
+      ))}
+    </>
+  )
+}
+
 /** Clipped shrubs (green box and flowering hibiscus) as small card clumps. */
 function Bushes({ items }: { items: Item[] }) {
   const meshes = useMemo(() => {
@@ -438,9 +476,9 @@ function CoconutPalms({ items }: { items: Item[] }) {
 }
 
 const grassKit = (): Part[] => [
-  { g: G.coneLo, c: '#7f9f52', m: 'foliage', p: [0, 0.13, 0], r: [0, 0, 0.2], s: [0.04, 0.26, 0.04] },
-  { g: G.coneLo, c: '#94b460', m: 'foliage', p: [0.05, 0.1, 0.03], r: [0.2, 0, -0.35], s: [0.035, 0.2, 0.035] },
-  { g: G.coneLo, c: '#6f9048', m: 'foliage', p: [-0.05, 0.09, -0.02], r: [-0.25, 0, 0.4], s: [0.035, 0.18, 0.035] },
+  { g: G.coneLo, c: '#5f8f3e', m: 'foliage', p: [0, 0.13, 0], r: [0, 0, 0.2], s: [0.04, 0.26, 0.04] },
+  { g: G.coneLo, c: '#74a548', m: 'foliage', p: [0.05, 0.1, 0.03], r: [0.2, 0, -0.35], s: [0.035, 0.2, 0.035] },
+  { g: G.coneLo, c: '#4f7f36', m: 'foliage', p: [-0.05, 0.09, -0.02], r: [-0.25, 0, 0.4], s: [0.035, 0.18, 0.035] },
 ]
 const rockKit = (): Part[] => [{ g: blob(81, 1, 0.22), c: '#a79d8f', m: 'stone', p: [0, 0.35, 0], s: [1, 0.7, 0.85] }]
 const stemKit = (): Part[] => [
@@ -510,6 +548,7 @@ export function Foliage() {
       {(Object.keys(SPECS) as Exclude<TreeKind, 'coconut'>[]).map((k) => (byKind[k].length ? <TreeKindMesh key={k} kind={k} items={byKind[k]} /> : null))}
       {byKind.coconut.length > 0 && <CoconutPalms items={byKind.coconut} />}
       <Bamboo items={bamboo} />
+      <BambooArch z={VILLAGE_END} />
       <InstancedKit build={riceKit} items={rice} shadow={false} />
       <Bushes items={bushes} />
       <InstancedKit build={grassKit} items={grass} shadow={false} />
@@ -534,8 +573,8 @@ export function Topiary({ x, z, r }: { x: number; z: number; r: number }) {
   return <primitive object={mesh} />
 }
 
-/** A potted mai tree (for the imperial stairs). */
+/** A potted mai tree (for the piers of Ngọ Môn). */
 export function PottedMai({ position }: { position: V3 }) {
-  const items = useMemo<Item[]>(() => [{ p: position, ry: 0.4, s: 0.55 }], [position])
+  const items = useMemo<Item[]>(() => [{ p: position, ry: 0.4, s: 0.46 }], [position])
   return <TreeKindMesh kind="mai" items={items} />
 }

@@ -167,6 +167,23 @@ export function HangingScroll() {
       }),
     [],
   )
+  // a band of light that runs down the list once it hangs open
+  const sheen = useMemo(() => ({ value: -1 }), [])
+  useMemo(() => {
+    mat.onBeforeCompile = (sh) => {
+      sh.uniforms.uSheen = sheen
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uSheen;').replace(
+        '#include <emissivemap_fragment>',
+        /* glsl */ `#include <emissivemap_fragment>
+#ifdef USE_MAP
+  // uv.y runs from 1 at the top rod to 0 at the bottom one
+  float sheenBand = exp( - pow( ( vMapUv.y - ( 1.0 - uSheen ) ) / 0.07, 2.0 ) ) * step( -0.5, uSheen );
+  totalEmissiveRadiance += vec3( 1.0, 0.8, 0.42 ) * sheenBand * 1.5;
+#endif`,
+      )
+    }
+    mat.customProgramCacheKey = () => 'bang-vang'
+  }, [mat, sheen])
   useEffect(() => {
     mat.map = tex
     mat.emissiveMap = tex
@@ -210,6 +227,7 @@ export function HangingScroll() {
     roll.current.scale.set(r, 1, r)
     roll.current.rotation.x = -p * 18
     mat.emissiveIntensity = 0.22 * uGlow.value + world.glow.hue * 0.1
+    sheen.value = world.scrollSheen
   })
 
   return (

@@ -1,5 +1,5 @@
 import { rng } from '../lib/kit'
-import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, HOUSE, DOANMON, GATE, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, TOPIARY, WELL } from '../layout'
+import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, TOPIARY, VILLAGE_END, WELL } from '../layout'
 import { CAMPUS_TREES } from './Campus'
 
 /** Deterministic placement of buildings, trees, rocks and flowers, region by region. */
@@ -48,7 +48,7 @@ const HAND_TREES: TreeDef[] = [
   { x: 3.6, z: -15.4, s: 0.9, ry: 3.3, kind: 'hoasua' },
   { x: -14.6, z: -23.6, s: 1.1, ry: 0.2, kind: 'autumn' },
   { x: 14.6, z: -16.6, s: 1.1, ry: 4.2, kind: 'autumn' },
-  // IV · the village — the banyan by the gate
+  // IV · the village — the banyan just inside the gate
   { x: BANYAN.x, z: BANYAN.z, s: 1.0, ry: 0.6, kind: 'banyan' },
   // V · Huế — Tết apricot blossom and pines
   { x: -8.6, z: -42.2, s: 0.85, ry: 0.3, kind: 'mai' },
@@ -93,7 +93,9 @@ const SIGHTS: [number, number, number, number][] = [
   [0.4, 26, 0.4, 5], // the opening wide shot
   [-2.6, -1.6, 3.2, -7.4], // II · the campus bench
   [1.6, -16.2, -1.8, -21.8], // III · by the bicycle
-  [0.1, -29.8, 0.6, -35.3], // IV · his parents at the village gate
+  [-1.7, -32.0, 3.1, -34.6], // IV · the family in the yard
+  [-1.2, -32.4, 1.6, -36.4],
+  [0.2, -32.6, 0, -40], // IV · seeing him off down the lane
 ]
 function distToSeg(x: number, z: number, [ax, az, bx, bz]: [number, number, number, number]) {
   const dx = bx - ax
@@ -110,6 +112,7 @@ export function isFree(x: number, z: number, m = 0) {
   if (Math.abs(z - GATE.z) < 1.1 + m) return false
   if (Math.abs(z - DOANMON.z) < DOANMON.d / 2 + 0.9 + m) return false
   if (Math.abs(z - CONGLANG.z) < 1.3 + m) return false
+  if (Math.abs(z - VILLAGE_END) < 1.2 + m) return false
   if (Math.abs(z - HUE_WALL_Z) < 1.2 + m) return false
   // Bình Định
   if (Math.hypot(x - CHAM.x, z - CHAM.z) < 2.7 + m) return false
@@ -127,9 +130,11 @@ export function isFree(x: number, z: number, m = 0) {
   if (Math.hypot(x - WELL.x, z - WELL.z) < 2.0 + m) return false
   if (Math.hypot(x - BANYAN.x, z - BANYAN.z) < 3.0 + m) return false
   if (Math.abs(x) < 4.4 + m && z < -29.4 + m && z > CONGLANG.z - 0.8) return false
-  if (Math.abs(x - HOUSE.x) < 2.6 + m && Math.abs(z - HOUSE.z) < 2.6 + m) return false
+  // the house, its yard (between the house and the lane) and the haystack
+  if (x > 0 && x < HOUSE.x + 3.4 + m && z < CONGLANG.z - 0.6 + m && z > VILLAGE_END) return false
+  if (Math.hypot(x - HAYSTACK.x, z - HAYSTACK.z) < 1.4 + m) return false
   // Huế: Ngọ Môn, its plaza, the ponds, the hall
-  if (Math.abs(x - NGOMON.x) < NGOMON.w / 2 + 0.8 + m && z > NGOMON.z - NGOMON.depth / 2 - 1 && z < CONGLANG.z - 1.2 + m) return false
+  if (Math.abs(x - NGOMON.x) < NGOMON.w / 2 + 0.8 + m && z > NGOMON.z - NGOMON.depth / 2 - 1 && z < VILLAGE_END - 0.6 + m) return false
   for (const [x0, x1, z0, z1] of HUE_PONDS) if (x > x0 - 0.8 - m && x < x1 + 0.8 + m && z > z0 - 0.8 - m && z < z1 + 0.8 + m) return false
   if (Math.abs(x - HALL.x) < 8.2 + m && z < HALL.terraceFront + 1.4 + m) return false
   if (Math.abs(x) < 2.2 + m && z < NGOMON.z && z > HALL.terraceFront) return false
@@ -148,7 +153,7 @@ function regionKinds(z: number): TreeKind[] {
   if (z > GATE.z) return ['coconut', 'green', 'coconut']
   if (z > -13.5) return ['green', 'phuong', 'green']
   if (z > DOANMON.z) return ['autumn', 'autumn', 'hoasua', 'green']
-  if (z > CONGLANG.z) return ['green', 'green']
+  if (z > VILLAGE_END) return ['green', 'green']
   return ['mai', 'green', 'pine']
 }
 
@@ -211,8 +216,9 @@ export const FLOWERS: [number, number, string][] = (() => {
   bed(12.6, -2.6, 1.0, 14, campus)
   bed(-4.6, -21.6, 1.0, 22, daisies)
   bed(4.6, -22.8, 0.9, 18, daisies)
-  bed(-3.6, -28.8 + 1.1, 0.5, 8, daisies)
-  bed(-6.2, -31.6, 0.9, 12, field)
+  bed(-3.4, -29.9, 0.45, 8, daisies)
+  bed(3.4, -29.9, 0.45, 8, field)
+  bed(-7.4, -37.9, 0.9, 12, field)
   bed(-3.4, -41.4, 0.8, 14, hue)
   bed(3.4, -41.4, 0.8, 14, hue)
   bed(-9.4, -51.8, 0.9, 12, hue)
@@ -248,7 +254,7 @@ export const GRASS: [number, number, number][] = (() => {
     const z = BOARD.minZ + 0.6 + r() * 78.8
     if (!isFree(x, z, -1.1)) continue
     // no lawn tufts on the paved Huế plaza or the campus concrete
-    if (z < CONGLANG.z - 0.6 && Math.abs(x) < 8) continue
+    if (z < VILLAGE_END - 0.6 && Math.abs(x) < 8) continue
     out.push([x, z, 0.6 + r() * 0.7])
   }
   return out

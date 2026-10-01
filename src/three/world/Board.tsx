@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
-import { BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, TOPIARY } from '../layout'
+import { BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, TOPIARY, VILLAGE_END, houseToWorld } from '../layout'
 import { blob, G, mergeKit, rng, type Part } from '../lib/kit'
 import { kitMat } from '../lib/materials'
 import { canvas, toTexture, waterNormalTex } from '../lib/textures'
@@ -42,9 +42,9 @@ function boardShape(grow = 0) {
 function paintGround() {
   const [c, g] = canvas(TW, TH)
   const r = rng(3)
-  g.fillStyle = '#93ad64'
+  g.fillStyle = '#74a04e'
   g.fillRect(0, 0, TW, TH)
-  const mott = ['#a6c072', '#86a15a', '#9cb86b', '#7f9a55', '#b3c67c', '#8faa5e']
+  const mott = ['#84b25a', '#65914a', '#7caa54', '#5c8744', '#90bc64', '#6e9a4b']
   for (let i = 0; i < 1300; i++) {
     const x = r() * TW
     const y = r() * TH
@@ -66,9 +66,9 @@ function paintGround() {
     g.fillStyle = grd
     g.fillRect(0, py(z1), TW, py(z0) - py(z1))
   }
-  tint(4, 15, '#c9b86a', 0.28)
-  tint(-28.5, -13.5, '#d8b44a', 0.4)
-  tint(-39, -28.5, '#7f9a55', 0.2)
+  tint(4, 15, '#c9b86a', 0.2)
+  tint(-28.5, -13.5, '#d8b44a', 0.3)
+  tint(-39.5, -28.5, '#4f8a3c', 0.22)
 
   const soft = (x0: number, z0: number, x1: number, z1: number, spread: number, alpha: number) => {
     for (let k = 7; k >= 0; k--) {
@@ -164,15 +164,23 @@ function paintGround() {
     g.fill()
     g.restore()
   }
-  // ── IV · the village: packed-earth yard, a herringbone brick lane ──
-  g.fillStyle = 'rgba(196,167,122,0.75)'
-  g.beginPath()
-  g.ellipse(px(0), py(-33.8), 5.4 * SX, 4.2 * SZ, 0, 0, Math.PI * 2)
-  g.fill()
+  // ── IV · the village: the packed-earth yard of the house, a herringbone brick lane ──
+  {
+    const [yx, yz] = houseToWorld(0.2, 1.9)
+    for (const [rx, rz, a] of [
+      [4.7, 3.5, 0.5],
+      [4.2, 3.0, 0.45],
+    ] as const) {
+      g.fillStyle = `rgba(196,167,122,${a})`
+      g.beginPath()
+      g.ellipse(px(yx - 0.5), py(yz - 0.4), rx * SX, rz * SZ, -HOUSE.ry, 0, Math.PI * 2)
+      g.fill()
+    }
+  }
   {
     const x0 = -1.15
     const x1 = 1.15
-    const z0 = CONGLANG.z - 0.4
+    const z0 = VILLAGE_END - 0.9
     const z1 = DOANMON.z - DOANMON.d / 2 - 0.2
     rect(x0, z0, x1, z1, '#9a5a3e')
     g.save()
@@ -203,7 +211,7 @@ function paintGround() {
   }
   // ── V · Huế: Bát Tràng terracotta before Ngọ Môn, the courtyard behind ──
   const ngFront = NGOMON.z + NGOMON.depth / 2
-  paving(-7.4, ngFront, 7.4, CONGLANG.z - 0.9, '#c78e6a', 0.6)
+  paving(-7.4, ngFront, 7.4, VILLAGE_END - 0.9, '#c78e6a', 0.6)
   paving(-8.2, HALL.terraceFront, 8.2, NGOMON.z - NGOMON.depth / 2, '#c9936c', 0.6)
   rect(-1.5, HALL.terraceFront, 1.5, NGOMON.z - NGOMON.depth / 2, '#dcd3c2')
   for (const [x0, x1, z0, z1] of HUE_PONDS) rect(x0, z0, x1, z1, '#35626a')
@@ -234,6 +242,8 @@ function paintGround() {
   soft(NGOMON.x - NGOMON.w / 2, NGOMON.z - NGOMON.depth / 2, NGOMON.x + NGOMON.w / 2, NGOMON.z + NGOMON.depth / 2 + NGOMON.wing, 0.9, 0.45)
   soft(HALL.x - 7.2, HALL.terraceBack, HALL.x + 7.2, HALL.terraceFront, 1.0, 0.55)
   spot(CHAM.x, CHAM.z, 2.4, 0.5)
+  spot(HOUSE.x, HOUSE.z, 2.5, 0.5)
+  spot(HAYSTACK.x, HAYSTACK.z, 1.0, 0.45)
   for (const h of HOUSES) spot(h.x, h.z, Math.max(h.w, h.d) * 0.68, 0.45)
   for (const t of TREES) spot(t.x, t.z, (t.kind === 'banyan' ? 2.6 : 1.35) * t.s, 0.42)
   for (const [x, z, s] of BAMBOO) spot(x, z, 1.4 * s, 0.35)
@@ -286,7 +296,7 @@ export function Board() {
     const s0 = boardShape()
     const r = rng(8)
     const parts: Part[] = [
-      { g: layer(s0, -0.32, -0.001), c: '#7a9450', m: 'stone' },
+      { g: layer(s0, -0.32, -0.001), c: '#5f8a40', m: 'stone' },
       { g: layer(boardShape(-0.02), -1.75, -0.32), c: '#9a6a48', m: 'stone' },
       { g: layer(boardShape(-0.04), -2.25, -1.75), c: '#85766c', m: 'stone' },
       { g: layer(boardShape(0.62), -3.25, -2.36, 0.08), c: '#6b4430', m: 'wood' },
@@ -303,7 +313,7 @@ export function Board() {
     // grass lip tufts hanging over the edge
     perim.forEach((p, i) => {
       if (i % 2) return
-      parts.push({ g: blob(i + 300, 1, 0.25), c: '#86a459', m: 'foliage', p: [p.x, -0.12, -p.y], s: [0.35, 0.18, 0.35] })
+      parts.push({ g: blob(i + 300, 1, 0.25), c: '#6a9a46', m: 'foliage', p: [p.x, -0.12, -p.y], s: [0.35, 0.18, 0.35] })
     })
     return { ground, parts }
   }, [])

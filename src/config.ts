@@ -49,15 +49,11 @@ export const MUSIC = {
 }
 
 /**
- * Who speaks in each chapter (the dialogue name tags). The two friends stand
- * for whole groups of friends — rename them to anyone you like.
+ * Who speaks in each chapter (the dialogue name tags). His two friends speak
+ * without a tag — their lines are headed by the place alone (Sài Gòn, Hà Nội).
  */
 export const CAST = {
   luc: 'Lực',
-  uni: 'Hội bạn CNTT',
-  hanoi: 'Hội bạn Hà Nội',
-  father: 'Bố',
-  mother: 'Mẹ',
   /** the name tag when both parents speak together */
   parents: 'Bố & Mẹ',
   princess: 'Công nương',

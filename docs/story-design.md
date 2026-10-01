@@ -3,7 +3,7 @@
 Thiệp mời kể lại hành trình của **Lực** qua năm chương. Mỗi chương là một cánh
 cổng, và cả năm cổng nằm thẳng trên một trục của bàn diorama:
 
-**cổng thành Hoàng Đế → giảng đường Rạng Đông → Đoan Môn → cổng làng → Ngọ Môn.**
+**cổng thành Hoàng Đế → giảng đường Rạng Đông → Đoan Môn → cổng làng (về nhà) → Ngọ Môn.**
 
 Khách (người được mời) đi theo Lực từ quê nhà đến kinh thành Huế. Ở cảnh cuối,
 tên khách hiện trên **bảng vàng** treo từ lầu Ngũ Phụng. Ngày xưa, danh sách
@@ -11,7 +11,8 @@ những người đỗ đạt được rước qua Ngọ Môn trên bảng vàng
 một tấm thiệp tốt nghiệp: đôi câu đối trong điện Thái Hòa ghi 金榜題名 (tên trên
 bảng vàng) và 前程萬里 (đường xa vạn dặm).
 
-Khi máy quay lùi ra ở cảnh kết, cả hành trình hiện ra như một tấm bản đồ thu nhỏ.
+Ở cảnh kết, bảng vàng cuộn lên và cả nhóm đi qua Ngọ Môn vào đứng trước **điện
+Thái Hòa** — đúng với dòng chữ "See you inside".
 
 ---
 
@@ -41,7 +42,7 @@ Chi tiết kỹ thuật xem [`2d-to-3d.md`](2d-to-3d.md).
 - **Ôm quyền**: tay phải nắm lại, áp vào lòng bàn tay trái, cúi nhanh và dứt khoát. Đây là cách chào của **võ Bình Định**, tức "đất võ" quê Lực.
 - **Bước vào luồng sáng qua cổng**: ứng với câu "Small steps, big dreams".
 - **Đập tay với bạn Đại học, cười, nháy mắt chữ V**: biểu cảm cuối cùng trong sheet.
-- **Khoanh tay chào bố mẹ, rồi trình giấy báo tốt nghiệp**: cách con cái Việt chào cha mẹ; tờ giấy báo là khoảnh khắc "báo tin vui" của cả hành trình.
+- **Khoanh tay chào bố mẹ, rồi trình bằng tốt nghiệp**: cách con cái Việt chào cha mẹ; tấm bằng là khoảnh khắc "báo tin vui" của cả hành trình.
 
 ### Hội bạn CNTT — "không chỉ là code mà còn là những người bạn tuyệt vời" (sheet 2)
 
@@ -82,22 +83,24 @@ nên vừa đúng mùa, vừa đúng tính cách "yêu thiên nhiên".
 | Áo tứ thân chàm, yếm đỏ, thắt lưng vải, váy | Áo vẽ tay: vải chàm bạc màu loang, nẹp áo chàm đậm; mở vạt thấy yếm đỏ gạch và váy xanh rêu; thắt lưng thắt nút trước bụng, buông hai đầu; ngón chân trần ló dưới váy |
 | Tay xách giỏ lúa | Giỏ tre đan (sọc nan), quai, bông lúa chín vàng rủ xuống |
 
-Bối cảnh của họ là **nhà tranh vách đất** cạnh cổng làng:
+Bối cảnh của họ là **nhà tranh vách đất** nằm *trong* làng: đi qua cổng làng rồi
+mới về tới nhà. Nhà ở bên phải đường gạch, quay mặt ra phía cổng, có sân đất riêng:
 - Nhà có cột gỗ, cửa ván, cửa sổ chấn song.
 - **Mái rạ hai lớp**: sợi rơm chạy dọc mái, tua rơm xù so le ở mép, bó nóc buộc lạt tre.
 - Trước nhà trải **chiếu cói viền đỏ**, trên chiếu có **hai chiếc nón lá**, bên cạnh là **rổ bắp** và **chum sành**.
+- Bên hông nhà là **cây rơm**, sau nhà là lũy tre.
 
 **Chương IV — hoạt ảnh và lý do**
-1. Lực vẫy chào cô bạn Hà Nội rồi **bước qua vòm Đoan Môn**; máy quay đi theo sau lưng cậu.
-2. Bố mẹ đứng giữa đường làng trước nhà tranh, ngóng về phía cổng. Thấy con, bố vẫy tay, mẹ mỉm cười.
-3. Lực **khoanh tay cúi chào**: "Con chào bố mẹ ạ!"
-4. Lực lấy ra **giấy báo tốt nghiệp** làm theo lối **tờ sớ**:
-   - Giấy vàng, viền đỏ kép, hai cột chữ Hán đỏ **捷報** (tin đỗ đạt) và **畢業** (tốt nghiệp).
-   - Nội dung: "GIẤY BÁO TỐT NGHIỆP · Trường ĐH Nông Lâm TP.HCM · Khoa CNTT · Sinh viên Lực", có dấu son.
+1. Lực vẫy chào cô bạn Hà Nội rồi **bước qua vòm Đoan Môn và cổng làng**; máy quay đi theo sau lưng cậu trong một cú máy liền.
+2. Bố mẹ đứng trong sân trước nhà tranh, ngóng về phía cổng. Thấy con, bố vẫy tay, mẹ mỉm cười.
+3. Lực **khoanh tay cúi chào**: "Con chào bố mẹ ạ!" Ba người đứng thành hàng ngang, hơi xoay về phía ống kính để thấy rõ mặt cả ba.
+4. Lực lấy ra **bằng tốt nghiệp** làm theo lối **tờ sớ** (hình thức cổ, nội dung vẫn là tấm bằng): "Con tốt nghiệp rồi — bằng của con đây ạ!"
+   - Giấy vàng, viền đỏ kép, hai cột chữ Hán đỏ **文憑** (văn bằng) và **畢業** (tốt nghiệp).
+   - Nội dung: "BẰNG TỐT NGHIỆP · Trường ĐH Nông Lâm TP.HCM · Khoa CNTT · Sinh viên Lực", có dấu son.
    - Tờ giấy cuộn trên hai trục gỗ sơn son, **trải dần ra từ giữa** khi hai tay dang.
-5. Mẹ vỗ tay, bố giơ tay reo. Từ tờ giấy, **những sợi chỉ vàng** thắp sáng từng chiếc đèn lồng dọc đường làng. Lực quay sang giơ giấy cho khách xem.
-6. Bố mẹ **lui ra hai bên đường** và đưa tay mời con: "Giỏi lắm con trai! … đi cùng Lực vào Huế nhé". Lực bước qua cổng làng, bố mẹ reo cổ vũ.
-7. Ở Ngọ Môn, bố mẹ đứng hai bên Lực và công nương.
+5. Mẹ vỗ tay, bố giơ tay reo. **Đèn lồng dọc đường làng sáng dần lên**, từng chiếc một (không còn tia sáng nối từ tờ giấy). Lực quay sang giơ giấy cho khách xem.
+6. Lực bước ra giữa đường làng; bố mẹ **đứng ra hai bên đường** và đưa tay mời con: "Giỏi lắm con trai! … đi cùng Lực vào Huế nhé". Phía sau họ là **vòm tre** cuối làng và Ngọ Môn.
+7. Lực đi giữa bố mẹ, qua vòm tre. Bố mẹ reo cổ vũ rồi đi theo sau, vào đứng hai bên Lực và công nương ở Ngọ Môn.
 
 ### Công nương (áo nhật bình)
 
@@ -135,19 +138,22 @@ Giữ nguyên: **múa hoa đăng** trước Ngọ Môn khi bảng vàng mở ra.
 - **Lầu hai tầng mái ngói mũi hài** màu đất nung, có **rồng đá** trên các góc mái dưới và **đầu hồi** quay ra mặt tiền.
 - Không khí thu: **cây lá vàng** và **hoa sữa**, lá vàng phủ sân và bay khi có gió, **xe đạp chở cúc hoạ mi và cúc vàng**, **gánh cốm** gói lá sen kèm nón lá, **cột đèn gang xanh** kiểu phố cổ, ghế công viên, và một dây **đèn Trung Thu** (đèn ông sao, đèn lồng) giăng qua đường.
 
-### IV · Làng Bắc Bộ — cổng làng (ảnh 7)
+### IV · Làng Bắc Bộ — cổng làng và nhà bố mẹ (ảnh 7, ảnh 8)
 
 - Cổng **vòm cuốn** trát vữa xám ám rêu, có ô trang trí lõm.
 - **Bảng chữ 地靈人傑** (địa linh nhân kiệt), bên trên là **cuốn thư** cuộn hai đầu và hạt châu.
 - Hai **trụ biểu** cao có đầu **lồng đèn** và mũ trụ cong góc, trên cùng là tượng **nghê** ngồi.
 - Tường hai bên có **ô thoáng hồi văn**, trụ nhỏ có nghê nhỏ, cuối tường cuộn thành **cuốn thư**.
-- Cổng nằm giữa **lũy tre**, gần đó có **cây đa** (rễ phụ buông xuống), **giếng làng có cần vọt**, **ao làng** có sen và cá chép, **đường gạch nghiêng** xếp hình xương cá, **miếu nhỏ**, **cờ hội ngũ sắc**, và **đèn lồng đỏ trên cần tre** (được thắp lần lượt).
+- Cổng nằm trong **lũy tre** ngay sau Đoan Môn và là **lối vào làng**. Nhà không còn đứng sát cổng: qua cổng mới tới đường làng, bên phải là **nhà bố mẹ và sân**, bên trái là **cây đa** (rễ phụ buông xuống) với **miếu nhỏ**, **giếng làng có cần vọt** và **ao làng** có sen, cá chép.
+- **Đường gạch nghiêng** xếp hình xương cá chạy suốt làng, có **đèn lồng đỏ trên cần tre** (được thắp lần lượt) và **cờ hội ngũ sắc** trước cổng.
+- Cuối làng là hàng lũy tre thứ hai; đường làng đi ra dưới một **vòm tre** uốn cong từ hai bên, dẫn tới sân Ngọ Môn.
 
 ### V · Huế — Ngọ Môn
 
 - **Đế đá hình chữ U** với các lớp đá xây. Mặt trước có ba cửa (cửa giữa dành cho vua), hai cánh có cửa Dịch Môn xuyên qua.
 - **Lầu Ngũ Phụng**: dãy cột sơn son dưới mái ngói xanh, gian giữa có mái chồng vàng hoàng cung, bờ nóc khảm sành, **lưỡng long chầu nhật**, biển 午門.
-- Phía sau vẫn là **hồ Thái Dịch**, đường Trung Đạo có **phẩm sơn** và nghi môn đồng, **điện Thái Hòa**, **Hiển Lâm Các**.
+- Phía sau là **hồ Thái Dịch**, cầu Trung Đạo có **phẩm sơn** và **nghi môn đồng** ở đầu cầu, rồi **điện Thái Hòa** trên nền cao có bậc cấp rồng, và **Hiển Lâm Các**.
+- **Điện Thái Hòa là sân khấu của cảnh kết**: ba người đứng trên thềm điện (bố, công nương, mẹ), ba người đứng dưới sân (bạn CNTT, Lực, bạn Hà Nội), như một tấm ảnh kỷ yếu.
 
 ---
 
@@ -157,21 +163,30 @@ Giữ nguyên: **múa hoa đăng** trước Ngọ Môn khi bảng vàng mở ra.
 | --- | --- | --- |
 | Bình Định → Sài Gòn | Lực bước vào luồng sáng qua cổng; **tàu Thống Nhất** (toa ghi "DIÊU TRÌ – SÀI GÒN", ga Diêu Trì là ga của Bình Định) lao qua ống kính | Rời quê vào Nam đi học |
 | Sài Gòn → Hà Nội | Một **cơn gió lá vàng** cuốn kín màn hình | Ra Bắc vào mùa thu |
-| Hà Nội → nhà | Lực chào bạn, **bước qua vòm giữa Đoan Môn**, máy quay đi theo | Về báo tin với bố mẹ |
-| Nhà → Huế | Bố mẹ lui ra hai bên cổ vũ; đi theo hàng đèn vừa thắp, **qua vòm cổng làng**; nhạc chuyển sang giai điệu Huế | Cha mẹ tiễn con bước tiếp |
-| Huế → kết | Máy quay lùi lên cao, nhìn lại Ngọ Môn và cả làng | Nhìn lại hành trình |
+| Hà Nội → nhà | Lực chào bạn, **bước qua vòm giữa Đoan Môn rồi qua cổng làng**, máy quay đi theo | Về báo tin với bố mẹ |
+| Nhà → Huế | Bố mẹ đứng ra hai bên đường cổ vũ; máy quay đi giữa hai người, theo hàng đèn vừa thắp, **qua vòm tre cuối làng**. Nhạc không đổi bài đột ngột: bài hành trình nhỏ dần, còn lại **tiếng bước chân**, **gió qua tre**, **một tiếng chuông nhỏ**, rồi giai điệu Huế mới nổi lên | Cha mẹ tiễn con bước tiếp; âm nhạc "đổi vùng" |
+| Huế → kết | Bảng vàng cuộn lên; cả nhóm nối nhau **đi qua cửa giữa Ngọ Môn**, qua cầu Trung Đạo, tới trước điện Thái Hòa; máy quay đi theo sau | "See you inside" — hẹn gặp bên trong |
 
 ## 4. Âm nhạc
 
 - Đoạn hành trình dùng "Ripples" (tiếng đàn tranh độc tấu).
 - Đoạn Huế dùng "Shenyang" (nhị, tỳ bà, tam thập lục).
 - Hai bài đều của Kevin MacLeod, giấy phép CC BY 4.0, nên phải ghi nguồn; dòng ghi nguồn đã đặt ở thẻ cuối.
-- Chuông chùa và tiếng gảy khi chạm màn hình được tổng hợp trực tiếp, không cần file.
+- Chuông chùa, tiếng gảy khi chạm màn hình, **tiếng bước chân** và **tiếng gió** được tổng hợp trực tiếp, không cần file.
+- **Cầu nối IV → V**: bài hành trình tắt dần trong 3 giây → bước chân trên đường gạch → gió qua tre → một tiếng chuông nhỏ → bài Huế nổi lên trong 4 giây. Người xem thấy âm nhạc chuyển vùng chứ không phải bị đổi bài.
+- **Nghi thức hạ bảng vàng** (chương V), nhạc hạ nhỏ trong lúc này:
+  1. Không gian lắng lại, một cơn gió nhẹ thổi qua sân.
+  2. Tiếng chuông thứ nhất; máy quay ngước lên lầu Ngũ Phụng.
+  3. Một dải vàng ló ra ở lan can.
+  4. Tiếng chuông thứ hai; bảng vàng từ từ hạ xuống, máy quay hạ theo.
+  5. Mọi người reo mừng khi tên khách hiện ra.
+  6. Bảng mở hết: một tiếng chuông khẽ, một vệt sáng chạy dọc dòng chữ.
+  7. Công nương quay về phía khách, và thiệp mời hiện ra.
 
 ## 5. Có thể tuỳ chỉnh
 
 Mọi nội dung sửa được đều nằm trong `src/config.ts`:
-- Tên các nhân vật và hai hội bạn (`CAST`).
+- Thẻ tên của Lực, Bố & Mẹ, Công nương (`CAST`); hai người bạn nói không kèm thẻ tên.
 - Chữ Hán trên các cổng và bảng hiệu (`PLAQUES`).
 - Thông tin sự kiện (`INVITE`).
 - Nhạc (`MUSIC`).
