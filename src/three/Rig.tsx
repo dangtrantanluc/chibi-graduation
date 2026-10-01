@@ -125,8 +125,13 @@ export function CameraRig() {
     camera.lookAt(tmp.tgt)
     camera.rotateZ(Math.sin(t * 0.21) * 0.004 * drift * (1 - e))
 
-    if (Math.abs(camera.fov - fov) > 0.01) {
+    // From far off, a near plane of 0.1 leaves the depth buffer too coarse to tell the painted ground
+    // from the board just under it (they flicker in stripes). Nothing is close to the lens in the map
+    // view, so the near plane moves out with it.
+    const near = THREE.MathUtils.lerp(0.1, 6, e)
+    if (Math.abs(camera.fov - fov) > 0.01 || Math.abs(camera.near - near) > 0.001) {
       camera.fov = fov
+      camera.near = near
       camera.updateProjectionMatrix()
     }
     camera.updateMatrixWorld()
@@ -172,8 +177,10 @@ export function Lighting() {
     const cam = sun.current.shadow.camera
     const wide = map || world.overview.k > 0.5
     const sz = wide ? 58 : world.shadowSize
-    // … whose texels are then four times the size: more bias, or the lawns come out striped
-    sun.current.shadow.normalBias = wide ? 0.2 : 0.035
+    // … whose texels are then several times the size (more so on the low tier's smaller map):
+    // the bias has to grow with them, or the lawns come out striped
+    const tx = (2 * sz) / sun.current.shadow.mapSize.x
+    sun.current.shadow.normalBias = wide ? tx * 3.6 : 0.035
     sun.current.shadow.bias = wide ? -0.0016 : -0.0004
     if (cam.right !== sz) {
       cam.left = -sz

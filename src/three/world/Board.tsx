@@ -335,7 +335,8 @@ export function Board() {
     const s0 = boardShape()
     const r = rng(8)
     const parts: Part[] = [
-      { g: layer(s0, -0.32, -0.001), c: '#5f8a40', m: 'stone' },
+      // (its top sits clearly below the painted ground: almost-coplanar faces flicker in stripes from afar)
+      { g: layer(s0, -0.32, -0.03), c: '#5f8a40', m: 'stone' },
       { g: layer(boardShape(-0.02), -1.75, -0.32), c: '#9a6a48', m: 'stone' },
       { g: layer(boardShape(-0.04), -2.25, -1.75), c: '#85766c', m: 'stone' },
       { g: layer(boardShape(0.62), -3.25, -2.36, 0.08), c: '#6b4430', m: 'wood' },

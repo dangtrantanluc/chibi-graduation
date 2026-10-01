@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useMemo } from 'react'
 import { uNight, uTime } from '../lib/materials'
+import { world } from '../../state/world'
 import { rng } from '../lib/kit'
 import { BANYAN, HALL, HOUSE, HUE_PONDS, POND, VILLAGE_END } from '../layout'
 
@@ -96,7 +97,8 @@ export function Fireflies() {
   useFrame(() => {
     const m = points.material as THREE.ShaderMaterial
     m.uniforms.uPx.value = 34 * gl.getPixelRatio() * (gl.domElement.height / gl.getPixelRatio() / 720)
-    points.visible = uNight.value > 0.02
+    // (from the map view they are smaller than a pixel and would only twinkle as noise)
+    points.visible = uNight.value > 0.02 && world.overview.k < 0.5
   })
   return <primitive object={points} />
 }
