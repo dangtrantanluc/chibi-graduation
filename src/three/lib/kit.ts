@@ -31,6 +31,8 @@ export type MatKey =
   | 'glass'
   /** straw thatch: strands running down the slope (UVs in world units) */
   | 'thatch'
+  /** moss cushions, weeds and creepers growing on old masonry */
+  | 'moss'
 
 export type V3 = [number, number, number]
 

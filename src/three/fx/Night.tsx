@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useMemo } from 'react'
 import { uNight, uTime } from '../lib/materials'
 import { rng } from '../lib/kit'
-import { POND, VILLAGE_END } from '../layout'
+import { BANYAN, HALL, HOUSE, HUE_PONDS, POND, VILLAGE_END } from '../layout'
 
 const BG_DAY = new THREE.Color('#e7b9a4')
 const BG_NIGHT = new THREE.Color('#141a3c')
@@ -58,15 +58,17 @@ export function Fireflies() {
     const homes: [number, number, number, number][] = [
       // [x, z, spread, how many]
       [POND.x + 1.5, POND.z, 3.2, 22],
-      [-4.5, -36.2, 2.2, 12],
-      [4.2, -34.4, 2.4, 14],
+      [BANYAN.x + 0.9, BANYAN.z - 1.4, 2.2, 12],
+      [HOUSE.x - 1.4, HOUSE.z + 2.4, 2.4, 14],
       [0, VILLAGE_END + 0.4, 2.0, 12],
-      [-7.5, -31.6, 2.6, 10],
-      [8.5, -32.2, 2.6, 10],
+      [-8.5, -31.2, 2.8, 10],
+      [9.5, -31.6, 2.8, 10],
       // … and a few by the paddies of Bình Định and the lotus ponds of Huế
       [12, 10, 4.5, 14],
-      [-4, -55, 2.4, 8],
-      [4, -55, 2.4, 8],
+      [-4, (HUE_PONDS[0][2] + HUE_PONDS[0][3]) / 2, 2.4, 8],
+      [4, (HUE_PONDS[0][2] + HUE_PONDS[0][3]) / 2, 2.4, 8],
+      [-9, HALL.terraceFront + 2, 2.6, 6],
+      [9, HALL.terraceFront + 2, 2.6, 6],
     ]
     const pos: number[] = []
     const seed: number[] = []

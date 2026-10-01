@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { INVITE, MUSIC } from '../config'
+import { CAST, INVITE, MUSIC, PROCLAMATION } from '../config'
 import { useUI, type Caption } from '../state/store'
 import { world } from '../state/world'
 import { advance, replay } from '../story/director'
@@ -333,7 +333,9 @@ const compactInvite = () => window.matchMedia('(max-width: 720px)').matches
 function InviteCard({ guest, ready }: { guest: string; ready: boolean }) {
   return (
     <section className="card invite" aria-live="polite">
-      <p className="sr-only">Bảng vàng ghi: Welcome, {guest}. You are invited.</p>
+      <p className="sr-only">
+        Bảng vàng xướng tên tân khoa {CAST.luc}, và kính mời {guest} đến chung vui.
+      </p>
       <p className="host">You are invited</p>
       <p className="host-sub">Trân trọng kính mời</p>
       <Details compact={compactInvite()} />
@@ -420,9 +422,11 @@ function Fallback() {
     <main className="fallback">
       <section className="card invite solo">
         <span className="seal big">招</span>
-        <p className="greet">Welcome,</p>
-        <h1>{guest}</h1>
-        <p className="invited">You are invited</p>
+        <p className="greet">{PROCLAMATION.invite}</p>
+        <h1>{guest.charAt(0).toLocaleUpperCase('vi') + guest.slice(1)}</h1>
+        <p className="invited">
+          {PROCLAMATION.closing} cùng {CAST.luc}
+        </p>
         <Details />
         <p className="sign">See you inside.</p>
       </section>

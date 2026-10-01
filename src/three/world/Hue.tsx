@@ -3,10 +3,12 @@ import { G, offsetParts, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { hipRoof } from '../lib/roof'
 import { taperTube } from '../characters/hair'
-import { BOARD, HALL, HUE_PONDS, HUE_WALL_Z, MAI_POTS, NGOMON, VILLAGE_END } from '../layout'
+import { BOARD, HALL, HUE_PONDS, HUE_WALL_Z, MAI_POTS, NGOMON, NGOMON_INNER, VILLAGE_END } from '../layout'
 
 /** where the Ngọ Môn plaza begins, just past the bamboo at the end of the village */
 export const PLAZA0 = VILLAGE_END - 1.2
+/** the lantern strings run down either side of the plaza, to posts before the wings */
+export const STRING_X = NGOMON_INNER + 0.7
 import { PLAQUES } from '../../config'
 import { HOUSES, type HouseDef } from './placements'
 import { C, archRing, archedWall, box, cauldron, column, cyl, mosaic, ridgeDragons, skirting, windowPane } from './parts'
@@ -152,16 +154,16 @@ function plazaParts(): Part[] {
     // bamboo poles for the đèn ông sao at the plaza entrance
     p.push(cyl(0.035, 2.9, [s * 2.6, 1.45, PLAZA0 - 0.2], '#b9a064', 'wood'))
     // red posts carrying strings of Hội An lanterns toward the wings
-    p.push(box(0.12, 3.3, 0.12, [s * 5.2, 1.65, PLAZA0], C.hueRed, 'paint'))
-    p.push(box(0.12, 3.3, 0.12, [s * 5.2, 1.65, front + 0.2], C.hueRed, 'paint'))
+    p.push(box(0.12, 3.3, 0.12, [s * STRING_X, 1.65, PLAZA0], C.hueRed, 'paint'))
+    p.push(box(0.12, 3.3, 0.12, [s * STRING_X, 1.65, front + 0.2], C.hueRed, 'paint'))
     const pts: THREE.Vector3[] = []
     for (let i = 0; i <= 16; i++) {
       const t = i / 16
-      pts.push(new THREE.Vector3(s * 5.2, 3.25 - 0.45 * Math.sin(Math.PI * t), PLAZA0 + t * (front + 0.2 - PLAZA0)))
+      pts.push(new THREE.Vector3(s * STRING_X, 3.25 - 0.45 * Math.sin(Math.PI * t), PLAZA0 + t * (front + 0.2 - PLAZA0)))
     }
     p.push({ g: new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 30, 0.016, 4), c: '#4a3328', m: 'wood' })
     // bronze đỉnh in the courtyard of the U
-    p.push(...cauldron([s * 3.7, 0, front - NGOMON.wing + 1.2], 0.7, true))
+    p.push(...cauldron([s * (NGOMON_INNER - 0.85), 0, front - NGOMON.wing + 1.2], 0.7, true))
   }
   return p
 }
@@ -212,17 +214,17 @@ function hallParts(): Part[] {
   const back = HALL.terraceBack
   const tz = (front + back) / 2
   const p: Part[] = []
-  p.push(box(14.4, ty, front - back, [cx, ty / 2, tz], '#c9bfae'))
-  p.push(box(14.6, 0.1, front - back + 0.2, [cx, ty - 0.02, tz], C.marble))
-  p.push(box(14.5, 0.25, front - back + 0.1, [cx, 0.125, tz], C.stoneDk))
+  p.push(box(14.4, ty, front - back, [cx, ty / 2, tz], '#c9bfae', 'aged'))
+  p.push(box(14.6, 0.1, front - back + 0.2, [cx, ty - 0.02, tz], '#ddd5c6', 'aged'))
+  p.push(box(14.5, 0.25, front - back + 0.1, [cx, 0.125, tz], C.stoneDk, 'aged'))
   for (let k = 0; k < 5; k++) {
     const h = ty - k * 0.18
     const d = 0.3 * (k + 1)
-    p.push(box(3.0, h, 0.3, [cx, h / 2, front + d - 0.15], k % 2 ? C.marble : '#ddd6c8'))
+    p.push(box(3.0, h, 0.3, [cx, h / 2, front + d - 0.15], k % 2 ? '#ddd5c6' : '#d2c9b8', 'aged'))
   }
   // dragon balustrades descending the stairs
   for (const s of [-1, 1]) {
-    p.push(box(0.3, ty + 0.1, 1.7, [cx + s * 1.68, (ty + 0.1) / 2, front + 0.8], C.stoneDk))
+    p.push(box(0.3, ty + 0.1, 1.7, [cx + s * 1.68, (ty + 0.1) / 2, front + 0.8], C.stoneDk, 'aged'))
     const pts = [0, 0.25, 0.5, 0.75, 1].map((t) => new THREE.Vector3(cx + s * 1.68, ty + 0.25 - t * 0.75 + Math.sin(t * Math.PI * 3) * 0.06, front - 0.1 + t * 1.75))
     p.push({ g: taperTube(pts, 0.05, 0.1, 16, 7), c: C.jade, m: 'ceramic' })
     p.push({ g: G.sphere, c: C.jade, m: 'ceramic', p: [cx + s * 1.68, 0.3, front + 1.75], s: [0.12, 0.13, 0.16] })
@@ -230,9 +232,9 @@ function hallParts(): Part[] {
   }
   for (let x = cx - 7.0; x <= cx + 7.01; x += 0.7) {
     if (Math.abs(x - cx) < 1.8) continue
-    p.push(box(0.12, 0.5, 0.12, [x, ty + 0.25, front + 0.1], C.marble))
+    p.push(box(0.12, 0.5, 0.12, [x, ty + 0.25, front + 0.1], '#ddd5c6', 'aged'))
   }
-  for (const s of [-1, 1]) p.push(box(5.2, 0.07, 0.08, [cx + s * 4.43, ty + 0.4, front + 0.1], C.marble))
+  for (const s of [-1, 1]) p.push(box(5.2, 0.07, 0.08, [cx + s * 4.43, ty + 0.4, front + 0.1], '#ddd5c6', 'aged'))
   const bf = HALL.bodyFront
   const bb = HALL.bodyBack
   const bz = (bf + bb) / 2
@@ -304,10 +306,10 @@ function trungDaoParts(): Part[] {
 }
 
 const FLAG_SPOTS: [number, number][] = [
-  [-6.6, PLAZA0 - 0.6],
-  [-6.6, PLAZA0 - 3.8],
-  [6.6, PLAZA0 - 0.6],
-  [6.6, PLAZA0 - 3.8],
+  [-7.6, PLAZA0 - 0.6],
+  [-7.6, PLAZA0 - 4.4],
+  [7.6, PLAZA0 - 0.6],
+  [7.6, PLAZA0 - 4.4],
 ]
 
 export function Hue() {

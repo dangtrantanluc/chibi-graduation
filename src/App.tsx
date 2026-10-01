@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { guestFromUrl } from './config'
+import { guestFromUrl, INVITE } from './config'
 import { useUI } from './state/store'
 import { skipToInvite, startIntro } from './story/director'
 import { installInteraction } from './ui/interaction'
@@ -35,7 +35,7 @@ export default function App() {
     startIntro()
     // returning guests can jump straight to the invitation with ?skip
     if (new URLSearchParams(window.location.search).has('skip')) {
-      useUI.setState({ guest: useUI.getState().guest || 'Friend' })
+      useUI.setState({ guest: useUI.getState().guest || INVITE.defaultGuest })
       skipToInvite()
     }
   }, [phase])

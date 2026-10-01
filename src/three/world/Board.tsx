@@ -66,9 +66,9 @@ function paintGround() {
     g.fillStyle = grd
     g.fillRect(0, py(z1), TW, py(z0) - py(z1))
   }
-  tint(4, 15, '#c9b86a', 0.2)
+  tint(4, BOARD.maxZ + 1, '#c9b86a', 0.2)
   tint(-28.5, -13.5, '#d8b44a', 0.3)
-  tint(-39.5, -28.5, '#4f8a3c', 0.22)
+  tint(VILLAGE_END - 0.1, -28.5, '#4f8a3c', 0.22)
 
   const soft = (x0: number, z0: number, x1: number, z1: number, spread: number, alpha: number) => {
     for (let k = 7; k >= 0; k--) {
@@ -123,7 +123,7 @@ function paintGround() {
   pathStroke(lane, 3.4, 'rgba(160,130,85,0.35)')
   pathStroke(lane, 2.4, '#dcc79c')
   for (let i = 0; i < 260; i++) {
-    const z = GATE.z + r() * 9.5
+    const z = GATE.z + r() * (BOARD.maxZ - GATE.z - 0.5)
     const x = (r() - 0.5) * 2.4
     g.fillStyle = r() < 0.5 ? 'rgba(255,245,215,0.35)' : 'rgba(140,110,70,0.25)'
     g.fillRect(px(x), py(z), 3, 3)
@@ -211,8 +211,8 @@ function paintGround() {
   }
   // ── V · Huế: Bát Tràng terracotta before Ngọ Môn, the courtyard behind ──
   const ngFront = NGOMON.z + NGOMON.depth / 2
-  paving(-7.4, ngFront, 7.4, VILLAGE_END - 0.9, '#c78e6a', 0.6)
-  paving(-8.2, HALL.terraceFront, 8.2, NGOMON.z - NGOMON.depth / 2, '#c9936c', 0.6)
+  paving(-NGOMON.w / 2 - 0.9, ngFront, NGOMON.w / 2 + 0.9, VILLAGE_END - 0.9, '#c78e6a', 0.6)
+  paving(-8.6, HALL.terraceFront, 8.6, NGOMON.z - NGOMON.depth / 2, '#c9936c', 0.6)
   rect(-1.5, HALL.terraceFront, 1.5, NGOMON.z - NGOMON.depth / 2, '#dcd3c2')
   for (const [x0, x1, z0, z1] of HUE_PONDS) rect(x0, z0, x1, z1, '#35626a')
 
@@ -231,6 +231,45 @@ function paintGround() {
   g.arc(0, 0, pr * 1.08, 0, Math.PI * 2)
   g.fill()
   g.restore()
+
+  // moss creeping out over the paving from the foot of the old walls and the pond kerbs
+  const mossBand = (x0: number, z0: number, x1: number, z1: number, n: number) => {
+    for (let i = 0; i < n; i++) {
+      const x = x0 + r() * (x1 - x0)
+      const z = z0 + r() * (z1 - z0)
+      const rad = (0.1 + r() * 0.28) * SX
+      const col = ['74,104,44', '92,122,52', '58,86,38', '104,126,58'][Math.floor(r() * 4)]
+      const grd = g.createRadialGradient(px(x), py(z), 0, px(x), py(z), rad)
+      grd.addColorStop(0, `rgba(${col},${0.45 + r() * 0.35})`)
+      grd.addColorStop(0.6, `rgba(${col},0.2)`)
+      grd.addColorStop(1, `rgba(${col},0)`)
+      g.fillStyle = grd
+      g.fillRect(px(x) - rad, py(z) - rad, rad * 2, rad * 2)
+    }
+  }
+  {
+    // Đoan Môn, both faces
+    const dz = DOANMON.z + DOANMON.d / 2
+    mossBand(-6.2, dz, 6.2, dz + 0.6, 150)
+    mossBand(-6.2, dz - DOANMON.d - 0.6, 6.2, dz - DOANMON.d, 90)
+    // Ngọ Môn: the foot of the front face, round the inside of the U, and the back
+    const nf = NGOMON.z + NGOMON.depth / 2
+    const wi = NGOMON.w / 2 - 2
+    mossBand(-wi, nf, wi, nf + 0.55, 110)
+    for (const s of [-1, 1]) {
+      mossBand(s > 0 ? wi - 0.5 : -wi, nf, s > 0 ? wi : -wi + 0.5, nf + NGOMON.wing, 60)
+      mossBand(s > 0 ? wi : -NGOMON.w / 2 - 0.4, nf + NGOMON.wing, s > 0 ? NGOMON.w / 2 + 0.4 : -wi, nf + NGOMON.wing + 0.5, 45)
+    }
+    mossBand(-8.4, nf - NGOMON.depth - 0.6, 8.4, nf - NGOMON.depth, 130)
+    // Điện Thái Hòa: the foot of the terrace either side of the stairs, and round the lotus ponds
+    for (const s of [-1, 1]) mossBand(s > 0 ? 1.9 : -8.4, HALL.terraceFront, s > 0 ? 8.4 : -1.9, HALL.terraceFront + 0.6, 75)
+    for (const [x0, x1, z0, z1] of HUE_PONDS) {
+      const outer = x0 < 0
+      mossBand(x0 - 0.2, z0 - 0.6, x1 + 0.2, z0 - 0.2, 45)
+      mossBand(x0 - 0.2, z1 + 0.2, x1 + 0.2, z1 + 0.6, 45)
+      mossBand(outer ? x0 - 0.6 : x1 + 0.2, z0, outer ? x0 - 0.2 : x1 + 0.6, z1, 35)
+    }
+  }
 
   // baked contact shadows (cheap ambient occlusion)
   soft(BOARD.minX, GATE.z - 0.4, BOARD.maxX, GATE.z + 0.5, 0.8, 0.5)

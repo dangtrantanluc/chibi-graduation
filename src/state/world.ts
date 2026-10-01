@@ -109,9 +109,9 @@ export const world = {
     luc: char([1.55, 0, 7.35], 0, 'sit'),
     uni: char([1.05, 0, -6.35], 0.4, 'sit'),
     hanoi: char([-1.75, 0, -21.4], 0.5),
-    father: char([-0.55, 0, -35.3], 0.15),
-    mother: char([0.55, 0, -35.3], -0.15),
-    princess: char([0, 0, -41.9], 0),
+    father: char([3.0, 0, -38.92], -0.7),
+    mother: char([3.79, 0, -37.99], -0.75),
+    princess: char([0, 0, -52.7], 0),
   } as Record<CharId, CharState>,
   /** who is speaking the current line, and whether it is still being typed (their mouths move) */
   talk: { who: [] as CharId[], on: false },

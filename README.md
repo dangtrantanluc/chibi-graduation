@@ -10,7 +10,7 @@ per chapter, all on one axis of the diorama:
 | II | Sài Gòn · ĐH Nông Lâm, giảng đường Rạng Đông | his CNTT friends | the North–South express carries him south; his friend in the Khoa CNTT polo looks up from her stickered laptop, "`</>`", a high-five |
 | III | Hà Nội · Hoàng thành Thăng Long (autumn) | his Hà Nội friends | a gust of golden leaves; by a bicycle loaded with daisies she flashes a V-sign and offers you a bunch of cúc hoạ mi |
 | IV | Home · the village | Bố & Mẹ | he says goodbye to his Hà Nội friend and walks through Đoan Môn and the village gate to his parents, waiting in the yard of their thatched house; arms folded, he bows, then unrolls his diploma (made like a sớ) — the lanterns along the lane light up — and his parents step to either side of the lane to see him off toward Huế |
-| V | Huế · Ngọ Môn | Công nương (áo nhật bình) + everyone | out of the village under arching bamboo to Ngọ Môn: the princess dances and the golden list (bảng vàng) is lowered from Lầu Ngũ Phụng like a rite — a hush, a bell, a band of gold, a second bell — with "Welcome, {name} · You are invited" |
+| V | Huế · Ngọ Môn | Công nương (áo nhật bình) + everyone | out of the village under arching bamboo to Ngọ Môn. News of a degree was once proclaimed at the capital (lễ Truyền lô), so the princess, as herald, has the golden list (bảng vàng) lowered from Lầu Ngũ Phụng — a hush, three drum beats, a band of gold. Half open it proclaims the graduate ("TÂN KHOA · Lực") and he salutes it; then it unrolls the rest of the way: "KÍNH MỜI · {name} · đến chung vui" |
 
 Then the golden list rolls back up and they all walk in through Ngọ Môn, over
 the Trung Đạo bridge, to stand before Điện Thái Hòa — "See you inside."
@@ -59,7 +59,8 @@ Everything a host needs is in **`src/config.ts`**:
 | --- | --- |
 | `event`, `date`, `time`, `location` | The invitation details (currently `[EVENT]` etc.) |
 | `startISO`, `endISO` | Optional. When both are set, an "Add to calendar" (.ics) link appears |
-| `defaultGuest` | Name used when the guest leaves the ticket empty |
+| `defaultGuest` | What the guest is called when the ticket is left empty (`bạn` — it is read inside Vietnamese sentences) |
+| `PROCLAMATION` | The words on the golden list: the heading over the graduate's name (`TÂN KHOA`; or `TÂN CỬ NHÂN`, `TÂN KỸ SƯ`), faculty and university, `KÍNH MỜI`, the closing words |
 | `CAST` | The dialogue name tags (Lực, Bố & Mẹ, Công nương) |
 | `PLAQUES` | Calligraphy and signs: the Hoàng Đế lintel and couplets, the Rạng Đông name, Đoan Môn, the village gate, Ngọ Môn, the hall and its couplets (graduation wishes 金榜題名 / 前程萬里) |
 
@@ -80,9 +81,9 @@ Music starts on the guest's first tap (browsers block audio before a gesture).
 Leaving the village, the journey theme dies away behind footsteps, wind in the
 bamboo and one small bell before the Huế theme rises — the music changes
 region rather than track. The music is hushed while the golden list is
-lowered: a bell as the lens looks up, a second as it starts down, a third when
-it hangs open. Bells, the tap chime, footsteps and wind are synthesized — no
-files.
+lowered: three beats of a court drum as the lens looks up, a bell as it comes
+down, another when it hangs open. Bells, the drum, the tap chime, footsteps
+and wind are synthesized — no files.
 
 | Part | Track | License |
 | --- | --- | --- |

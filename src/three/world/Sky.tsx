@@ -3,11 +3,10 @@ import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { blob, rng } from '../lib/kit'
 import { patchMaterial, uNight, uTime } from '../lib/materials'
+import { Ranges } from './Ranges'
 
 export const SUN_DIR = new THREE.Vector3(-0.62, 0.3, -0.72).normalize()
-const CENTER = new THREE.Vector3(0, 0, -26)
-const DAY_TINT = new THREE.Color('#ffffff')
-const NIGHT_RANGE = new THREE.Color('#2c3566')
+const CENTER = new THREE.Vector3(0, 0, -31)
 const CLOUD_DAY = new THREE.Color('#fff4ec')
 const CLOUD_NIGHT = new THREE.Color('#566394')
 const CLOUD_GLOW_DAY = new THREE.Color('#f3b9a2')
@@ -102,72 +101,6 @@ function SkyDome() {
   )
 }
 
-/** Guilin-style karst peaks as layered ink-wash silhouettes. */
-function mountainRange(seed: number, width: number, height: number, top: string, base: string) {
-  const r = rng(seed)
-  const peaks = Array.from({ length: 4 + Math.floor(r() * 3) }, () => ({
-    x: (r() - 0.5) * width * 0.9,
-    w: width * (0.12 + r() * 0.16),
-    h: height * (0.4 + r() * 0.5),
-  }))
-  const N = 90
-  const shape = new THREE.Shape()
-  shape.moveTo(-width / 2, 0)
-  for (let i = 0; i <= N; i++) {
-    const x = -width / 2 + (i / N) * width
-    let y = height * 0.08
-    for (const p of peaks) {
-      const d = (x - p.x) / p.w
-      if (Math.abs(d) < 1) y = Math.max(y, p.h * Math.pow(1 - d * d, 1.15))
-    }
-    shape.lineTo(x, y)
-  }
-  shape.lineTo(width / 2, 0)
-  shape.lineTo(-width / 2, 0)
-  const g = new THREE.ShapeGeometry(shape, 1)
-  const pos = g.attributes.position
-  const col = new Float32Array(pos.count * 3)
-  const ct = new THREE.Color(top)
-  const cb = new THREE.Color(base)
-  const c = new THREE.Color()
-  for (let i = 0; i < pos.count; i++) {
-    const k = THREE.MathUtils.clamp(pos.getY(i) / height, 0, 1)
-    c.copy(cb).lerp(ct, Math.pow(k, 0.7))
-    col.set([c.r, c.g, c.b], i * 3)
-  }
-  g.setAttribute('color', new THREE.BufferAttribute(col, 3))
-  return g
-}
-
-function Mountains() {
-  const rings = useMemo(() => {
-    const out: { g: THREE.BufferGeometry; p: THREE.Vector3; ry: number }[] = []
-    const layers = [
-      { r: 125, n: 9, w: 110, h: 34, top: '#6f7aa8', base: '#e9b9a5', y: -26 },
-      { r: 175, n: 9, w: 150, h: 52, top: '#8e8bb5', base: '#efc1a7', y: -30 },
-      { r: 240, n: 10, w: 200, h: 74, top: '#ab9ec2', base: '#f5c8a8', y: -34 },
-    ]
-    layers.forEach((L, li) => {
-      for (let i = 0; i < L.n; i++) {
-        const a = (i / L.n) * Math.PI * 2 + li * 0.35
-        const p = new THREE.Vector3(Math.sin(a) * L.r, L.y, Math.cos(a) * L.r).add(CENTER)
-        out.push({ g: mountainRange(li * 100 + i + 3, L.w, L.h, L.top, L.base), p, ry: a + Math.PI })
-      }
-    })
-    return out
-  }, [])
-  const mat = useMemo(() => new THREE.MeshBasicMaterial({ vertexColors: true, fog: false, side: THREE.DoubleSide }), [])
-  // by night the ink-wash ranges sink to dark blue silhouettes
-  useFrame(() => mat.color.lerpColors(DAY_TINT, NIGHT_RANGE, uNight.value))
-  return (
-    <group>
-      {rings.map((m, i) => (
-        <mesh key={i} geometry={m.g} material={mat} position={m.p} rotation-y={m.ry} renderOrder={-5 + (i > 18 ? -2 : i > 9 ? -1 : 0)} />
-      ))}
-    </group>
-  )
-}
-
 /** Puffy sunset clouds: a sea of cloud below the board + a few drifting above. */
 function Clouds() {
   const group = useRef<THREE.Group>(null!)
@@ -194,8 +127,14 @@ function Clouds() {
     // sea of cloud hugging the board
     for (let i = 0; i < 26; i++) {
       const a = (i / 26) * Math.PI * 2
-      const rad = 34 + r() * 26
+      const rad = 40 + r() * 26
       add(Math.sin(a) * rad * 0.8 + CENTER.x, -7 - r() * 4, Math.cos(a) * rad + CENTER.z, 5 + r() * 4, 4)
+    }
+    // … and further out, mist lying among the karst towers
+    for (let i = 0; i < 22; i++) {
+      const a = (i / 22) * Math.PI * 2 + r() * 0.2
+      const rad = 78 + r() * 60
+      add(Math.sin(a) * rad + CENTER.x, -16 - r() * 5, Math.cos(a) * rad + CENTER.z, 9 + r() * 6, 5)
     }
     // high clouds
     for (let i = 0; i < 8; i++) {
@@ -227,7 +166,7 @@ export function Sky() {
   return (
     <>
       <SkyDome />
-      <Mountains />
+      <Ranges />
       <Clouds />
     </>
   )

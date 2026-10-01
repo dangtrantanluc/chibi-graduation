@@ -7,7 +7,7 @@ import { glowTex, silkTex } from '../lib/textures'
 import { uGlow, uNight } from '../lib/materials'
 import { NGOMON } from '../layout'
 import { VILLAGE_POLES } from './Village'
-import { PLAZA0 } from './Hue'
+import { PLAZA0, STRING_X } from './Hue'
 import { LAMP_X } from './ThangLong'
 
 /*
@@ -47,10 +47,10 @@ export const LANTERNS: LanternDef[] = (() => {
   for (const x of [-3.6, -1.6, 1.6, 3.6]) L.push({ a: [x, NGOMON.h + 1.3, NGOMON.z + 0.95], len: 0.3, size: 1.05, zone: 'hue', style: 'hoian', color: HOIAN[h++ % HOIAN.length] })
   const front = NGOMON.z + NGOMON.depth / 2 + NGOMON.wing + 0.2
   for (const s of [-1, 1]) {
-    for (let k = 1; k <= 5; k++) {
-      const t = k / 6
+    for (let k = 1; k <= 6; k++) {
+      const t = k / 7
       const z = PLAZA0 + t * (front - PLAZA0)
-      L.push({ a: [s * 5.2, 3.25 - 0.45 * Math.sin(Math.PI * t), z], len: 0.1, size: 0.72, zone: 'hue', style: 'hoian', color: HOIAN[h++ % HOIAN.length] })
+      L.push({ a: [s * STRING_X, 3.25 - 0.45 * Math.sin(Math.PI * t), z], len: 0.1, size: 0.72, zone: 'hue', style: 'hoian', color: HOIAN[h++ % HOIAN.length] })
     }
   }
   for (const s of [-1, 1]) L.push({ a: [s * 2.6, 2.95, PLAZA0 - 0.2], len: 0.14, size: 1.0, zone: 'hue', style: 'star', color: s > 0 ? '#e8453a' : '#f2a93b' })

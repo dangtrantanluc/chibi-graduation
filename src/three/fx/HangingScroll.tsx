@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useUI } from '../../state/store'
 import { world } from '../../state/world'
 import { SCROLL } from '../layout'
-import { canvas, FONT_CJK, FONT_DISPLAY, roundRect, toTexture } from '../lib/textures'
+import { canvas, FONT_CJK, FONT_DISPLAY, FONT_UI, roundRect, toTexture } from '../lib/textures'
+import { CAST, INVITE, PROCLAMATION } from '../../config'
 import { uGlow } from '../lib/materials'
 
 const W = 1.8
@@ -13,9 +14,11 @@ const SEG_Y = 24
 const SEG_X = 6
 
 /**
- * The golden list (bảng vàng): in imperial times the names of the laureates
- * were carried out through Ngọ Môn on a yellow scroll. Tonight it carries the
- * guest's name — yellow dragon-and-cloud brocade around cream paper.
+ * The golden list (bảng vàng). At the Nguyễn court the names of the new
+ * laureates were read out before Ngọ Môn (lễ Truyền lô) and the list was hung
+ * up for all to see. Ours is in two parts: the upper half proclaims the
+ * graduate; unrolled the rest of the way, the lower half invites the guest by
+ * name. Yellow dragon-and-cloud brocade around cream paper.
  */
 function scrollTexture(guest: string) {
   const CW = 1024
@@ -71,33 +74,50 @@ function scrollTexture(guest: string) {
   const cx = CW / 2
   g.textAlign = 'center'
   g.textBaseline = 'alphabetic'
-  // seal
+  /** letter-spaced capitals, centred on cx */
+  const spaced = (text: string, y: number, spacing: number) => {
+    const widths = [...text].map((ch) => g.measureText(ch).width)
+    const total = widths.reduce((a, b) => a + b, 0) + spacing * (text.length - 1)
+    let x = cx - total / 2
+    g.textAlign = 'left'
+    ;[...text].forEach((ch, i) => {
+      g.fillText(ch, x, y)
+      x += widths[i] + spacing
+    })
+    g.textAlign = 'center'
+  }
+  /** a name in the display face, shrunk until it fits the paper */
+  const bigName = (text: string, y: number, max: number) => {
+    let size = max
+    g.font = `700 ${size}px ${FONT_DISPLAY}`
+    while (g.measureText(text).width > pw - 150 && size > 60) {
+      size -= 6
+      g.font = `700 ${size}px ${FONT_DISPLAY}`
+    }
+    g.fillStyle = '#2b2320'
+    g.fillText(text, cx, y)
+  }
+
+  // ── upper half: the proclamation. It is all that shows while the list hangs half open ──
+  // seal: 榜, "the list"
   g.fillStyle = '#b8412f'
-  roundRect(g, cx - 62, py + 110, 124, 124, 16)
+  roundRect(g, cx - 56, py + 64, 112, 112, 16)
   g.fill()
   g.fillStyle = '#fbe9d0'
-  g.font = `96px ${FONT_CJK}`
+  g.font = `86px ${FONT_CJK}`
   g.textBaseline = 'middle'
-  g.fillText('邀', cx, py + 176)
+  g.fillText('榜', cx, py + 124)
   g.textBaseline = 'alphabetic'
-
+  g.fillStyle = '#b8412f'
+  g.font = `800 58px ${FONT_UI}`
+  spaced(PROCLAMATION.title, py + 276, 14)
+  bigName(CAST.luc, py + 462, 184)
   g.fillStyle = '#6b4a3a'
-  g.font = `italic 400 96px ${FONT_DISPLAY}`
-  g.fillText('Welcome,', cx, py + 420)
+  g.font = `italic 400 52px ${FONT_DISPLAY}`
+  PROCLAMATION.lines.slice(0, 2).forEach((line, i) => g.fillText(line, cx, py + 544 + i * 62))
 
-  // the name — sized to fit
-  const name = guest.trim() || 'Friend'
-  let size = 190
-  g.font = `700 ${size}px ${FONT_DISPLAY}`
-  while (g.measureText(name).width > pw - 150 && size > 60) {
-    size -= 6
-    g.font = `700 ${size}px ${FONT_DISPLAY}`
-  }
-  g.fillStyle = '#2b2320'
-  g.fillText(name, cx, py + 420 + size * 1.05)
-
-  // ornament
-  const oy = py + 420 + size * 1.05 + 110
+  // ── the fold: an ornament that sits behind the roll at the half-way pause ──
+  const oy = py + 730
   g.strokeStyle = '#b8412f'
   g.lineWidth = 4
   g.beginPath()
@@ -115,20 +135,15 @@ function scrollTexture(guest: string) {
   g.closePath()
   g.fill()
 
+  // ── lower half: the invitation, to the guest by name ──
   g.fillStyle = '#b8412f'
-  g.font = `700 64px ${FONT_DISPLAY}`
-  const inv = 'YOU ARE INVITED'
-  // manual letter spacing
-  const spacing = 10
-  const widths = [...inv].map((ch) => g.measureText(ch).width)
-  const total = widths.reduce((a, b) => a + b, 0) + spacing * (inv.length - 1)
-  let x = cx - total / 2
-  g.textAlign = 'left'
-  ;[...inv].forEach((ch, i) => {
-    g.fillText(ch, x, oy + 130)
-    x += widths[i] + spacing
-  })
-  g.textAlign = 'center'
+  g.font = `800 58px ${FONT_UI}`
+  spaced(PROCLAMATION.invite, py + 868, 14)
+  const raw = guest.trim() || INVITE.defaultGuest
+  bigName(raw.charAt(0).toLocaleUpperCase('vi') + raw.slice(1), py + 1046, 170)
+  g.fillStyle = '#6b4a3a'
+  g.font = `italic 400 58px ${FONT_DISPLAY}`
+  g.fillText(PROCLAMATION.closing, cx, py + 1132)
 
   // auspicious cloud motif: three soft lobes, twice
   g.strokeStyle = 'rgba(217,164,65,0.85)'
@@ -144,11 +159,11 @@ function scrollTexture(guest: string) {
     g.lineTo(x + s * 1.8, y + s * 0.45)
     g.stroke()
   }
-  cloud(cx - 220, py + ph - 190, 34)
-  cloud(cx + 220, py + ph - 190, 34)
+  cloud(cx - 220, py + ph - 92, 30)
+  cloud(cx + 220, py + ph - 92, 30)
   g.fillStyle = '#d9a441'
   g.beginPath()
-  g.arc(cx, py + ph - 180, 10, 0, Math.PI * 2)
+  g.arc(cx, py + ph - 84, 9, 0, Math.PI * 2)
   g.fill()
   return toTexture(c)
 }

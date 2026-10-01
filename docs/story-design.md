@@ -5,11 +5,26 @@ cổng, và cả năm cổng nằm thẳng trên một trục của bàn diorama
 
 **cổng thành Hoàng Đế → giảng đường Rạng Đông → Đoan Môn → cổng làng (về nhà) → Ngọ Môn.**
 
-Khách (người được mời) đi theo Lực từ quê nhà đến kinh thành Huế. Ở cảnh cuối,
-tên khách hiện trên **bảng vàng** treo từ lầu Ngũ Phụng. Ngày xưa, danh sách
-những người đỗ đạt được rước qua Ngọ Môn trên bảng vàng. Hình ảnh đó rất hợp với
-một tấm thiệp tốt nghiệp: đôi câu đối trong điện Thái Hòa ghi 金榜題名 (tên trên
-bảng vàng) và 前程萬里 (đường xa vạn dặm).
+Khách (người được mời) đi theo Lực từ quê nhà đến kinh thành Huế.
+
+**Vì sao là Huế.** Huế là cố đô còn giữ kiến trúc thời phong kiến, và ngày xưa
+tin đỗ đạt hay việc hệ trọng được báo ở kinh đô. Triều Nguyễn làm **lễ Truyền
+lô** ở điện Thái Hòa và trước Ngọ Môn: quan Bộ Lễ xướng tên các tân khoa ghi
+trên **bảng vàng**, rồi bảng được rước ra treo ở Phu Văn Lâu ba ngày cho dân
+xem; sau đó tân khoa mới vinh quy bái tổ. Thiệp mượn đúng nghi thức đó:
+
+- Bảng vàng hạ từ lầu Ngũ Phụng có **hai phần**. Phần trên xướng tên tân khoa
+  Lực; mở tiếp xuống, phần dưới **kính mời khách** đến chung vui.
+- **Công nương là người xướng danh**: cô kể vì sao tin vui được báo ở đây, đọc
+  tên Lực, rồi đọc lời mời.
+- **Ba kinh đô** nối thành một sợi chỉ: thành Hoàng Đế (kinh đô thời Tây Sơn),
+  Thăng Long (kinh đô xưa), rồi Huế. Lực nhắc ở chương I, cô bạn Hà Nội nhắc ở
+  chương III.
+- Thứ tự cố ý đảo so với xưa: Lực **báo tin cho bố mẹ trước**, rồi mới ra kinh
+  đô báo với mọi người ("Bố mẹ mừng trước rồi, giờ con ra kinh đô báo tin cho
+  mọi người đi").
+- Phóng tác: bảng treo ngay ở Ngọ Môn thay vì Phu Văn Lâu. Đôi câu đối trong
+  điện Thái Hòa ghi 金榜題名 (tên đề bảng vàng) và 前程萬里 (đường xa vạn dặm).
 
 Ở cảnh kết, bảng vàng cuộn lên và cả nhóm đi qua Ngọ Môn vào đứng trước **điện
 Thái Hòa** — đúng với dòng chữ "See you inside".
@@ -182,6 +197,40 @@ Nút ☾ / ☀ ở góc trên bên phải đổi giữa hai giao diện; lựa c
 - **Đom đóm** bay quanh ao làng, sân nhà, vòm tre, ruộng lúa Bình Định và hồ sen ở Huế.
 - **Giao diện**: vé tàu, thiệp mời và thẻ cuối đổi sang giấy chàm, chữ vàng.
 
+### Dấu thời gian trên các công trình cổ
+
+Thành Hoàng Đế, Hoàng thành Thăng Long, Ngọ Môn và điện Thái Hòa đều là công trình
+hàng trăm năm, nên chúng được làm cho cũ đi theo ba lớp:
+
+- **Trong vật liệu** (áp dụng cho mọi tường cũ, mái ngói, sơn và sơn son): vệt nước mưa
+  và mốc đen loang; rêu bám thành dải lởm chởm ở chân tường, phủ trên các gờ và mặt
+  ngửa lên trời, và loang thành mảng trên thân tường. Trên mái, rêu đọng trong rãnh
+  giữa các hàng ngói. Chỗ có rêu thì mất độ bóng.
+- **Cây cỏ thật** trên bốn công trình: đệm rêu dọc chân tường và trên gờ, cỏ dại và
+  dương xỉ mọc từ khe gạch, dây leo buông từ đỉnh tường xuống. Thềm và bậc cấp điện
+  Thái Hòa đổi từ đá trắng tinh sang đá cũ có rêu ở góc bậc.
+- **Trên nền**: rêu lan từ chân tường và bờ hồ sen ra mặt gạch lát.
+
+Các lối đi và chỗ nhân vật đứng được để trống; bảng vàng và các cổng vòm không bị
+dây leo che.
+
+### Bố cục bàn diorama và vành núi
+
+**Nới rộng bản đồ** (từ 40 × 84 lên 46 × 94): phần phía sau Đoan Môn trước đây bị dồn sát nhau, nên được nới theo chiều sâu và chiều ngang:
+
+| Khu | Trước | Sau |
+| --- | --- | --- |
+| Đoan Môn → cổng làng | 1,6 | 4,3 (thành một bãi cỏ có hoa) |
+| Làng (cổng làng → vòm tre) | 8,2 | 10,4; nhà, cây đa, giếng, ao lùi ra xa đường làng |
+| Sân Ngọ Môn | 5,3 | 8,2; Ngọ Môn rộng 13 → 15, hàng sáu người đứng thưa hơn |
+| Sau Ngọ Môn → thềm điện Thái Hòa | 7,9 | 9,5 (có một khoảng sân trước bậc cấp) |
+| Mép bàn hai bên và phía trước | — | thêm 3 mỗi bên, 2 phía trước; thêm cây, cỏ, đá |
+
+**Vành núi miền Bắc** bao quanh bàn, ba lớp từ xa đến gần:
+- **Xa**: những dãy núi dài kiểu Hoàng Liên Sơn, lớp sau nhạt dần vào sương.
+- **Giữa**: núi đá vôi dạng tháp (Tràng An, Hạ Long, Đồng Văn): vách đá xám dựng đứng, đỉnh phủ rừng, chân chìm trong biển mây.
+- **Gần**: đồi ruộng bậc thang mùa lúa chín (Mù Cang Chải, Sa Pa), có vài nếp nhà sàn.
+
 ## 3. Chuyển cảnh = các chặng đời
 
 | Từ → đến | Chuyển cảnh | Ý nghĩa |
@@ -199,19 +248,20 @@ Nút ☾ / ☀ ở góc trên bên phải đổi giữa hai giao diện; lựa c
 - Hai bài đều của Kevin MacLeod, giấy phép CC BY 4.0, nên phải ghi nguồn; dòng ghi nguồn đã đặt ở thẻ cuối.
 - Chuông chùa, tiếng gảy khi chạm màn hình, **tiếng bước chân** và **tiếng gió** được tổng hợp trực tiếp, không cần file.
 - **Cầu nối IV → V**: bài hành trình tắt dần trong 3 giây → bước chân trên đường gạch → gió qua tre → một tiếng chuông nhỏ → bài Huế nổi lên trong 4 giây. Người xem thấy âm nhạc chuyển vùng chứ không phải bị đổi bài.
-- **Nghi thức hạ bảng vàng** (chương V), nhạc hạ nhỏ trong lúc này:
-  1. Không gian lắng lại, một cơn gió nhẹ thổi qua sân.
-  2. Tiếng chuông thứ nhất; máy quay ngước lên lầu Ngũ Phụng.
-  3. Một dải vàng ló ra ở lan can.
-  4. Tiếng chuông thứ hai; bảng vàng từ từ hạ xuống, máy quay hạ theo.
-  5. Mọi người reo mừng khi tên khách hiện ra.
-  6. Bảng mở hết: một tiếng chuông khẽ, một vệt sáng chạy dọc dòng chữ.
-  7. Công nương quay về phía khách, và thiệp mời hiện ra.
+- **Nghi thức hạ bảng vàng** (chương V, phỏng theo lễ Truyền lô), nhạc hạ nhỏ trong lúc này:
+  1. Công nương cúi chào khách và kể: ngày xưa tên người đỗ đạt được xướng trước Ngọ Môn.
+  2. Không gian lắng lại, một cơn gió nhẹ thổi qua sân.
+  3. **Ba hồi trống**; máy quay ngước lên lầu Ngũ Phụng. Một dải vàng ló ra ở lan can.
+  4. Một tiếng chuông; bảng hạ xuống **nửa chừng**, chỉ hiện phần xướng danh: "TÂN KHOA · Lực".
+  5. Công nương xướng tên. Lực quay về phía bảng, ôm quyền cúi chào; bố mẹ và bạn bè reo mừng. Lực quay lại, gãi đầu cười ngượng.
+  6. Bảng mở nốt phần dưới: "KÍNH MỜI · {tên khách} · đến chung vui". Mọi người quay về phía khách.
+  7. Một tiếng chuông khẽ, một vệt sáng chạy dọc dòng chữ, rồi thiệp mời hiện ra.
 
 ## 5. Có thể tuỳ chỉnh
 
 Mọi nội dung sửa được đều nằm trong `src/config.ts`:
 - Thẻ tên của Lực, Bố & Mẹ, Công nương (`CAST`); hai người bạn nói không kèm thẻ tên.
+- Chữ trên bảng vàng (`PROCLAMATION`): dòng "TÂN KHOA" (có thể đổi thành "TÂN CỬ NHÂN", "TÂN KỸ SƯ"), khoa và trường, "KÍNH MỜI", "đến chung vui".
 - Chữ Hán trên các cổng và bảng hiệu (`PLAQUES`).
 - Thông tin sự kiện (`INVITE`).
 - Nhạc (`MUSIC`).

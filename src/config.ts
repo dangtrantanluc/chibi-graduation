@@ -15,8 +15,24 @@ export const INVITE = {
   startISO: '',
   endISO: '',
 
-  /** Used when no name is given in the link or typed by the guest. */
-  defaultGuest: 'Friend',
+  /** Used when no name is given in the link or typed by the guest (it is read inside Vietnamese sentences). */
+  defaultGuest: 'bạn',
+}
+
+/**
+ * What the golden list (bảng vàng) proclaims before Ngọ Môn. At the Nguyễn
+ * court the names of the new laureates were read out here (lễ Truyền lô) and
+ * the list was hung up for all to see. Ours names the graduate first, then
+ * unrolls further to invite the guest.
+ */
+export const PROCLAMATION = {
+  /** the heading over the graduate's name — e.g. 'TÂN KHOA', 'TÂN CỬ NHÂN', 'TÂN KỸ SƯ' */
+  title: 'KỸ SƯ',
+  /** written under the name */
+  lines: ['Khoa Công nghệ Thông tin', 'Trường ĐH Nông Lâm TP.HCM'],
+  /** the lower half: this heading, the guest's name, then the closing words */
+  invite: 'KÍNH MỜI',
+  closing: 'đến chung vui',
 }
 
 /**

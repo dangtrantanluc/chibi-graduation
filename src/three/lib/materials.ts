@@ -18,8 +18,13 @@ interface Features {
   selfLit?: number
   /** by night, keep this much of the surface's own colour (figures stay readable under the moon) */
   nightLift?: number
-  /** world-space weathering: rain streaks + moss, projected along the dominant axis */
-  aged?: boolean
+  /**
+   * world-space weathering, projected along the dominant axis: rain streaks and
+   * grime, moss on ledges, at the damp foot of walls and in ragged patches.
+   * `grime` / `moss` scale the two (1 = an old wall); `roof` lets moss gather
+   * in the channels between roof tiles.
+   */
+  aged?: boolean | { grime?: number; moss?: number; roof?: boolean }
 }
 
 /**
@@ -45,6 +50,15 @@ export function patchMaterial<T extends THREE.MeshStandardMaterial>(mat: T, f: F
     if (f.tintRamp) fs = fs.replace('#include <gradientmap_pars_fragment>', TINT_RAMP)
 
     if (f.aged) {
+      const ag = typeof f.aged === 'object' ? f.aged : {}
+      const GRIME = (ag.grime ?? 1).toFixed(3)
+      const MOSS = (ag.moss ?? 1).toFixed(3)
+      // on a roof, moss takes hold more readily, thickest in the channels between the tiles and along
+      // their lower edges, and black mould runs down the channels
+      const ROOF = ag.roof
+        ? `mUp = smoothstep(0.35, 0.8, vAgedN.y) * smoothstep(0.46, 0.6, mN + 0.07 * (1.0 - tChan)) * mix(1.0, 0.55, tChan) * mix(0.8, 1.0, 1.0 - tRow);
+            diffuseColor.rgb *= 1.0 - 0.4 * (1.0 - tChan) * smoothstep(0.4, 0.62, a.b * 0.55 + b.g * 0.5);`
+        : ''
       sh.uniforms.uAged = { value: agedTex() }
       vs = vs
         .replace('#include <common>', '#include <common>\nvarying vec3 vAgedP;\nvarying vec3 vAgedN;')
@@ -65,6 +79,7 @@ export function patchMaterial<T extends THREE.MeshStandardMaterial>(mat: T, f: F
         .replace(
           '#include <color_fragment>',
           `#include <color_fragment>
+          float agedM = 0.0;
           {
             vec3 an = abs(vAgedN);
             an /= (an.x + an.y + an.z + 1e-4);
@@ -73,15 +88,30 @@ export function patchMaterial<T extends THREE.MeshStandardMaterial>(mat: T, f: F
             vec4 tz = texture2D(uAged, vec2(vAgedP.x * 0.3, vAgedP.y * 0.22 + 0.37));
             vec4 ty = texture2D(uAged, vAgedP.xz * 0.3);
             vec4 a = tx * an.x + tz * an.z + ty * an.y;
+            // a second, broader lookup shapes the big patches and hides the repeat; on walls it is
+            // stretched downward, the way damp runs
+            vec4 b = mix(texture2D(uAged, vec2(vAgedP.x - vAgedP.z, vAgedP.y * 0.55) * 0.14 + 0.21), texture2D(uAged, vAgedP.zx * 0.14 + 0.5), an.y);
             float low = 1.0 - smoothstep(0.0, 1.4, vAgedP.y);
             // r = 0.87 is clean plaster; lower is grime and rain streaks
             float grime = clamp(1.0 - a.r / 0.87, 0.0, 1.0);
-            diffuseColor.rgb *= (1.04 - grime * 0.95) * (1.0 - 0.28 * low);
-            vec3 moss = vec3(0.3, 0.36, 0.2);
-            float m = clamp(a.g * (0.45 + 0.9 * low + 0.6 * an.y), 0.0, 1.0);
-            diffuseColor.rgb = mix(diffuseColor.rgb, moss * (0.75 + 0.5 * a.r), m * 0.7);
+            diffuseColor.rgb *= (1.0 + 0.04 * ${GRIME} - grime * 0.95 * ${GRIME}) * (1.0 - 0.28 * low * ${GRIME});
+            // black mould in broad, ragged stains
+            diffuseColor.rgb *= 1.0 - 0.34 * ${GRIME} * smoothstep(0.52, 0.7, b.b * 0.6 + a.g * 0.45);
+            // moss (g: where it takes hold, b: breakup of its edges): on whatever faces the sky,
+            // along the damp foot of a wall in a ragged band, and in patches higher up
+            float mN = b.g * 0.62 + a.g * 0.38 + (a.b - 0.5) * 0.22;
+            float mUp = smoothstep(0.35, 0.8, vAgedN.y) * smoothstep(0.5, 0.58, mN);
+            float mFoot = 1.0 - smoothstep(0.0, 0.06, vAgedP.y - (0.08 + 1.5 * smoothstep(0.42, 0.72, mN)));
+            float mPatch = smoothstep(0.565, 0.63, mN + 0.06 * low);
+            ${ROOF}
+            float m = clamp(max(mPatch * 0.85, max(mFoot, mUp * 0.92)) * ${MOSS}, 0.0, 1.0);
+            vec3 mossC = mix(vec3(0.13, 0.22, 0.07), vec3(0.40, 0.47, 0.14), smoothstep(0.3, 0.75, a.b * 0.7 + a.g * 0.4));
+            diffuseColor.rgb = mix(diffuseColor.rgb, mossC, m * 0.88);
+            agedM = m;
           }`,
         )
+        // moss is matt, whatever it grows on (glazed tiles, lacquer)
+        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n          roughnessFactor = mix(roughnessFactor, 1.0, agedM * 0.9);')
     }
 
     if (f.sway) {
@@ -193,10 +223,12 @@ export function kitMat(key: MatKey): THREE.Material {
       m = patchMaterial(std({ roughness: 0.82 }), { rim: { color: RIM_WARM, strength: 0.18 } }, 'wood')
       break
     case 'paint':
-      m = patchMaterial(std({ roughness: 0.46 }), { rim: { color: RIM_WARM, strength: 0.16 } }, 'paint')
+      // old paint: dulled and grimy, a little moss where it meets the ground or faces the sky
+      m = patchMaterial(std({ roughness: 0.56 }), { aged: { grime: 0.5, moss: 0.45 }, rim: { color: RIM_WARM, strength: 0.14 } }, 'paint')
       break
     case 'tile':
-      m = patchMaterial(std({ roughness: 0.36, envMapIntensity: 1.25 }), { tile: true }, 'tile')
+      // old glazed tiles: mould streaks, moss in the channels
+      m = patchMaterial(std({ roughness: 0.42, envMapIntensity: 1.1 }), { tile: true, aged: { grime: 0.75, moss: 0.7, roof: true } }, 'tile')
       break
     case 'trim':
       m = std({ roughness: 0.62 })
@@ -214,10 +246,14 @@ export function kitMat(key: MatKey): THREE.Material {
       m = std({ roughness: 0.48, metalness: 0.45 })
       break
     case 'lacquer':
-      m = patchMaterial(std({ roughness: 0.4, map: lacquerTex() }), { rim: { color: RIM_WARM, strength: 0.2 } }, 'lacquer')
+      m = patchMaterial(std({ roughness: 0.5, map: lacquerTex() }), { aged: { grime: 0.6, moss: 0.3 }, rim: { color: RIM_WARM, strength: 0.16 } }, 'lacquer')
       break
     case 'aged':
       m = patchMaterial(std({ roughness: 0.96 }), { aged: true, rim: { color: RIM_WARM, strength: 0.08 } }, 'aged')
+      break
+    case 'moss':
+      // moss cushions, weeds and creepers on old masonry (no wind sway: they cling)
+      m = patchMaterial(std({ roughness: 1 }), { rim: { color: '#e8f0a8', strength: 0.22, power: 2.4 } }, 'moss')
       break
     case 'thatch': {
       const map = thatchTex()

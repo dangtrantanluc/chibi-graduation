@@ -4,7 +4,7 @@ import { G, offsetParts, rng, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { canvas, toTexture } from '../lib/textures'
 import { taperTube } from '../characters/hair'
-import { CONGLANG, HAYSTACK, HOUSE, VILLAGE_END, WELL, houseToWorld } from '../layout'
+import { BANYAN, BOARD, CONGLANG, HAYSTACK, HOUSE, VILLAGE_END, WELL, houseToWorld } from '../layout'
 import { hipRoof } from '../lib/roof'
 import { matTex } from '../characters/garments'
 import { PLAQUES } from '../../config'
@@ -353,10 +353,11 @@ function haystackParts(): Part[] {
  * Lanterns.tsx). The right of the lane is kept clear in front of the yard.
  */
 export const VILLAGE_POLES: [number, number][] = [
-  [-1.45, -34.0],
-  [-1.45, -36.2],
-  [-1.45, -38.45],
-  [1.45, -38.45],
+  [-1.6, -35.4],
+  [-1.6, -37.6],
+  [-1.6, -39.8],
+  [-1.6, -42.0],
+  [1.6, -42.3],
 ]
 function poleParts(): Part[] {
   const p: Part[] = []
@@ -380,7 +381,7 @@ function mieuParts(): Part[] {
     // incense pot
     cyl(0.06, 0.06, [0, 0.39, 0.26], '#6f7f5f', 'bronze'),
   ]
-  return offsetParts(p, [-3.7, 0, -35.5], 1.2)
+  return offsetParts(p, [BANYAN.x + 1.7, 0, BANYAN.z - 0.7], 1.2)
 }
 
 /** the woven sedge mat (chiếu) spread in the yard */
@@ -429,13 +430,13 @@ export function Village() {
  */
 export const HEDGE: [number, number, number][] = (() => {
   const out: [number, number, number][] = []
-  for (let x = 5.3; x < 19.5; x += 1.7) {
+  for (let x = 5.3; x < BOARD.maxX - 0.5; x += 1.7) {
     out.push([x, K.z + Math.sin(x * 1.7) * 0.2, 0.95 + 0.15 * Math.sin(x * 3.1)])
     out.push([-x, K.z + Math.cos(x * 1.3) * 0.2, 0.95 + 0.15 * Math.cos(x * 2.3)])
   }
   // the corner of the thatch nearest the hedge
   const [hx, hz] = houseToWorld(-2.2, -1.8)
-  for (let x = 3.1; x < 19.5; x += 1.6) {
+  for (let x = 3.1; x < BOARD.maxX - 0.5; x += 1.6) {
     const behindHouse = x > 2.4 && x < 7.4
     const z = VILLAGE_END - (behindHouse ? 0.3 : 0) + Math.sin(x * 1.7) * (behindHouse ? 0.05 : 0.25)
     // a clump that would grow through the eave stands a step aside instead

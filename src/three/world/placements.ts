@@ -15,9 +15,9 @@ export interface HouseDef {
   style: 'hue' | 'tower'
 }
 export const HOUSES: HouseDef[] = [
-  { x: -13.2, z: -61.6, ry: Math.PI / 2, w: 5.2, d: 4.6, h: 2.3, style: 'tower' },
-  { x: 13.4, z: -61.2, ry: -Math.PI / 2, w: 4.8, d: 3.4, h: 2.3, style: 'hue' },
-  { x: -13.6, z: -54.4, ry: Math.PI / 2, w: 4.2, d: 3.0, h: 2.0, style: 'hue' },
+  { x: -14.6, z: -69.2, ry: Math.PI / 2, w: 5.2, d: 4.6, h: 2.3, style: 'tower' },
+  { x: 14.8, z: -68.8, ry: -Math.PI / 2, w: 4.8, d: 3.4, h: 2.3, style: 'hue' },
+  { x: -15.0, z: -61.0, ry: Math.PI / 2, w: 4.2, d: 3.0, h: 2.0, style: 'hue' },
 ]
 
 export type TreeKind = 'coconut' | 'phuong' | 'green' | 'autumn' | 'hoasua' | 'banyan' | 'mai' | 'pine'
@@ -36,7 +36,7 @@ const HAND_TREES: TreeDef[] = [
   { x: -8.6, z: 7.0, s: 0.95, ry: 4.0, kind: 'coconut' },
   { x: 5.4, z: 12.6, s: 1.15, ry: 1.2, kind: 'coconut' },
   { x: 6.4, z: 9.6, s: 0.9, ry: 0.9, kind: 'coconut' },
-  { x: 18.2, z: 6.6, s: 1.05, ry: 3.1, kind: 'coconut' },
+  { x: 20.8, z: 6.6, s: 1.05, ry: 3.1, kind: 'coconut' },
   { x: -17.8, z: 12.2, s: 1.0, ry: 0.8, kind: 'green' },
   // III · Thăng Long — golden autumn trees and hoa sữa
   { x: -5.8, z: -18.4, s: 1.15, ry: 0.3, kind: 'autumn' },
@@ -51,22 +51,22 @@ const HAND_TREES: TreeDef[] = [
   // IV · the village — the banyan just inside the gate
   { x: BANYAN.x, z: BANYAN.z, s: 1.0, ry: 0.6, kind: 'banyan' },
   // V · Huế — Tết apricot blossom and pines
-  { x: -8.6, z: -42.2, s: 0.85, ry: 0.3, kind: 'mai' },
-  { x: 8.8, z: -42.0, s: 0.85, ry: 2.0, kind: 'mai' },
-  { x: -9.6, z: -46.6, s: 1.1, ry: 1.0, kind: 'pine' },
-  { x: 10.2, z: -46.4, s: 1.05, ry: 2.4, kind: 'pine' },
-  { x: -8.4, z: -57.2, s: 1.0, ry: 0.7, kind: 'mai' },
-  { x: 8.6, z: -56.4, s: 1.0, ry: 2.7, kind: 'mai' },
+  { x: -9.8, z: -48.4, s: 0.85, ry: 0.3, kind: 'mai' },
+  { x: 10.0, z: -48.2, s: 0.85, ry: 2.0, kind: 'mai' },
+  { x: -10.8, z: -52.8, s: 1.1, ry: 1.0, kind: 'pine' },
+  { x: 11.4, z: -52.6, s: 1.05, ry: 2.4, kind: 'pine' },
+  { x: -8.6, z: -64.4, s: 1.0, ry: 0.7, kind: 'mai' },
+  { x: 8.8, z: -63.8, s: 1.0, ry: 2.7, kind: 'mai' },
   ...CAMPUS_TREES.map((t, i) => ({ ...t, ry: i * 1.3 })),
 ]
 
 export const BAMBOO: [number, number, number][] = [
   // Bình Định corners
-  [-18.6, 2.6, 0.95],
-  [18.6, 2.2, 1.0],
+  [-21.4, 2.6, 0.95],
+  [21.4, 2.2, 1.0],
   // Thăng Long: a bamboo screen at the edges of the esplanade
-  [-18.4, -20.4, 0.9],
-  [18.4, -22.6, 0.95],
+  [-21.2, -20.4, 0.9],
+  [21.2, -22.6, 0.95],
 ]
 
 // ── free-space test ────────────────────────────────────────
@@ -93,9 +93,9 @@ const SIGHTS: [number, number, number, number][] = [
   [0.4, 26, 0.4, 5], // the opening wide shot
   [-2.6, -1.6, 3.2, -7.4], // II · the campus bench
   [1.6, -16.2, -1.8, -21.8], // III · by the bicycle
-  [-1.7, -32.0, 3.1, -34.6], // IV · the family in the yard
-  [-1.2, -32.4, 1.6, -36.4],
-  [0.2, -32.6, 0, -40], // IV · seeing him off down the lane
+  [-1.1, -35.5, 3.8, -38.0], // IV · the family in the yard
+  [-0.6, -35.9, 2.2, -39.9],
+  [0.2, -36.1, 0, -44.5], // IV · seeing him off down the lane
 ]
 function distToSeg(x: number, z: number, [ax, az, bx, bz]: [number, number, number, number]) {
   const dx = bx - ax
@@ -129,7 +129,8 @@ export function isFree(x: number, z: number, m = 0) {
   // the village
   if (Math.hypot(x - WELL.x, z - WELL.z) < 2.0 + m) return false
   if (Math.hypot(x - BANYAN.x, z - BANYAN.z) < 3.0 + m) return false
-  if (Math.abs(x) < 4.4 + m && z < -29.4 + m && z > CONGLANG.z - 0.8) return false
+  // the green between Đoan Môn and the village gate keeps its middle clear (the lens follows him across it)
+  if (Math.abs(x) < 4.4 + m && z < DOANMON.z - DOANMON.d / 2 - 0.6 + m && z > CONGLANG.z - 0.8) return false
   // the house, its yard (between the house and the lane) and the haystack
   if (x > 0 && x < HOUSE.x + 3.4 + m && z < CONGLANG.z - 0.6 + m && z > VILLAGE_END) return false
   if (Math.hypot(x - HAYSTACK.x, z - HAYSTACK.z) < 1.4 + m) return false
@@ -161,7 +162,7 @@ export const TREES: TreeDef[] = (() => {
   const r = rng(11)
   const out = [...HAND_TREES]
   let tries = 0
-  while (out.length < 64 && tries < 6000) {
+  while (out.length < 78 && tries < 8000) {
     tries++
     const x = BOARD.minX + 1 + r() * (BOARD.maxX - BOARD.minX - 2)
     const z = BOARD.minZ + 1 + r() * (BOARD.maxZ - BOARD.minZ - 2)
@@ -179,14 +180,14 @@ export const BUSHES: [number, number, number][] = (() => {
   const out: [number, number, number][] = [
     [-3.8, 3.6, 0.6],
     [3.8, 3.6, 0.6],
-    [-4.8, -41.6, 0.7],
-    [4.8, -41.6, 0.7],
+    [-5.6, -47.4, 0.7],
+    [5.6, -47.4, 0.7],
   ]
   let tries = 0
-  while (out.length < 64 && tries < 4000) {
+  while (out.length < 76 && tries < 5000) {
     tries++
-    const x = BOARD.minX + 1 + r() * 38
-    const z = BOARD.minZ + 1 + r() * 78
+    const x = BOARD.minX + 1 + r() * (BOARD.maxX - BOARD.minX - 2)
+    const z = BOARD.minZ + 1 + r() * (BOARD.maxZ - BOARD.minZ - 2)
     if (!isFree(x, z, -0.6)) continue
     if (TREES.some((t) => Math.hypot(t.x - x, t.z - z) < 1.3)) continue
     out.push([x, z, 0.45 + r() * 0.4])
@@ -216,12 +217,14 @@ export const FLOWERS: [number, number, string][] = (() => {
   bed(12.6, -2.6, 1.0, 14, campus)
   bed(-4.6, -21.6, 1.0, 22, daisies)
   bed(4.6, -22.8, 0.9, 18, daisies)
-  bed(-3.4, -29.9, 0.45, 8, daisies)
-  bed(3.4, -29.9, 0.45, 8, field)
-  bed(-7.4, -37.9, 0.9, 12, field)
-  bed(-3.4, -41.4, 0.8, 14, hue)
-  bed(3.4, -41.4, 0.8, 14, hue)
-  bed(-9.4, -51.8, 0.9, 12, hue)
+  bed(-3.2, -31.0, 0.6, 12, daisies)
+  bed(3.2, -31.0, 0.6, 12, field)
+  bed(-6.6, -30.4, 0.7, 10, field)
+  bed(6.4, -31.4, 0.7, 10, daisies)
+  bed(-8.4, -41.6, 0.9, 12, field)
+  bed(-4.2, -47.2, 0.8, 14, hue)
+  bed(4.2, -47.2, 0.8, 14, hue)
+  bed(-10.4, -58.0, 0.9, 12, hue)
   return out
 })()
 
@@ -234,10 +237,10 @@ export const ROCKS: [number, number, number][] = (() => {
     [POND.x - POND.rx - 0.2, POND.z - 0.6, 0.35],
   ]
   let tries = 0
-  while (out.length < 42 && tries < 3000) {
+  while (out.length < 50 && tries < 3600) {
     tries++
-    const x = BOARD.minX + 1 + r() * 38
-    const z = BOARD.minZ + 1 + r() * 78
+    const x = BOARD.minX + 1 + r() * (BOARD.maxX - BOARD.minX - 2)
+    const z = BOARD.minZ + 1 + r() * (BOARD.maxZ - BOARD.minZ - 2)
     if (!isFree(x, z, -0.8)) continue
     out.push([x, z, 0.18 + r() * 0.25])
   }
@@ -248,10 +251,10 @@ export const GRASS: [number, number, number][] = (() => {
   const r = rng(99)
   const out: [number, number, number][] = []
   let tries = 0
-  while (out.length < 440 && tries < 9000) {
+  while (out.length < 540 && tries < 11000) {
     tries++
-    const x = BOARD.minX + 0.6 + r() * 38.8
-    const z = BOARD.minZ + 0.6 + r() * 78.8
+    const x = BOARD.minX + 0.6 + r() * (BOARD.maxX - BOARD.minX - 1.2)
+    const z = BOARD.minZ + 0.6 + r() * (BOARD.maxZ - BOARD.minZ - 1.2)
     if (!isFree(x, z, -1.1)) continue
     // no lawn tufts on the paved Huế plaza or the campus concrete
     if (z < VILLAGE_END - 0.6 && Math.abs(x) < 8) continue

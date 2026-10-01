@@ -253,7 +253,7 @@ export async function loadFonts(guest: string) {
     document.fonts.load(`700 80px "Fraunces Variable"`, guest || 'Welcome'),
     document.fonts.load(`italic 400 80px "Fraunces Variable"`, 'Welcome'),
     document.fonts.load(`800 40px "Nunito"`, '10'),
-    document.fonts.load(`80px "Yuji Boku"`, Object.values(PLAQUES).join('') + '招邀文憑畢業印'),
+    document.fonts.load(`80px "Yuji Boku"`, Object.values(PLAQUES).join('') + '招邀榜文憑畢業印'),
   ]
   await Promise.race([Promise.allSettled(jobs), new Promise((r) => setTimeout(r, 3500))])
 }
@@ -449,21 +449,39 @@ export const agedTex = () =>
       g.fillStyle = r() < 0.5 ? 'rgba(255,0,0,0.25)' : 'rgba(100,0,0,0.25)'
       g.fillRect(r() * S, r() * S, 1.5, 1.5)
     }
-    // moss mask in the green channel
-    g.globalCompositeOperation = 'lighter'
-    for (let i = 0; i < 40; i++) {
-      const x = r() * S
-      const y = r() * S
-      const rad = 10 + r() * 30
-      wrap((dx, dy) => {
-        const grd = g.createRadialGradient(x + dx, y + dy, 0, x + dx, y + dy, rad)
-        grd.addColorStop(0, 'rgba(0,150,0,1)')
-        grd.addColorStop(1, 'rgba(0,0,0,1)')
-        g.fillStyle = grd
-        g.fillRect(x + dx - rad, y + dy - rad, rad * 2, rad * 2)
-      })
+    // green = where moss takes hold, blue = fine breakup for its edges: tileable fractal noise,
+    // so patches come out ragged and organic rather than as round blots
+    const img = g.getImageData(0, 0, S, S)
+    const lattice = (cells: number, seed: number) => {
+      const rr = mulberry(seed)
+      const v = Float32Array.from({ length: cells * cells }, () => rr())
+      return (x: number, y: number) => {
+        const fx = (x / S) * cells
+        const fy = (y / S) * cells
+        const x0 = Math.floor(fx)
+        const y0 = Math.floor(fy)
+        const tx = fx - x0
+        const ty = fy - y0
+        const sx = tx * tx * (3 - 2 * tx)
+        const sy = ty * ty * (3 - 2 * ty)
+        const at = (i: number, j: number) => v[(((j % cells) + cells) % cells) * cells + (((i % cells) + cells) % cells)]
+        const top = at(x0, y0) * (1 - sx) + at(x0 + 1, y0) * sx
+        const bot = at(x0, y0 + 1) * (1 - sx) + at(x0 + 1, y0 + 1) * sx
+        return top * (1 - sy) + bot * sy
+      }
     }
-    g.globalCompositeOperation = 'source-over'
+    const coarse = [lattice(4, 11), lattice(8, 12), lattice(16, 13), lattice(32, 14)]
+    const fine = [lattice(16, 21), lattice(32, 22), lattice(64, 23)]
+    for (let y = 0; y < S; y++) {
+      for (let x = 0; x < S; x++) {
+        const m = coarse[0](x, y) * 0.5 + coarse[1](x, y) * 0.27 + coarse[2](x, y) * 0.15 + coarse[3](x, y) * 0.08
+        const f = fine[0](x, y) * 0.5 + fine[1](x, y) * 0.3 + fine[2](x, y) * 0.2
+        const i = (y * S + x) * 4
+        img.data[i + 1] = Math.round(m * 255)
+        img.data[i + 2] = Math.round(f * 255)
+      }
+    }
+    g.putImageData(img, 0, 0)
     const t = toTexture(c, false, true)
     return t
   })

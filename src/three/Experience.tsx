@@ -14,6 +14,7 @@ import { Campus } from './world/Campus'
 import { ThangLong } from './world/ThangLong'
 import { Village } from './world/Village'
 import { Hue } from './world/Hue'
+import { Overgrowth } from './world/Overgrowth'
 import { Foliage } from './world/Foliage'
 import { Lanterns } from './world/Lanterns'
 import { Leaves } from './fx/Leaves'
@@ -107,6 +108,7 @@ export default function Experience() {
         <ThangLong />
         <Village />
         <Hue />
+        <Overgrowth />
         <Foliage />
         <Lanterns />
         <Leaves />

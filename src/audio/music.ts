@@ -241,3 +241,35 @@ export function footsteps(n = 8, gap = 0.4, level = 0.22) {
     src.stop(t + 0.16)
   }
 }
+
+/**
+ * A court drum (trống đại): a low boom whose pitch falls as the skin settles,
+ * with a short slap on top. `when` schedules it that many seconds from now.
+ */
+export function drum(level = 0.5, when = 0) {
+  const c = ensure()
+  if (!c || !master || muted) return
+  const t = c.currentTime + when
+  const o = c.createOscillator()
+  const g = c.createGain()
+  o.type = 'sine'
+  o.frequency.setValueAtTime(124, t)
+  o.frequency.exponentialRampToValueAtTime(54, t + 0.3)
+  g.gain.setValueAtTime(0, t)
+  g.gain.linearRampToValueAtTime(level, t + 0.006)
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2)
+  o.connect(g).connect(master)
+  o.start(t)
+  o.stop(t + 1.3)
+  const src = noise(c)
+  const lp = c.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.value = 900
+  const ng = c.createGain()
+  ng.gain.setValueAtTime(0, t)
+  ng.gain.linearRampToValueAtTime(level * 0.4, t + 0.004)
+  ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.09)
+  src.connect(lp).connect(ng).connect(master)
+  src.start(t, Math.random())
+  src.stop(t + 0.12)
+}
