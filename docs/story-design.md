@@ -142,6 +142,11 @@ Giữ nguyên: **múa hoa đăng** trước Ngọ Môn khi bảng vàng mở ra.
 - **Sảnh mái ngói nâu** có diềm gỗ sẫm, phía trước là **khung cổng màu cam** loang ố.
 - Trước nhà: **bồn cây tròn** giữa đường vòng (cây tỉa, bụi thấp, thùa), ghế đá sơn xanh, cột đèn cũ, cột cờ, bảng tin. **Không còn xe máy** trước nhà.
 - Xung quanh trồng **phượng vĩ**, cây của mùa thi và mùa tốt nghiệp.
+- **Chú bò Nông Lâm** (`world/Cow.tsx`, vị trí `COW` trong `layout.ts`): câu đùa quen thuộc "Nông Lâm là trường có bò" được đưa vào như một lời tự trào dễ thương, không phải nhân vật chính.
+  - Giống: **bò vàng** (lông vàng nâu, bụng kem, u vai nhỏ, sừng ngắn) — đúng loại bò vẫn gặm cỏ trong khuôn viên trường. Vẽ cùng kiểu với dàn nhân vật: tô cel, viền mực, chuyển động 12 hình/giây.
+  - Phụ kiện: **chuông vàng trên dải ruy băng xanh** (màu khoa CNTT, cùng màu chữ `</>`), **một bông phượng** cài bên tai.
+  - Chỗ đứng: bãi cỏ sau quảng trường, đúng "ô trống" duy nhất của khung hình chương II (giữa bảng tin và cô bạn trên ghế đá), nên không đè lên ai, ở cả màn hình ngang lẫn điện thoại.
+  - Diễn xuất: tự gặm cỏ rồi ngẩng lên nhai; khi Lực bước vào sân trường thì **ngẩng đầu nhìn theo**; ngay sau cú đập tay thì ngửa cổ kêu, bong bóng **"ụm bò~"** bật lên (vần với bong bóng `</>` của cô bạn) và hai bạn bật cười; sau đó nó cúi xuống gặm cỏ tiếp.
 
 ### III · Hà Nội mùa thu — Hoàng thành Thăng Long, Đoan Môn (ảnh 6)
 

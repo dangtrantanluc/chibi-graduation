@@ -242,6 +242,34 @@ export function footsteps(n = 8, gap = 0.4, level = 0.22) {
   }
 }
 
+/** The campus cow: a reedy note that opens from "m" to "oo" and sags at the end. */
+export function moo(level = 0.1) {
+  const c = ensure()
+  if (!c || !master || muted) return
+  const now = c.currentTime
+  const o = c.createOscillator()
+  o.type = 'sawtooth'
+  o.frequency.setValueAtTime(128, now)
+  o.frequency.linearRampToValueAtTime(170, now + 0.28)
+  o.frequency.setValueAtTime(170, now + 0.75)
+  o.frequency.linearRampToValueAtTime(118, now + 1.25)
+  // the mouth opening and closing again
+  const lp = c.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.Q.value = 2
+  lp.frequency.setValueAtTime(240, now)
+  lp.frequency.linearRampToValueAtTime(760, now + 0.35)
+  lp.frequency.linearRampToValueAtTime(420, now + 1.25)
+  const g = c.createGain()
+  g.gain.setValueAtTime(0, now)
+  g.gain.linearRampToValueAtTime(level, now + 0.16)
+  g.gain.setValueAtTime(level, now + 0.8)
+  g.gain.linearRampToValueAtTime(0, now + 1.3)
+  o.connect(lp).connect(g).connect(master)
+  o.start(now)
+  o.stop(now + 1.35)
+}
+
 /**
  * A court drum (trống đại): a low boom whose pitch falls as the skin settles,
  * with a short slap on top. `when` schedules it that many seconds from now.

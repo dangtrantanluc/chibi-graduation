@@ -4,7 +4,7 @@ import { ui, useUI, type Caption, type Step } from '../state/store'
 import { act, emit, lookAt, place, walk, world, type Action, type CharId } from '../state/world'
 import { BENCH, BIKE, CONGLANG, DOANMON, GATE, HALL, MARKS, NGOMON, SCROLL, SCROLL_HALF, STREET, UNI_BENCH, VILLAGE_END } from '../three/layout'
 import { uGlow } from '../three/lib/materials'
-import { bell, drum, duckMusic, fadeOutMusic, footsteps, playZone, wind } from '../audio/music'
+import { bell, drum, duckMusic, fadeOutMusic, footsteps, moo, playZone, wind } from '../audio/music'
 import { CAST, INVITE } from '../config'
 import { setGrade } from '../three/grade'
 
@@ -377,6 +377,8 @@ function playCampus() {
     lookAt('uni', null)
     act('uni', 'type')
     world.laptop = 1
+    world.cow.up = 0
+    world.cow.moo = 0
   })
   beat(t, 4.7, () => (world.wipe.kind = 'none'))
   setStep(t, 4.4, 'campus')
@@ -407,6 +409,8 @@ function playCampus() {
   })
   camPath(t, 11.3, 4.8, [[-3.6, 2.7, -2.4], [-2.4, 1.8, -3.5], SHOTS.campus.pos], [[0.8, 1.1, -0.6], [3.2, 1.45, -7.4], SHOTS.campus.target], 'sine.inOut')
   camTo(t, 11.3, 4.8, { fov: SHOTS.campus.fov, focus: SHOTS.campus.focus, dof: 1, tilt: 0.1, range: SHOTS.campus.range, backoff: 0.6 })
+  // out on the lawn the campus cow lifts its head from the grass to see who has come
+  beat(t, 13.4, () => (world.cow.up = 1))
   beat(t, 15.9, () => {
     lookAt('uni', 'camera')
     lookAt('luc', 'uni')
@@ -419,6 +423,9 @@ function playCampus() {
     act('uni', 'hi5')
     act('luc', 'hi5')
   })
+  // … and has the last word. (Nông Lâm, everyone says, is the university with the cows.)
+  beat(t, 18.3, () => moo())
+  t.to(world.cow, { moo: 1, duration: 0.45, ease: 'back.out(2)' }, 18.3)
   beat(t, 18.8, () => {
     lookAt('uni', 'camera')
     lookAt('luc', 'camera')
@@ -426,6 +433,8 @@ function playCampus() {
     act('luc', 'laugh')
   })
   allowContinue(t, 19.0)
+  t.to(world.cow, { moo: 0, duration: 0.4 }, 21.6)
+  beat(t, 22.2, () => (world.cow.up = 0))
   beat(t, 21.0, () => {
     fidget('uni', ['type', 'smile', 'laugh'], 3.4)
     fidget('luc', ['smile', 'laugh', 'scratch'], 4.1)
@@ -442,6 +451,8 @@ function playHanoi() {
     act('luc', 'wave')
   })
   t.to(world, { bubble: 0, duration: 0.4 }, 0.2)
+  t.to(world.cow, { moo: 0, duration: 0.4 }, 0.2)
+  beat(t, 0.2, () => (world.cow.up = 0))
   camTo(t, 0.2, 1.6, { pos: [-0.6, 2.2, -1.8], target: [-1.4, 2.4, -10] }, 'sine.in')
   beat(t, 0.6, () => emit({ type: 'gust', x: 1, z: -5, strength: 1.1, radius: 6 }))
   beat(t, 0.7, () => (world.wipe.kind = 'leaves'))
@@ -1014,6 +1025,7 @@ export function skipToInvite() {
   world.wipe.kind = 'none'
   world.laptop = 0
   world.bubble = 0
+  world.cow.up = world.cow.moo = 0
   useUI.setState({ mounted: 6, caption: null, flash: 0 })
   setGrade('night')
   world.city = true
@@ -1054,6 +1066,7 @@ export function resetWorld() {
   world.diploma = 0
   world.laptop = 0.9
   world.bubble = 0
+  world.cow.up = world.cow.moo = 0
   world.wipe.kind = 'none'
   world.wipe.p = 0
   world.city = false

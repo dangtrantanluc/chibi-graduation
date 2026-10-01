@@ -52,6 +52,12 @@ export const TOPIARY = { x: TOP[0], z: TOP[1], r: 0.62 }
 /** the pink bench where the IT friend sits (local −2.1, 5.7), facing the lane */
 const UNI = campusToWorld(-2.1, 5.7)
 export const UNI_BENCH = { x: UNI[0], z: UNI[1], ry: RANGDONG.ry + 0.45 }
+/**
+ * The campus cow (everyone's joke about Nông Lâm). It grazes on the lawn past
+ * the far end of the plaza: in the chapter's shot that is the one empty window
+ * of the frame, between the notice board and the friend on her bench.
+ */
+export const COW = { x: 6.24, z: -13.23, ry: -0.25, s: 1.2 }
 
 /**
  * The city street between the citadel wall and the campus: the first thing

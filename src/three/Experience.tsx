@@ -11,6 +11,7 @@ import { Sky } from './world/Sky'
 import { Board } from './world/Board'
 import { BinhDinh } from './world/BinhDinh'
 import { Campus } from './world/Campus'
+import { Cow } from './world/Cow'
 import { Street } from './world/Street'
 import { ThangLong } from './world/ThangLong'
 import { Village } from './world/Village'
@@ -123,6 +124,7 @@ export default function Experience() {
         <Sparkles />
         <Lazy at={2}>
           <Uni />
+          <Cow />
         </Lazy>
         <Lazy at={3}>
           <Hanoi />

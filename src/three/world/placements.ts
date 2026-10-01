@@ -1,5 +1,5 @@
 import { rng } from '../lib/kit'
-import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, FLAG_TOWER, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, WELL } from '../layout'
+import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, COW, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, FLAG_TOWER, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, WELL } from '../layout'
 import { CAMPUS_TREES } from './Campus'
 
 /** Deterministic placement of buildings, trees, rocks and flowers, region by region. */
@@ -126,6 +126,8 @@ export function isFree(x: number, z: number, m = 0) {
   if (x > RANGDONG.xf - 1.4 - m && x < RANGDONG.xf + RANGDONG.d + 1.2 + m && Math.abs(z - RANGDONG.zc) < RANGDONG.w / 2 + 1.2 + m) return false
   if (x > -0.4 - m && x < RANGDONG.xf + m && Math.abs(z - RANGDONG.zc) < RANGDONG.w / 2 + 0.2 + m) return false
   if (Math.hypot(x - TOPIARY.x, z - TOPIARY.z) < TOPIARY.r + 1.2 + m) return false
+  // the cow's patch of lawn
+  if (Math.hypot(x - COW.x, z - COW.z) < 1.9 + m) return false
   // the stone elephants before the Hoàng Đế citadel
   if (Math.abs(Math.abs(x) - 4.5) < 1.2 + m && Math.abs(z - (GATE.z + 1.8)) < 1.5 + m) return false
   // Thăng Long: the flag tower, the bicycle, the gánh, lamps and benches

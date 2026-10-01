@@ -156,6 +156,8 @@ export const world = {
   laptop: 0,
   /** "</>" speech bubble over the IT friend 0‥1 */
   bubble: 0,
+  /** the campus cow: `up` 1 = it has lifted its head to watch Lực; `moo` 0‥1 its "ụm bò~" bubble */
+  cow: { up: 0, moo: 0 },
   /** where the directional shadow camera is centred, and its half-size */
   shadowFocus: new THREE.Vector3(0, 0, 4),
   shadowSize: 14,
