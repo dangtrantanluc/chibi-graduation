@@ -267,14 +267,15 @@ Nhân vật không thuyết minh nơi chốn hay lịch sử (dòng địa đi�
 
 ### Rồng thời Lý, chim Lạc và chi tiết di tích
 
-**Rồng thời Lý** là hình tượng rồng dùng cho toàn bộ thế giới (`world/dragon.ts`): thân thon, uốn nhiều khúc mềm thu nhỏ dần về đuôi; không sừng, mào lửa uốn chữ S trên môi, bờm dài bay ngược, miệng ngậm ngọc, vây thấp, chân nhỏ ba móng, đuôi thuôn nhọn. Thân có bụng nhạt màu và các vòng đậm nhạt xen kẽ như hàng vảy.
+**Mỗi di tích mang con rồng của thời nó** (`world/dragon.ts` dựng rồng theo ba kiểu):
 
-| Nơi | Rồng |
-| --- | --- |
-| Cổng thành Hoàng Đế | Đôi rồng khảm sành quấn cột; rồng trên xà và trên đầu tường |
-| Đoan Môn | **Thềm rồng** đá hai bên lối vào cửa giữa (theo thềm điện Kính Thiên); rồng trên các góc mái |
-| Ngọ Môn | Lưỡng long chầu nhật trên nóc lầu Ngũ Phụng |
-| Điện Thái Hòa | Lưỡng long triều **hồ lô** trên nóc; rồng đá chạy theo hai lan can bậc thềm; rồng vàng quấn hai cột giữa |
+| Di tích | Kiểu rồng | Đặc điểm | Ở đâu |
+| --- | --- | --- | --- |
+| Hoàng thành Thăng Long | **Thời Lý** | Thân thon uốn nhiều khúc mềm thu nhỏ dần về đuôi; không sừng, mào lửa chữ S trên môi, bờm dài, miệng ngậm ngọc, chân nhỏ ba móng, đuôi thuôn nhọn | Thềm rồng đá hai bên lối vào cửa giữa Đoan Môn; rồng trên góc mái; rồng vàng bay |
+| Cổng thành Hoàng Đế | **Thời Tây Sơn** (theo lối Lê Trung Hưng) | Thân mập uốn vài khúc mạnh, đầu to có sừng, các "đao mác" (dải lửa dài thẳng) từ đầu và khuỷu chân, đuôi một ngọn lửa dài | Rồng khảm sành quấn cột; rồng trên xà và đầu tường |
+| Ngọ Môn, điện Thái Hòa | **Thời Nguyễn** | Thân mập, đầu to sừng nhánh, mắt lồi, mày lửa, nanh và râu, bờm lửa cong, vây cao nhọn, bốn chân có móng, đuôi xòe lửa | Lưỡng long chầu nhật (Ngọ Môn) và triều hồ lô (Thái Hòa) trên nóc; rồng đá lan can bậc thềm; rồng vàng quấn cột; đầu kỳ lân |
+
+Thân rồng nào cũng có bụng nhạt màu và các vòng đậm nhạt xen kẽ như hàng vảy.
 
 **Rồng vàng Thăng Long** (`fx/CloudDragon.tsx`): khi Lực tới Hà Nội, một con rồng vàng bay lên từ sau Đoan Môn, lượn một vòng quanh lầu rồi bay vào trời thu, theo tích Lý Thái Tổ thấy rồng vàng bay lên mà đặt tên Thăng Long. Hai người cùng ngước nhìn, máy quay ngước theo. Rồng lướt qua mái Ngọ Môn một lần nữa khi bảng vàng mở hết.
 

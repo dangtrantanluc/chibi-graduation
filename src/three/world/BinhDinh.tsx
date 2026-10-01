@@ -216,7 +216,7 @@ function dragonColumn(x: number, h: number): Part[] {
   const dir = x > 0 ? -1 : 1
   const pts = [new THREE.Vector3(top.x + dir * 0.16, top.y + 0.2, z + 0.34), new THREE.Vector3(top.x + dir * 0.08, top.y + 0.12, z + 0.25), ...coil.reverse()]
   const out = (q: THREE.Vector3) => new THREE.Vector3(q.x - x, 0, q.z - z)
-  p.push(...dragonParts({ pts, r: 0.058, style: 'ly', body: '#c4453a', belly: '#f2ede2', fin: '#3f9a6b', mane: '#e0b04a', horn: '#e0b04a', m: 'ceramic', accent: 'ceramic', up: out, head: 1.75 }))
+  p.push(...dragonParts({ pts, r: 0.058, style: 'tayson', body: '#c4453a', belly: '#f2ede2', fin: '#3f9a6b', mane: '#e0b04a', horn: '#e0b04a', m: 'ceramic', accent: 'ceramic', up: out, head: 1.75 }))
   return p
 }
 
@@ -238,7 +238,7 @@ function gateParts(): Part[] {
     p.push(box(bw, 0.14, 0.22, [bx, 2.84, 0], '#35312d', 'aged'))
     p.push(box(bw + 0.1, 0.05, 0.28, [bx, 2.93, 0], '#5c554c', 'aged'))
     // a mosaic dragon climbs each side beam toward the centre
-    p.push(...dragon(s * (CP + 0.55), 2.93, 0, s, 1.25, '#3f8f6f', 0.95))
+    p.push(...dragon(s * (CP + 0.55), 2.93, 0, s, 1.25, '#3f8f6f', 0.95, 'tayson'))
     // and a small phoenix-crest on the outer pillar side
     p.push({ g: G.sphere, c: '#c4453a', m: 'ceramic', p: [s * (OP - 0.45), 3.1, 0], s: [0.1, 0.07, 0.06] })
     for (let k = 0; k < 4; k++) p.push({ g: G.cone, c: k % 2 ? '#e0b04a' : '#3f9a6b', m: 'ceramic', p: [s * (OP - 0.45 - 0.1 * k), 3.18 + k * 0.02, 0], r: [0, 0, s * (0.9 + k * 0.2)], s: [0.03, 0.2, 0.02] })
@@ -282,7 +282,7 @@ function wallParts(): Part[] {
     for (let x = x0 + 2.2; x < x1 - 0.5; x += 3.2) p.push(box(0.3, H + 0.05, 0.6, [s * x, (H + 0.05) / 2, GATE.z], '#58514a', 'aged'))
     // wall head: a stepped block carrying a rearing dragon, facing outward
     p.push(box(0.7, H + 0.25, 0.72, [s * (x0 + 0.35), (H + 0.25) / 2, GATE.z], '#58514a', 'aged'))
-    const d = dragon(s * (x0 + 0.2), H + 0.25, GATE.z, s, 1.1, '#6f8a74', 1.25)
+    const d = dragon(s * (x0 + 0.2), H + 0.25, GATE.z, s, 1.1, '#6f8a74', 1.25, 'tayson')
     p.push(...d.map((q) => ({ ...q, m: 'aged' as const })))
   }
   return p

@@ -164,7 +164,7 @@ function gateParts(): Part[] {
     [1, -1],
     [-1, -1],
   ]) {
-    const d = dragon(sx * (pw / 2 + 0.35), py + ph + 0.12, sz * (pd / 2 + 0.35), -sx, 0.62, '#8c8a82', 0.62)
+    const d = dragon(sx * (pw / 2 + 0.35), py + ph + 0.12, sz * (pd / 2 + 0.35), -sx, 0.62, '#8c8a82', 0.62, 'ly')
     p.push(...d.map((q) => ({ ...q, m: 'aged' as const })))
   }
   // upper storey + a hip-and-gable roof whose gable faces the front

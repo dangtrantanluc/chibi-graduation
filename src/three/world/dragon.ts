@@ -3,24 +3,29 @@ import { G, type MatKey, type Part } from '../lib/kit'
 import { taperTube } from '../characters/hair'
 
 /*
- * Vietnamese dragons, built along any spine.
+ * Vietnamese dragons, built along any spine — each monument wears the dragon
+ * of its own time.
  *
- *   'ly'      the dragon of Thăng Long (Lý dynasty, 11th–13th c.) — the one this
- *             world uses throughout: slender and smooth, the body in many
- *             soft bends that ease toward the tail; no horns, a long flame
- *             crest rising from the upper lip, a long flowing mane, a pearl in
- *             the mouth, a low soft fin, small three-clawed legs with a tuft
- *             at the elbow, the tail running out to a point
- *   'nguyen'  the dragon of Huế (Nguyễn dynasty, 19th c.) and of the mosaic
- *             gates of the centre: robust, a big head with branched antlers,
- *             bulging eyes, flame brows, fangs and beard, a mane of sharp
- *             flames, tall spiky fins, four clawed legs, a fanned flame tail
+ *   'ly'      Thăng Long (Lý dynasty, 11th–13th c.): slender and smooth, the
+ *             body in many soft bends that ease toward the tail; no horns, a
+ *             long flame crest rising from the upper lip, a long flowing mane,
+ *             a pearl in the mouth, a low soft fin, small three-clawed legs,
+ *             the tail running out to a point
+ *   'tayson'  the Hoàng Đế citadel (Tây Sơn, late 18th c., in the manner the
+ *             Lê Trung Hưng carvers left): a heavy body in a few strong
+ *             humps, a big horned head, and "đao mác" — long straight blades
+ *             of flame streaming from the head and the elbows; the tail a
+ *             single long flame
+ *   'nguyen'  Huế (Nguyễn dynasty, 19th c.): robust, a big head with branched
+ *             antlers, bulging eyes, flame brows, fangs and beard, a mane of
+ *             sharp curling flames, tall spiky fins, four clawed legs, a
+ *             fanned flame tail
  *
  * Everything is returned as kit parts in world space, so a dragon bakes into
  * the building it belongs to (no extra draw calls).
  */
 
-export type DragonStyle = 'ly' | 'nguyen'
+export type DragonStyle = 'ly' | 'tayson' | 'nguyen'
 
 export interface DragonOpts {
   /** the spine, head first */
@@ -127,34 +132,37 @@ export function dragonHead(M: THREE.Matrix4, style: DragonStyle, c: HeadColors, 
         c.horn,
         accent,
       )
-      tube(
-        [
-          [s * 0.4, 1.06, -0.34],
-          [s * 0.66, 1.36, -0.28],
-        ],
-        0.045,
-        0.015,
-        c.horn,
-        accent,
-      )
+      if (style === 'nguyen')
+        tube(
+          [
+            [s * 0.4, 1.06, -0.34],
+            [s * 0.66, 1.36, -0.28],
+          ],
+          0.045,
+          0.015,
+          c.horn,
+          accent,
+        )
     }
   }
-  // the mane: locks streaming back from the crown and the cheeks
-  const locks = ly ? [-1, 0, 1] : [-3, -2, -1, 0, 1, 2, 3]
+  // the mane: locks streaming back from the crown and the cheeks. Lý: three long flowing locks;
+  // Tây Sơn: straight blades of flame (đao mác); Nguyễn: a fan of shorter, upswept flames
+  const blade = style === 'tayson'
+  const locks = ly ? [-1, 0, 1] : blade ? [-2, -1, 0, 1, 2] : [-3, -2, -1, 0, 1, 2, 3]
   for (const k of locks) {
     const a = Math.abs(k)
-    const len = ly ? 3.0 : 1.9 - a * 0.16
+    const len = ly ? 3.0 : blade ? 2.9 - a * 0.3 : 1.9 - a * 0.16
     tube(
       [
         [k * 0.15, 0.3 - a * 0.07, -0.35],
-        [k * (ly ? 0.22 : 0.3), 0.52 - a * 0.12, -0.35 - len * 0.45],
-        [k * (ly ? 0.34 : 0.44), (ly ? 0.3 : 0.78) - a * 0.2, -0.35 - len],
+        [k * (ly ? 0.22 : blade ? 0.26 : 0.3), (blade ? 0.42 : 0.52) - a * 0.12, -0.35 - len * 0.45],
+        [k * (ly ? 0.34 : blade ? 0.38 : 0.44), (ly ? 0.3 : blade ? 0.54 : 0.78) - a * (blade ? 0.16 : 0.2), -0.35 - len],
       ],
-      ly ? 0.14 : 0.12,
+      ly ? 0.14 : blade ? 0.1 : 0.12,
       0.012,
       c.mane,
       accent,
-      0.5,
+      blade ? 0.32 : 0.5,
     )
   }
   for (const s of [-1, 1])
@@ -298,17 +306,19 @@ export function dragonParts(o: DragonOpts): Part[] {
           p.push({ g: G.coneLo, c: '#fbf6e8', m, mat: flame(c, d, f.U, rr * 0.62, rr * 0.11, rr * 0.11) })
         }
         const back = f.T.clone().multiplyScalar(0.8).addScaledVector(f.U, 0.5).addScaledVector(f.S, s * 0.4)
-        p.push({ g: G.coneLo, c: mane, m: accent, mat: flame(b, back, f.S, rr * 1.2, rr * 0.3, rr * 0.1) })
+        p.push({ g: G.coneLo, c: mane, m: accent, mat: flame(b, back, f.S, rr * (style === 'tayson' ? 2.3 : 1.2), rr * (style === 'tayson' ? 0.22 : 0.3), rr * 0.1) })
       }
     }
   }
 
-  // the tail: a fan of flames (Nguyễn); the Lý dragon's simply runs out to a point
+  // the tail: a fan of flames (Nguyễn), one long blade (Tây Sơn); the Lý dragon's runs out to a point
   if (!ly) {
     const f = frame(1)
-    for (const k of [-2, -1, 0, 1, 2]) {
+    const ts = style === 'tayson'
+    for (const k of ts ? [-1, 0, 1] : [-2, -1, 0, 1, 2]) {
       const d = f.T.clone().multiplyScalar(Math.cos(k * 0.42)).addScaledVector(f.U, Math.sin(k * 0.42) + 0.25)
-      p.push({ g: G.coneLo, c: mane, m: accent, mat: flame(f.P, d, f.S, r * (2.0 - Math.abs(k) * 0.3), r * 0.34, r * 0.1) })
+      const len = ts ? (k ? 1.1 : 3.0) : 2.0 - Math.abs(k) * 0.3
+      p.push({ g: G.coneLo, c: mane, m: accent, mat: flame(f.P, d, f.S, r * len, r * (ts ? 0.26 : 0.34), r * 0.1) })
     }
   }
 

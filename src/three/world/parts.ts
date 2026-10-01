@@ -64,11 +64,11 @@ export function windowPane(w: number, h: number, p: V3, ry = 0, frame = C.woodDk
 /**
  * The crowning ornament of a palace roof, in ceramic mosaic: two dragons
  * facing a flaming sun ("lưỡng long chầu nhật", Ngọ Môn) or a wine gourd
- * ("lưỡng long triều hồ lô", Điện Thái Hòa). The dragons are Lý dragons: each
- * rears its head toward the centre, its slender body riding the ridge in many
- * soft bends that ease toward the tail.
+ * ("lưỡng long triều hồ lô", Điện Thái Hòa). Each dragon rears its head toward
+ * the centre and rides the ridge behind it: Nguyễn dragons (the default — these
+ * are Huế roofs) in a few strong humps, the tail lifted in a fan of flame.
  */
-export function ridgeDragons(cx: number, y: number, z: number, span: number, body = C.jade, scale = 1, centre: 'sun' | 'gourd' = 'sun'): Part[] {
+export function ridgeDragons(cx: number, y: number, z: number, span: number, body = C.jade, scale = 1, centre: 'sun' | 'gourd' = 'sun', style: DragonStyle = 'nguyen'): Part[] {
   const p: Part[] = []
   const k = scale
   if (centre === 'sun') {
@@ -100,34 +100,37 @@ export function ridgeDragons(cx: number, y: number, z: number, span: number, bod
   const r = Math.min(0.12 * k, span * 0.1)
   for (const s of [-1, 1]) {
     const x0 = cx + s * 0.66 * k
-    const pts: THREE.Vector3[] = [new THREE.Vector3(x0 - s * r * 0.7, y + r * 4.5, z), new THREE.Vector3(x0 + s * r * 1.0, y + r * 3.3, z)]
-    const n = 13
-    for (let i = 1; i <= n; i++) {
-      const t = i / n
-      // the bends tighten and flatten as the body runs out to the tail
-      const wave = 0.5 + 0.5 * Math.sin(t * Math.PI * 8.5 - 1.3)
-      pts.push(new THREE.Vector3(x0 + s * (r + (span - r) * t), y + r * (0.95 + 1.35 * wave * (1 - 0.5 * t)), z + Math.sin(t * Math.PI * 4) * r * 0.5 * (1 - t)))
-    }
-    p.push(...dragonParts({ pts, r, style: 'ly', body, belly: '#f4efe6', fin: '#e6b53a', mane: '#e6b53a', horn: C.gold, m: 'ceramic', accent: 'gold', head: 1.6, detail: r > 0.07 ? 'full' : 'low' }))
+    p.push(...dragonParts({ pts: lyingSpine(x0, y, z, s, span, r, style), r, style, body, belly: '#f4efe6', fin: '#e6b53a', mane: '#e6b53a', horn: C.gold, m: 'ceramic', accent: 'gold', head: 1.6, detail: r > 0.07 ? 'full' : 'low' }))
   }
   return p
 }
 
 /**
- * A Lý dragon lying along x: its head at hx, the slender body running `span`
- * the way of `dir` in many soft bends (ridge beams, wall heads, roof hips).
+ * The spine of a dragon lying along x from its reared head at hx: many soft
+ * bends easing toward the tail (Lý), or a few strong humps with the tail
+ * lifted (Tây Sơn, Nguyễn).
+ */
+function lyingSpine(hx: number, y: number, z: number, dir: number, span: number, r: number, style: DragonStyle): THREE.Vector3[] {
+  const ly = style === 'ly'
+  const pts: THREE.Vector3[] = [new THREE.Vector3(hx - dir * r * 0.6, y + r * (ly ? 3.8 : 4.5), z), new THREE.Vector3(hx + dir * r * 1.1, y + r * (ly ? 2.8 : 3.3), z)]
+  const n = ly ? 12 : 7
+  for (let i = 1; i <= n; i++) {
+    const t = i / n
+    const hump = ly ? (0.5 + 0.5 * Math.sin(t * Math.PI * 8 - 1.3)) * (1 - 0.5 * t) * 1.3 : Math.max(0, Math.sin(t * Math.PI * 2.5 - 0.6)) * 1.6
+    const lift = ly ? 0 : t > 0.86 ? (t - 0.86) * 22 : 0
+    pts.push(new THREE.Vector3(hx + dir * (r * 1.1 + (span - r * 1.1) * t), y + r * (0.95 + hump + lift), z + Math.sin(t * Math.PI * (ly ? 4 : 3)) * r * 0.5 * (1 - t)))
+  }
+  return pts
+}
+
+/**
+ * A dragon lying along x: its head at hx, the body running `span` the way of
+ * `dir` (ridge beams, wall heads, roof hips). Give it the period of the
+ * building it lies on.
  */
 export function dragon(hx: number, y: number, z: number, dir: number, span: number, body = C.jade, k = 1, style: DragonStyle = 'ly'): Part[] {
   const r = Math.min(0.115 * k, span * 0.11)
-  const ly = style === 'ly'
-  const pts: THREE.Vector3[] = [new THREE.Vector3(hx - dir * r * 0.5, y + r * (ly ? 3.6 : 4.2), z), new THREE.Vector3(hx + dir * r * 1.2, y + r * (ly ? 2.6 : 3.2), z)]
-  const n = ly ? 11 : 6
-  for (let i = 1; i <= n; i++) {
-    const t = i / n
-    const hump = ly ? 0.5 + 0.5 * Math.sin(t * Math.PI * 7 - 1.2) : Math.max(0, Math.sin(t * Math.PI * 2.5 - 0.5))
-    pts.push(new THREE.Vector3(hx + dir * (r * 1.2 + (span - r * 1.2) * t), y + r * (0.95 + (ly ? 1.25 : 1.5) * hump * (1 - t * 0.5)), z + Math.sin(t * Math.PI * (ly ? 4 : 3)) * r * 0.5 * (1 - t)))
-  }
-  return dragonParts({ pts, r, style, body, m: 'ceramic', accent: 'gold', horn: C.gold, detail: r > 0.075 ? 'full' : 'low', head: 1.55 })
+  return dragonParts({ pts: lyingSpine(hx, y, z, dir, span, r, style), r, style, body, m: 'ceramic', accent: 'gold', horn: C.gold, detail: r > 0.075 ? 'full' : 'low', head: 1.55 })
 }
 
 /**
@@ -219,7 +222,7 @@ export function kyLan(x: number, z: number, ry: number, s = 1): Part[] {
   // the head: a dragon's, mane streaming
   const h = 0.2
   const M = new THREE.Matrix4().makeBasis(new THREE.Vector3(h, 0, 0), new THREE.Vector3(0, h, 0), new THREE.Vector3(0, 0, h)).setPosition(0, 1.34, 0.4)
-  p.push(...dragonHead(M, 'ly', { body: B, belly: '#d2b06a', mane: F, horn: '#f3d98a' }, 'bronze', 'gold', true, false))
+  p.push(...dragonHead(M, 'nguyen', { body: B, belly: '#d2b06a', mane: F, horn: '#f3d98a' }, 'bronze', 'gold', true, false))
   return offsetParts(p, [x, 0, z], ry, s)
 }
 

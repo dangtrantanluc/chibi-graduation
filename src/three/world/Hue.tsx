@@ -253,7 +253,7 @@ function hallParts(): Part[] {
     const d = 0.3 * (k + 1)
     p.push(box(3.0, h, 0.3, [cx, h / 2, front + d - 0.15], k % 2 ? '#ddd5c6' : '#d2c9b8', 'aged'))
   }
-  // Thềm rồng: a stone dragon comes down each side of the stairs. The parapet steps down with the
+  // Thềm rồng: a stone dragon — a Nguyễn dragon, horned and maned — comes down each side of the stairs. The parapet steps down with the
   // treads; the dragon lies along it in humps, its tail on the terrace, and rears its head over the
   // newel at the foot, looking out across the court.
   for (const s of [-1, 1]) {
@@ -270,7 +270,7 @@ function hallParts(): Part[] {
     p.push(box(0.36, 0.34, 0.36, [x, 0.17, front + 1.68], C.stoneDk, 'aged'))
     p.push(box(0.42, 0.06, 0.42, [x, 0.03, front + 1.68], '#8a8272', 'aged'))
     pts.push(new THREE.Vector3(x, ty + 0.26 + R * 1.0, front - 0.14), new THREE.Vector3(x, ty + 0.26 + R * 1.5, front - 0.36))
-    p.push(...dragonParts({ pts, r: R, style: 'ly', body: '#b4ae9d', belly: '#c9c3b2', fin: '#a39d8c', mane: '#a39d8c', horn: '#c9c3b2', m: 'aged', accent: 'aged', head: 1.7 }))
+    p.push(...dragonParts({ pts, r: R, style: 'nguyen', body: '#b4ae9d', belly: '#c9c3b2', fin: '#a39d8c', mane: '#a39d8c', horn: '#c9c3b2', m: 'aged', accent: 'aged', head: 1.7 }))
   }
   for (let x = cx - 7.0; x <= cx + 7.01; x += 0.7) {
     if (Math.abs(x - cx) < 1.8) continue
@@ -298,7 +298,7 @@ function hallParts(): Part[] {
     const top = coil[coil.length - 1]
     const pts = [new THREE.Vector3(top.x + dirX * 0.1, top.y + 0.17, bf + 0.46), new THREE.Vector3(top.x + dirX * 0.04, top.y + 0.1, bf + 0.36), ...coil.reverse()]
     const out = (q: THREE.Vector3) => new THREE.Vector3(q.x - x, 0, q.z - bf)
-    p.push(...dragonParts({ pts, r: 0.062, style: 'ly', body: C.gold, belly: '#f3d98a', fin: '#f6e2a0', mane: '#f6e2a0', horn: '#fff0c0', m: 'gold', accent: 'gold', up: out, head: 1.7, detail: 'low' }))
+    p.push(...dragonParts({ pts, r: 0.062, style: 'nguyen', body: C.gold, belly: '#f3d98a', fin: '#f6e2a0', mane: '#f6e2a0', horn: '#fff0c0', m: 'gold', accent: 'gold', up: out, head: 1.7, detail: 'low' }))
   }
   p.push(box(10.2, colH, 0.3, [cx, ty + colH / 2, bb], '#7a231f', 'paint'))
   for (const s of [-1, 1]) p.push(box(0.3, colH, bf - bb, [cx + s * 5.05, ty + colH / 2, bz], '#7a231f', 'paint'))
