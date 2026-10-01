@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { useMemo } from 'react'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { rng } from '../lib/kit'
-import { uNight } from '../lib/materials'
+import { grade } from '../grade'
 
 /*
  * The rim of the world: the mountains of northern Việt Nam, three deep.
@@ -21,8 +21,6 @@ const CENTER = new THREE.Vector3(0, 0, -31)
 const HAZE = new THREE.Color('#f1cbb6') // the peach mist the bases stand in
 const AIR = new THREE.Color('#c6b6cf') // what distance does to colour
 const WARM = new THREE.Color('#ffd2a0')
-const DAY = new THREE.Color('#ffffff')
-const NIGHT = new THREE.Color('#4f5c9c')
 
 const smooth = (a: number, b: number, x: number) => {
   const t = Math.min(Math.max((x - a) / (b - a), 0), 1)
@@ -317,8 +315,8 @@ export function Ranges() {
     }
     return { list: [mk(far, flat, -6), mk(towers, mat, -4), mk(hills, mat, -3)], mats: [mat, flat] }
   }, [])
-  // by night the whole rim sinks to deep blue silhouettes
-  useFrame(() => meshes.mats.forEach((m) => m.color.lerpColors(DAY, NIGHT, uNight.value)))
+  // the painted rim takes the tint of the hour; by night it sinks to deep blue silhouettes
+  useFrame(() => meshes.mats.forEach((m) => m.color.copy(grade.range)))
   return (
     <>
       {meshes.list.map((m, i) => (

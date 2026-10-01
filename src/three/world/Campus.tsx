@@ -291,12 +291,12 @@ export function Campus() {
 
 /** Tree spots on campus: phượng vĩ (the graduation tree) and tall shade trees. */
 export const CAMPUS_TREES: { x: number; z: number; s: number; kind: 'phuong' | 'green' }[] = [
-  { x: -3.6, z: -3.2, s: 1.05, kind: 'phuong' },
+  { x: -6.2, z: -0.4, s: 1.05, kind: 'phuong' },
   { x: 2.2, z: -0.9, s: 1.0, kind: 'phuong' },
   { x: 1.9, z: -12.4, s: 1.1, kind: 'phuong' },
   { x: -5.6, z: -10.4, s: 1.2, kind: 'green' },
   { x: 14.6, z: -12.6, s: 1.25, kind: 'green' },
-  { x: 13.8, z: 1.4, s: 1.0, kind: 'green' },
+  { x: 13.8, z: 0.2, s: 1.0, kind: 'green' },
   { x: -8.2, z: -4.8, s: 1.05, kind: 'phuong' },
-  { x: 6.6, z: 0.9, s: 1.15, kind: 'green' },
+  { x: 6.6, z: 0.15, s: 1.15, kind: 'green' },
 ]

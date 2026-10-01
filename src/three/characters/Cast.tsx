@@ -7,6 +7,8 @@ import { G, mergeKit, roundedBox, type Part } from '../lib/kit'
 import { world, type CharId } from '../../state/world'
 import { Diploma } from '../fx/Diploma'
 import { outlineMat, toonRamp, uNight } from '../lib/materials'
+import { grade } from '../grade'
+import { glowTex } from '../lib/textures'
 import {
   anipTex,
   bubbleTex,
@@ -86,13 +88,13 @@ function Decal({ map, size, position, rotation }: { map: THREE.Texture; size: [n
 }
 
 /** Hides / shows children depending on the character's current action. */
-function WhenAction({ id, actions, children }: { id: CharId; actions: string[]; children: ReactNode }) {
+function WhenAction({ id, actions, invert = false, children }: { id: CharId; actions: string[]; invert?: boolean; children: ReactNode }) {
   const g = useRef<THREE.Group>(null!)
   useFrame(() => {
-    g.current.visible = actions.includes(world.chars[id].action)
+    g.current.visible = actions.includes(world.chars[id].action) !== invert
   })
   return (
-    <group ref={g} visible={false}>
+    <group ref={g} visible={invert}>
       {children}
     </group>
   )
@@ -230,10 +232,10 @@ function lucLook(handL: ReactNode, handR: ReactNode): ChibiLook {
       // backpack straps over the shoulders, down the chest, round under the arms
       for (const s of [-1, 1]) {
         p.push({
-          g: taperTube([V(s * 0.08, 0.28, -0.24), V(s * 0.11, 0.37, -0.08), V(s * 0.12, 0.34, 0.11), V(s * 0.125, 0.22, 0.19), V(s * 0.15, 0.08, 0.2), V(s * 0.2, -0.01, 0.09), V(s * 0.15, 0.0, -0.2)], 0.024, 0.024, 26, 6, 0.32),
+          g: taperTube([V(s * 0.075, 0.25, -0.2), V(s * 0.105, 0.365, -0.07), V(s * 0.115, 0.34, 0.11), V(s * 0.12, 0.22, 0.19), V(s * 0.145, 0.09, 0.2), V(s * 0.195, 0.02, 0.09), V(s * 0.11, 0.03, -0.2)], 0.019, 0.019, 26, 6, 0.32),
           c: '#15161a',
         })
-        p.push({ g: roundedBox(0.05, 0.028, 0.02, 0.006), c: '#9aa0a8', m: 'gloss', p: [s * 0.14, 0.13, 0.205], r: [-0.1, 0, 0] })
+        p.push({ g: roundedBox(0.042, 0.024, 0.018, 0.005), c: '#9aa0a8', m: 'gloss', p: [s * 0.135, 0.13, 0.205], r: [-0.1, 0, 0] })
       }
     },
     torsoExtra: <LucBackpack />,
@@ -241,8 +243,18 @@ function lucLook(handL: ReactNode, handR: ReactNode): ChibiLook {
     sleeveTex: lucTeeSleeve,
     arm: { sleeve: '#26324f', short: true },
     leg: { pant: '#c8cacf', cuff: '#d7d9dd', wide: true, shoe: '#1f2025', sole: '#35373d', stripe: '#5b5e66' },
-    idle: 'pockets',
-    handL,
+    // the lamp in his left hand; the right in his pocket
+    idle: 'lamp',
+    handL: (
+      <>
+        <WhenAction id="luc" actions={TWO_HANDED} invert>
+          <Upright id="luc">
+            <Lamp />
+          </Upright>
+        </WhenAction>
+        {handL}
+      </>
+    ),
     handR: (
       <>
         <VSign id="luc" />
@@ -252,24 +264,30 @@ function lucLook(handL: ReactNode, handR: ReactNode): ChibiLook {
   }
 }
 
+/**
+ * A small daypack, worn high between the shoulder blades — it no longer hides
+ * his back. A slim bottle in the side pocket, the keychains on the zip, and a
+ * hook on the left where the lamp hangs whenever he needs both hands.
+ */
 function LucBackpack() {
   const build = useMemo(
     () => () => {
       const B = '#1c1d21'
       const p: Part[] = [
-        { g: roundedBox(0.34, 0.37, 0.16, 0.06), c: B, p: [0, 0.16, -0.27] },
+        { g: roundedBox(0.235, 0.25, 0.1, 0.045), c: B, p: [0, 0.15, -0.245] },
         // front pocket, zips, top grab handle
-        { g: roundedBox(0.27, 0.17, 0.05, 0.03), c: '#24252a', p: [0, 0.08, -0.365] },
-        { g: G.box, c: '#6f737b', p: [0, 0.165, -0.392], s: [0.23, 0.008, 0.006] },
-        { g: new THREE.TorusGeometry(0.16, 0.006, 4, 24, Math.PI), c: '#6f737b', p: [0, 0.18, -0.355], r: [Math.PI / 2 - 0.35, 0, 0], s: [1, 1.05, 1] },
-        { g: new THREE.TorusGeometry(0.045, 0.012, 5, 14, Math.PI), c: '#15161a', p: [0, 0.35, -0.27] },
-        // side mesh pocket (her… his right side) holding a water bottle
-        { g: new THREE.CylinderGeometry(0.046, 0.046, 0.09, 12, 1, true), c: '#2a2b30', p: [-0.19, 0.06, -0.27] },
-        { g: new THREE.CylinderGeometry(0.036, 0.036, 0.15, 14), c: '#a9d6f5', m: 'gloss', p: [-0.19, 0.12, -0.27] },
-        { g: new THREE.CylinderGeometry(0.03, 0.032, 0.045, 14), c: '#2a6fd0', m: 'gloss', p: [-0.19, 0.215, -0.27] },
-        { g: G.torus, c: '#2a6fd0', m: 'gloss', p: [-0.19, 0.25, -0.27], r: [0, Math.PI / 2, 0], s: 0.018 },
-        // zipper pulls on the main compartment, where the charms hang
-        { g: G.box, c: '#6f737b', p: [0.13, 0.3, -0.3], s: [0.012, 0.03, 0.006] },
+        { g: roundedBox(0.18, 0.11, 0.035, 0.02), c: '#24252a', p: [0, 0.095, -0.305] },
+        { g: G.box, c: '#6f737b', p: [0, 0.158, -0.324], s: [0.15, 0.006, 0.005] },
+        { g: new THREE.TorusGeometry(0.108, 0.005, 4, 22, Math.PI), c: '#6f737b', p: [0, 0.165, -0.296], r: [Math.PI / 2 - 0.35, 0, 0], s: [1, 1.05, 1] },
+        { g: new THREE.TorusGeometry(0.032, 0.009, 5, 14, Math.PI), c: '#15161a', p: [0, 0.275, -0.245] },
+        // side mesh pocket (his right) holding a slim water bottle
+        { g: new THREE.CylinderGeometry(0.033, 0.033, 0.065, 12, 1, true), c: '#2a2b30', p: [-0.132, 0.085, -0.245] },
+        { g: new THREE.CylinderGeometry(0.025, 0.025, 0.11, 14), c: '#a9d6f5', m: 'gloss', p: [-0.132, 0.125, -0.245] },
+        { g: new THREE.CylinderGeometry(0.021, 0.023, 0.032, 14), c: '#2a6fd0', m: 'gloss', p: [-0.132, 0.196, -0.245] },
+        // zipper pull on the main compartment, where the charms hang
+        { g: G.box, c: '#6f737b', p: [0.09, 0.245, -0.268], s: [0.01, 0.024, 0.005] },
+        // the lamp hook on his left
+        { g: new THREE.TorusGeometry(0.016, 0.004, 4, 10), c: '#9aa0a8', m: 'gloss', p: [0.125, 0.2, -0.245], r: [0, Math.PI / 2, 0] },
       ]
       return p
     },
@@ -302,10 +320,74 @@ function LucBackpack() {
   return (
     <group>
       <Props build={build} />
-      <Decal map={label} size={[0.09, 0.045]} position={[0, 0.09, -0.392]} rotation={[0, Math.PI, 0]} />
-      <Charms id="luc" position={[0.15, 0.29, -0.3]}>
-        <Props build={charms} />
-      </Charms>
+      <Decal map={label} size={[0.066, 0.033]} position={[0, 0.095, -0.324]} rotation={[0, Math.PI, 0]} />
+      <group position={[0.09, 0.238, -0.268]} scale={0.72}>
+        <Charms id="luc" position={[0, 0, 0]}>
+          <Props build={charms} />
+        </Charms>
+      </group>
+      {/* the lamp hangs here while both his hands are busy */}
+      <group position={[0.15, 0.185, -0.245]}>
+        <WhenAction id="luc" actions={TWO_HANDED}>
+          <Lamp />
+        </WhenAction>
+      </group>
+    </group>
+  )
+}
+
+/** what he cannot do with a lamp in his hand: it goes on the backpack hook meanwhile */
+const TWO_HANDED = ['omQuyen', 'greet', 'bowDeep', 'present', 'clap']
+
+/**
+ * "Đèn sách" — the lamp of the years of study, a little storm lantern (đèn
+ * bão): brass font and cap, a glass globe with a live flame, a wire bail.
+ * Its origin is the hand that holds it; it hangs below.
+ */
+function Lamp() {
+  const build = useMemo(
+    () => () => {
+      const BR = '#c9953f'
+      const p: Part[] = [
+        // wire bail up to the hand, and the two side wires
+        { g: new THREE.TorusGeometry(0.036, 0.0035, 4, 14, Math.PI), c: '#8a8f98', m: 'gloss', p: [0, -0.02, 0] },
+        { g: G.cylXs, c: '#8a8f98', m: 'gloss', p: [0.036, -0.062, 0], s: [0.003, 0.085, 0.003] },
+        { g: G.cylXs, c: '#8a8f98', m: 'gloss', p: [-0.036, -0.062, 0], s: [0.003, 0.085, 0.003] },
+        // cap with its little chimney
+        { g: new THREE.ConeGeometry(0.03, 0.022, 12), c: BR, m: 'gold', p: [0, -0.047, 0] },
+        { g: G.cyl, c: BR, m: 'gold', p: [0, -0.033, 0], s: [0.009, 0.014, 0.009] },
+        { g: G.cyl, c: BR, m: 'gold', p: [0, -0.061, 0], s: [0.027, 0.008, 0.027] },
+        // font (the oil reservoir) and foot
+        { g: G.cyl, c: BR, m: 'gold', p: [0, -0.113, 0], s: [0.027, 0.008, 0.027] },
+        { g: new THREE.CylinderGeometry(0.03, 0.036, 0.03, 14), c: BR, m: 'gold', p: [0, -0.131, 0] },
+        { g: G.cyl, c: '#8a6a2a', m: 'gold', p: [0, -0.149, 0], s: [0.039, 0.007, 0.039] },
+      ]
+      return p
+    },
+    [],
+  )
+  const glow = useMemo(() => {
+    // the globe is unlit and brighter than white, so the bloom catches it; the halo is a soft sprite
+    const globe = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 1.5, 0.62), transparent: true, opacity: 0.92, toneMapped: false })
+    const halo = new THREE.SpriteMaterial({ map: glowTex(), color: '#ffb45a', transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.5 })
+    return { globe, halo }
+  }, [])
+  const haloRef = useRef<THREE.Sprite>(null!)
+  useFrame(() => {
+    const t = world.time
+    const flick = 1 + 0.06 * Math.sin(t * 11.3) + 0.04 * Math.sin(t * 23.7 + 1.3)
+    const k = 0.3 + 0.7 * grade.lamp
+    glow.globe.color.setRGB(2.0 * flick * k, 1.25 * flick * k, 0.52 * k)
+    glow.halo.opacity = (0.14 + 0.36 * grade.lamp) * flick
+    haloRef.current.scale.setScalar(0.26 + 0.26 * grade.lamp)
+  })
+  return (
+    <group>
+      <Props build={build} />
+      <mesh position={[0, -0.087, 0]} material={glow.globe}>
+        <sphereGeometry args={[0.027, 12, 10]} />
+      </mesh>
+      <sprite ref={haloRef} position={[0, -0.087, 0]} material={glow.halo} />
     </group>
   )
 }
@@ -814,8 +896,9 @@ const fatherLook: ChibiLook = {
   sleeveTex: fatherSleeve,
   arm: { sleeve: '#7b5a3c', short: true },
   leg: { pant: '#3e2b22', cuff: '#4a3528', shoe: '#f4d0ae', shorts: true, bare: true },
-  idle: 'akimbo',
-  handR: <Sickle />,
+  // the sickle in his left hand: the right is free to wave, to usher — and to rest on his son's head
+  idle: 'akimboR',
+  handL: <Sickle />,
   scale: 1.06,
 }
 

@@ -3,9 +3,9 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import { Environment, Lightformer } from '@react-three/drei'
 import { useUI } from '../state/store'
-import { world } from '../state/world'
-import { uNight, uTime } from './lib/materials'
-import { SUN_DIR } from './world/Sky'
+import { world, type LightSlot } from '../state/world'
+import { uTime } from './lib/materials'
+import { grade, sunDir } from './grade'
 import { BOARD } from './layout'
 
 /** Advances the shared clock (world.time + shader time). Runs first. */
@@ -13,8 +13,6 @@ export function Ticker() {
   useFrame((_, dt) => {
     world.time += Math.min(dt, 0.1)
     uTime.value = world.time
-    // dusk falls (or lifts) over a second or two when the guest switches theme
-    uNight.value = THREE.MathUtils.damp(uNight.value, useUI.getState().theme === 'dark' ? 1 : 0, 2.6, Math.min(dt, 0.1))
   }, -2)
   return null
 }
@@ -139,13 +137,6 @@ export function CameraRig() {
   return null
 }
 
-const SUN_C = new THREE.Color('#ffc28a')
-const MOON_C = new THREE.Color('#a9bdff')
-const SKY_C = new THREE.Color('#b9c5f2')
-const SKY_N = new THREE.Color('#5263b8')
-const GROUND_C = new THREE.Color('#d9a27e')
-const GROUND_N = new THREE.Color('#2f2c52')
-
 /** Sunset key light, sky/bounce fill, and three pooled lantern point lights. */
 export function Lighting() {
   const quality = useUI((s) => s.quality)
@@ -170,6 +161,7 @@ export function Lighting() {
   }, [quality])
 
   const focus = useMemo(() => new THREE.Vector3(0, 0, 4), [])
+  const lamp = useMemo<LightSlot>(() => ({ pos: new THREE.Vector3(), color: new THREE.Color('#ffb060'), intensity: 0, distance: 5 }), [])
   useFrame((_, dt) => {
     // in the map view the shadow map is stretched over the whole board
     const map = world.overview.on
@@ -192,20 +184,27 @@ export function Lighting() {
     // snap to shadow texels to avoid shimmering while the camera travels
     const texel = (2 * sz) / sun.current.shadow.mapSize.x
     target.position.set(Math.round(focus.x / texel) * texel, 0, Math.round(focus.z / texel) * texel)
-    sun.current.position.copy(target.position).addScaledVector(SUN_DIR, 60)
+    sun.current.position.copy(target.position).addScaledVector(sunDir, 60)
     target.updateMatrixWorld()
-    // low tier: a single point light borrows whichever slot is brightest
-    const slots = quality === 'high' ? world.lights : [world.lights.reduce((a, b) => (b.intensity > a.intensity ? b : a))]
-    // the dark theme: the sun becomes a cool moon, the sky light sinks to deep blue; the lantern pools
-    // are turned down a little, because against the dark they bloom much more readily
-    const n = uNight.value
-    sun.current.color.lerpColors(SUN_C, MOON_C, n)
-    sun.current.intensity = THREE.MathUtils.lerp(3.4, 1.35, n)
-    hemi.current.color.lerpColors(SKY_C, SKY_N, n)
-    hemi.current.groundColor.lerpColors(GROUND_C, GROUND_N, n)
-    hemi.current.intensity = THREE.MathUtils.lerp(0.85, 0.7, n)
-    fill.current.intensity = THREE.MathUtils.lerp(0.38, 0.3, n)
-    scene.environmentIntensity = THREE.MathUtils.lerp(0.45, 0.14, n)
+    // The lamp in Lực's hand is one more candidate for the pooled point lights: it sits at his
+    // chest, a little ahead of him, and matters only when the light is poor. The brightest
+    // candidates get the real lights (three on the high tier, one on the low).
+    const luc = world.chars.luc
+    lamp.pos.set(luc.pos.x + Math.sin(luc.rotY) * 0.5 + Math.cos(luc.rotY) * 0.3, luc.pos.y + 0.5, luc.pos.z + Math.cos(luc.rotY) * 0.5 - Math.sin(luc.rotY) * 0.3)
+    lamp.intensity = 0.85 * grade.lamp * grade.lamp * (1 + 0.07 * Math.sin(world.time * 11.3) + 0.05 * Math.sin(world.time * 23.7 + 1.3))
+    const count = quality === 'high' ? 3 : 1
+    const slots = [...world.lights, lamp].sort((a, b) => b.intensity - a.intensity).slice(0, count)
+    // the time of day (grade.ts): by night the sun becomes a cool moon and the sky light sinks to
+    // deep blue; the lantern pools are turned down a little, because against the dark they bloom
+    // much more readily
+    const n = grade.night
+    sun.current.color.copy(grade.sun)
+    sun.current.intensity = grade.sunI
+    hemi.current.color.copy(grade.hemiSky)
+    hemi.current.groundColor.copy(grade.hemiGround)
+    hemi.current.intensity = grade.hemiI
+    fill.current.intensity = grade.fillI
+    scene.environmentIntensity = grade.envI
     slots.forEach((l, i) => {
       const p = pts.current[i]
       if (!p) return
@@ -235,7 +234,7 @@ export function Lighting() {
       ))}
       <Environment resolution={64} frames={1} environmentIntensity={0.45}>
         <color attach="background" args={['#c9a9b8']} />
-        <Lightformer form="rect" intensity={2.5} color="#ffd2a0" position={SUN_DIR.clone().multiplyScalar(8).toArray()} scale={[10, 4, 1]} target={[0, 0, 0]} />
+        <Lightformer form="rect" intensity={2.5} color="#ffd2a0" position={[-5.2, 2.4, -6.1]} scale={[10, 4, 1]} target={[0, 0, 0]} />
         <Lightformer form="rect" intensity={1.2} color="#9fb4ff" position={[0, 9, 0]} rotation-x={Math.PI / 2} scale={[16, 16, 1]} />
         <Lightformer form="rect" intensity={0.8} color="#ffb48a" position={[0, -6, 0]} rotation-x={-Math.PI / 2} scale={[16, 16, 1]} />
       </Environment>

@@ -119,13 +119,14 @@ export const TORSO_PROFILE: [number, number][] = [
  * A signature way of standing:
  *  rest    arms loose at the sides, elbows a little bent
  *  pockets hands tucked into the trouser pockets
- *  akimbo  one hand on the hip, the other holding something
+ *  akimbo  one hand on the hip, the other holding something (akimboR: mirrored)
+ *  lamp    a lamp carried in the left hand, the right in a pocket
  *  carry   both hands holding a basket in front
  *  bouquet one arm cradling flowers against the shoulder, the other behind the back
  *  clasp   hands clasped in front
  *  court   hands held together at the waist inside wide sleeves
  */
-export type IdlePose = 'rest' | 'pockets' | 'akimbo' | 'carry' | 'bouquet' | 'clasp' | 'court'
+export type IdlePose = 'rest' | 'pockets' | 'akimbo' | 'akimboR' | 'lamp' | 'carry' | 'bouquet' | 'clasp' | 'court'
 
 export interface RibbonSpec {
   anchor: 'neck' | 'head' | 'hips'
@@ -328,6 +329,9 @@ const JOINTS = [
   'eLz',
   'eRx',
   'eRz',
+  // a little cartoon stretch of the whole arm (0 = none), so a hand can reach someone else
+  'sL',
+  'sR',
   'lLx',
   'lRx',
   'lLz',
@@ -352,6 +356,8 @@ const ARMS: Record<IdlePose, { l: ArmPose; r: ArmPose }> = {
   rest: { l: [0.04, 0.17, 0.32, -0.12], r: [0.04, 0.17, 0.32, -0.12] },
   pockets: { l: [0.3, 0.3, 0.55, -0.4], r: [0.3, 0.3, 0.55, -0.4] },
   akimbo: { l: [0.25, 0.72, 0.35, -1.75], r: [0.06, 0.2, 0.3, -0.1] },
+  akimboR: { l: [0.06, 0.2, 0.3, -0.1], r: [0.25, 0.72, 0.35, -1.75] },
+  lamp: { l: [-0.42, 0.2, 0.8, -0.05], r: [0.3, 0.3, 0.55, -0.4] },
   carry: { l: [-0.3, 0.06, 1.2, -0.42], r: [-0.3, 0.06, 1.2, -0.42] },
   bouquet: { l: [-0.4, 0.08, 1.75, -0.45], r: [0.42, 0.12, 0.25, -0.5] },
   clasp: { l: [-0.22, 0.05, 0.78, -0.6], r: [-0.22, 0.05, 0.78, -0.6] },
@@ -359,6 +365,8 @@ const ARMS: Record<IdlePose, { l: ArmPose; r: ArmPose }> = {
 }
 /** poses that hold something in front: the arms keep their place while walking */
 const CARRYING = new Set<IdlePose>(['carry', 'bouquet', 'court'])
+/** … and those whose LEFT hand alone is taken (it sits out the one-armed flourishes) */
+const LEFT_FULL = new Set<IdlePose>(['carry', 'bouquet', 'court', 'lamp'])
 /** put both arms in a standing pose (k = how far toward it, for blending) */
 function restArms(tg: Pose, idle: IdlePose, breathe: number) {
   const { l, r } = ARMS[idle]
@@ -392,6 +400,12 @@ export const ACTION_DUR: Record<string, number> = {
   hi5: 1.2,
   offer: 3.2,
   think: 2.6,
+  bowDeep: 3.8,
+  pat: 2.9,
+  patBack: 1.7,
+  nudge: 0.7,
+  tear: 2.6,
+  lookAbout: 6.6,
 }
 
 /**
@@ -515,14 +529,22 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       tg.lLx = -1.38 + 0.3 * Math.sin(t * 3.0 + a.seed)
       tg.lRx = -1.38 + 0.3 * Math.sin(t * 3.0 + a.seed + 2.3)
       // hands resting on the seat either side
-      tg.aLx = 0.3
-      tg.aLz = 0.36
       tg.aRx = 0.3
       tg.aRz = -0.36
-      tg.eLx = 0.2
       tg.eRx = 0.2
-      tg.eLz = 0.1
       tg.eRz = -0.1
+      if (idle === 'lamp') {
+        // … except the hand that holds the lamp, out over his knee
+        tg.aLx = -0.55
+        tg.aLz = 0.3
+        tg.eLx = 0.55
+        tg.eLz = 0
+      } else {
+        tg.aLx = 0.3
+        tg.aLz = 0.36
+        tg.eLx = 0.2
+        tg.eLz = 0.1
+      }
       tg.tX = -0.06
     } else if (!walking) {
       // contrapposto: the weight settles on one leg, then, after a while, the other
@@ -542,14 +564,19 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         tg.aRx += 0.07 * s
       } else {
         // arms swing from the shoulder with soft elbows that close on the forward swing
-        tg.aLx = -0.5 * s
         tg.aRx = 0.5 * s
-        tg.aLz = 0.14
         tg.aRz = -0.14
-        tg.eLx = 0.55 + 0.3 * Math.max(0, s)
         tg.eRx = 0.55 + 0.3 * Math.max(0, -s)
-        tg.eLz = -0.1
         tg.eRz = 0.1
+        if (idle === 'lamp') {
+          // the lamp is carried steady, a little out in front to light the way
+          tg.aLx += -0.12 - 0.05 * s
+        } else {
+          tg.aLx = -0.5 * s
+          tg.aLz = 0.14
+          tg.eLx = 0.55 + 0.3 * Math.max(0, s)
+          tg.eLz = -0.1
+        }
       }
       tg.bob = 0.045 * Math.abs(s)
       tg.tZ = 0.05 * s
@@ -562,6 +589,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
     let mood = c.mood
     let eyesWide = false
     let wink = false
+    let tearful = false
     /** blend the right / left arm toward [shoulder x, shoulder z, elbow flex, elbow z] */
     const armR = (e: number, sx: number, sz: number, ex: number, ez: number) => {
       tg.aRx = lerp(tg.aRx, sx, e)
@@ -632,7 +660,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         // V-sign held up beside the cheek, head tilted, a wink; the other hand on the hip
         const e = env(tau, ACTION_DUR.peace, 0.18, 0.4)
         armR(e, -1.05, -0.5, 1.75, 0.35)
-        if (!CARRYING.has(idle)) armL(e, 0.25, 0.72, 0.35, -1.75)
+        if (!LEFT_FULL.has(idle)) armL(e, 0.25, 0.72, 0.35, -1.75)
         tg.hZ += 0.2 * e
         tg.tZ += -0.07 * e
         tg.tX += -0.05 * e
@@ -678,7 +706,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         // a hand to the chin, the other arm folded under its elbow
         const e = env(tau, ACTION_DUR.think, 0.35, 0.45)
         armR(e, -0.7, 0.1, 2.25, 0.35)
-        if (!CARRYING.has(idle)) armL(e, -0.45, 0.1, 1.45, -1.05)
+        if (!LEFT_FULL.has(idle)) armL(e, -0.45, 0.1, 1.45, -1.05)
         tg.hZ += 0.14 * e
         tg.hX += -0.08 * e
         break
@@ -756,7 +784,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         const e = env(tau, ACTION_DUR.cheer, 0.15, 0.3)
         tg.bob += 0.2 * hop * e
         tg.squash += (hop > 0.05 ? 0.08 * hop : -0.07) * e
-        if (CARRYING.has(idle)) {
+        if (LEFT_FULL.has(idle)) {
           // one free hand punches the air
           armR(e, 0, -2.4 - 0.2 * Math.sin(tau * 13 + 1), 0.1, -0.3)
         } else {
@@ -772,7 +800,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         const e = env(tau, ACTION_DUR.surprise, 0.08, 0.4)
         tg.bob += 0.1 * Math.max(0, Math.sin((tau / 0.45) * Math.PI)) * (tau < 0.45 ? 1 : 0)
         if (c.pose !== 'sit' && !CARRYING.has(idle)) {
-          armL(e, -0.3, 0.7, 1.3, 0.3)
+          if (!LEFT_FULL.has(idle)) armL(e, -0.3, 0.7, 1.3, 0.3)
           armR(e, -0.3, -0.7, 1.3, -0.3)
         } else {
           tg.aLz = lerp(tg.aLz, 0.95, e)
@@ -797,6 +825,66 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         tg.bob += 0.16 * Math.sin(Math.PI * k)
         tg.squash += k < 0.15 ? -0.1 : 0.07 * Math.sin(Math.PI * k)
         mood = 'happy'
+        break
+      }
+      case 'bowDeep': {
+        // khoanh tay, cúi thật sâu: arms folded, a bow from the waist that brings his head down
+        // to where his father's hand can rest on it — held, then he straightens
+        const fold = sstep(0, 0.35, tau) * (1 - sstep(3.3, 3.75, tau))
+        const bow = sstep(0.45, 1.0, tau) * (1 - sstep(2.9, 3.5, tau))
+        armL(fold, -0.62, 0.1, 1.55, -1.2)
+        armR(fold, -0.5, -0.1, 1.5, 1.25)
+        tg.tX += 1.0 * bow
+        tg.hX += 0.08 * bow
+        mood = tau > 3.3 ? 'happy' : 'calm'
+        break
+      }
+      case 'pat': {
+        // xoa đầu: the right arm out and up, the hand resting on a bowed head and stroking it
+        const e = env(tau, ACTION_DUR.pat, 0.45, 0.5)
+        armR(e, 0, -2.4 + 0.07 * Math.sin(tau * 7.5), 0.06, 0)
+        tg.sR = 0.22 * e
+        tg.tZ += 0.06 * e
+        tg.hZ += 0.1 * e
+        mood = 'happy'
+        break
+      }
+      case 'patBack': {
+        // vỗ lưng: the right hand out in front, two firm pats — "go on"
+        const e = env(tau, ACTION_DUR.patBack, 0.3, 0.35)
+        const hit = Math.max(0, Math.sin((tau - 0.3) * 9.5)) * (tau > 0.3 && tau < 1.3 ? 1 : 0)
+        armR(e, -1.27 + 0.2 * (1 - hit), -0.5, 0.08, 0)
+        tg.sR = 0.2 * e
+        tg.tX += 0.05 * e
+        mood = 'happy'
+        break
+      }
+      case 'nudge': {
+        // a pat on the back lands: a small rock forward and a grin
+        const k = Math.min(tau / ACTION_DUR.nudge, 1)
+        tg.tX += 0.16 * Math.sin(Math.PI * k) * (1 - k)
+        tg.bob += 0.03 * Math.sin(Math.PI * k)
+        mood = 'happy'
+        break
+      }
+      case 'tear': {
+        // happy tears: the free hand comes up to her cheek
+        const e = env(tau, ACTION_DUR.tear, 0.35, 0.45)
+        armR(e, -0.8, -0.2, 2.3 + 0.07 * Math.sin(tau * 6), 0.3)
+        tg.hX += 0.1 * e
+        tg.hZ += -0.08 * e
+        tearful = e > 0.25
+        mood = 'happy'
+        break
+      }
+      case 'lookAbout': {
+        // lost: he turns his head one way, then the other, shoulders drawn in
+        const e = env(tau, ACTION_DUR.lookAbout, 0.4, 0.5)
+        const sweep = Math.sin(tau * 1.9)
+        tg.hY += 0.95 * sweep * e
+        tg.tY += 0.28 * sweep * e
+        tg.tX += 0.05 * e
+        tg.hX += 0.05 * e
         break
       }
       case 'smile': {
@@ -864,6 +952,8 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
     headG.current.rotation.set(p.hX, p.hY, p.hZ)
     shL.current.rotation.set(p.aLx, 0, p.aLz)
     shR.current.rotation.set(p.aRx, 0, p.aRz)
+    shL.current.scale.y = 1 + p.sL
+    shR.current.scale.y = 1 + p.sR
     elL.current.rotation.set(-p.eLx, 0, p.eLz)
     elR.current.rotation.set(-p.eRx, 0, p.eRz)
     // the feet stay planted while the hips shift and roll above them
@@ -878,7 +968,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       if (Math.random() < 0.2) a.nextBlink = t + 0.28
     }
     const blinking = t - a.blinkT < 0.12
-    const closedHappy = mood === 'happy' && ['cheer', 'smile', 'bow', 'dance', 'hop', 'laugh', 'hi5', 'clap'].includes(c.action)
+    const closedHappy = mood === 'happy' && ['cheer', 'smile', 'bow', 'dance', 'hop', 'laugh', 'hi5', 'clap', 'tear', 'pat'].includes(c.action)
     let eyes: EyeState = eyesWide ? 'surprised' : wink ? 'wink' : closedHappy ? 'happy' : 'open'
     if (blinking && eyes === 'open') eyes = 'blink'
     const grin = look.face.grin
@@ -888,7 +978,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
     const mouth: MouthState = mood === 'surprised' ? 'o' : wink ? 'cat' : talking ? 'talk' : mood === 'happy' ? (grin ? 'grin' : 'open') : c.action === 'think' || c.action === 'type' ? 'flat' : rest
     // the painted irises drift toward idle glances (the head leads, the eyes follow)
     const gaze = !lookTarget && !walking && Math.abs(a.glanceY) > 0.32 ? Math.sign(a.glanceY) : 0
-    face.painter.draw(eyes, mouth, gaze)
+    face.painter.draw(eyes, mouth, gaze, tearful)
     // the painted face is unlit: by night it takes the tone of the moonlit skin around it
     face.mat.color.lerpColors(FACE_DAY, FACE_NIGHT, uNight.value)
   })

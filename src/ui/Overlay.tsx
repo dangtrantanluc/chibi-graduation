@@ -83,7 +83,6 @@ export function Overlay({ webgl }: { webgl: boolean }) {
 
       {phase === 'loading' && <Loader />}
       {phase === 'ready' && <SoundToggle />}
-      {phase === 'ready' && <ThemeToggle />}
       {phase === 'ready' && (overview || !busy) && <MapToggle on={overview} />}
       {overview && (
         <p className="map-hint" aria-hidden="true">
@@ -109,27 +108,6 @@ function MapToggle({ on }: { on: boolean }) {
     <button className="sound map" data-interactive aria-label={on ? 'Quay lại câu chuyện' : 'Xem toàn bộ bản đồ'} aria-pressed={on} onClick={() => setOverview(!on)}>
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" strokeLinecap="round">
         {on ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M3.5 6.5l5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2zM9 4.5v13M15 6.5v13" />}
-      </svg>
-    </button>
-  )
-}
-
-/** Sunset ⇄ night: the same journey under a moon and lanterns. */
-function ThemeToggle() {
-  const theme = useUI((s) => s.theme)
-  const setTheme = useUI((s) => s.setTheme)
-  const dark = theme === 'dark'
-  return (
-    <button className="sound theme" data-interactive aria-label={dark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'} aria-pressed={dark} onClick={() => setTheme(dark ? 'light' : 'dark')}>
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-        {dark ? (
-          <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none" />
-            <path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7" />
-          </g>
-        ) : (
-          <path d="M20.2 14.6A8.6 8.6 0 0 1 9.4 3.8a.7.7 0 0 0-.9-.86A9.6 9.6 0 1 0 21.06 15.5a.7.7 0 0 0-.86-.9z" fill="currentColor" />
-        )}
       </svg>
     </button>
   )

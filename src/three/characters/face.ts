@@ -117,8 +117,8 @@ export class FacePainter {
   }
 
   /** gaze: −1 (glance to the character's right) · 0 · 1 (their left) */
-  draw(eyes: EyeState, mouth: MouthState, gaze = 0) {
-    const key = `${eyes}|${mouth}|${gaze}`
+  draw(eyes: EyeState, mouth: MouthState, gaze = 0, tear = false) {
+    const key = `${eyes}|${mouth}|${gaze}|${tear}`
     if (key === this.key) return
     this.key = key
     this.gaze = gaze
@@ -202,6 +202,23 @@ export class FacePainter {
       this.eye(cx(side * ex), cy(ey), ew, eh, side, st)
     }
 
+    if (tear) {
+      // happy tears: a bright bead at the outer corner of each eye
+      for (const side of [-1, 1]) {
+        const tx = cx(side * (ex + 0.062))
+        const ty = cy(ey - 0.03)
+        g.fillStyle = 'rgba(150,205,255,0.95)'
+        g.beginPath()
+        g.moveTo(tx, ty - 9)
+        g.quadraticCurveTo(tx + 8, ty + 4, tx, ty + 9)
+        g.quadraticCurveTo(tx - 8, ty + 4, tx, ty - 9)
+        g.fill()
+        g.fillStyle = 'rgba(255,255,255,0.9)'
+        g.beginPath()
+        g.arc(tx - 2, ty + 2, 2.2, 0, Math.PI * 2)
+        g.fill()
+      }
+    }
     if (s.mole) {
       g.fillStyle = '#3a2430'
       g.beginPath()

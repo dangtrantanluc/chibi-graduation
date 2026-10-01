@@ -38,6 +38,18 @@ export type Action =
   /** offering something (a bouquet) toward the guest */
   | 'offer'
   | 'think'
+  /** arms folded, a bow from the waist — deep enough for a father's hand to reach his head */
+  | 'bowDeep'
+  /** xoa đầu: a hand resting on a bowed head */
+  | 'pat'
+  /** vỗ lưng: two pats on the back, "go on" */
+  | 'patBack'
+  /** … and the little rock forward of whoever is patted */
+  | 'nudge'
+  /** happy tears, a hand to the cheek */
+  | 'tear'
+  /** lost: looking one way, then the other */
+  | 'lookAbout'
 
 export type Mood = 'calm' | 'happy' | 'surprised'
 

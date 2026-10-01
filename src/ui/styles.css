@@ -170,12 +170,9 @@ body.is-dragging .stage {
 .sound:hover {
   background: rgba(30, 20, 36, 0.55);
 }
-/* the theme toggle sits beside the music toggle, the map toggle beside that */
-.sound.theme {
-  right: calc(var(--gutter) + 48px);
-}
+/* the map toggle sits beside the music toggle */
 .sound.map {
-  right: calc(var(--gutter) + 96px);
+  right: calc(var(--gutter) + 48px);
 }
 .sound[aria-pressed='true'].map {
   background: rgba(216, 72, 42, 0.85);

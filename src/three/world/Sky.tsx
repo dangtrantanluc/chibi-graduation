@@ -4,13 +4,11 @@ import { useMemo, useRef } from 'react'
 import { blob, rng } from '../lib/kit'
 import { patchMaterial, uNight, uTime } from '../lib/materials'
 import { Ranges } from './Ranges'
+import { grade, sunDir } from '../grade'
 
-export const SUN_DIR = new THREE.Vector3(-0.62, 0.3, -0.72).normalize()
+/** where the sun (or moon) stands — it rises and sinks with the time of day */
+export const SUN_DIR = sunDir
 const CENTER = new THREE.Vector3(0, 0, -31)
-const CLOUD_DAY = new THREE.Color('#fff4ec')
-const CLOUD_NIGHT = new THREE.Color('#566394')
-const CLOUD_GLOW_DAY = new THREE.Color('#f3b9a2')
-const CLOUD_GLOW_NIGHT = new THREE.Color('#2a3468')
 
 const skyVert = /* glsl */ `
   varying vec3 vDir;
@@ -27,11 +25,6 @@ const skyFrag = /* glsl */ `
   uniform vec3 uLow;
   uniform vec3 uSunDir;
   uniform vec3 uSun;
-  // the same dome by night (dark theme)
-  uniform vec3 uTopN;
-  uniform vec3 uMidN;
-  uniform vec3 uHorizonN;
-  uniform vec3 uLowN;
   uniform vec3 uMoon;
   uniform float uNight;
   uniform float uTime;
@@ -44,9 +37,10 @@ const skyFrag = /* glsl */ `
   void main() {
     vec3 dir = normalize(vDir);
     float h = dir.y;
-    vec3 c = mix(mix(uHorizon, uHorizonN, uNight), mix(uMid, uMidN, uNight), smoothstep(0.02, 0.28, h));
-    c = mix(c, mix(uTop, uTopN, uNight), smoothstep(0.25, 0.75, h));
-    c = mix(c, mix(uLow, uLowN, uNight), smoothstep(0.0, -0.25, h));
+    // the four bands come from the time of day (grade.ts)
+    vec3 c = mix(uHorizon, uMid, smoothstep(0.02, 0.28, h));
+    c = mix(c, uTop, smoothstep(0.25, 0.75, h));
+    c = mix(c, uLow, smoothstep(0.0, -0.25, h));
     float sd = max(dot(dir, uSunDir), 0.0);
     vec3 sun = uSun * (pow(sd, 18.0) * 0.55 + pow(sd, 4.0) * 0.22 + pow(sd, 400.0) * 1.2);
     // the sun's place is taken by a full moon: a crisp disc in a soft halo
@@ -70,16 +64,12 @@ function SkyDome() {
     () =>
       new THREE.ShaderMaterial({
         uniforms: {
-          uTop: { value: new THREE.Color('#41508f') },
-          uMid: { value: new THREE.Color('#b58db4') },
-          uHorizon: { value: new THREE.Color('#ffc7a0') },
-          uLow: { value: new THREE.Color('#e7a58f') },
-          uSunDir: { value: SUN_DIR },
-          uSun: { value: new THREE.Color('#ffd49a') },
-          uTopN: { value: new THREE.Color('#070b24') },
-          uMidN: { value: new THREE.Color('#141c4a') },
-          uHorizonN: { value: new THREE.Color('#33407e') },
-          uLowN: { value: new THREE.Color('#1a1f4a') },
+          uTop: { value: grade.top },
+          uMid: { value: grade.mid },
+          uHorizon: { value: grade.horizon },
+          uLow: { value: grade.low },
+          uSunDir: { value: sunDir },
+          uSun: { value: grade.glow },
           uMoon: { value: new THREE.Color('#dfe8ff') },
           uNight,
           uTime,
@@ -150,8 +140,8 @@ function Clouds() {
   useFrame((_, dt) => {
     group.current.rotation.y += dt * 0.004
     const m = mesh.material as THREE.MeshStandardMaterial
-    m.color.lerpColors(CLOUD_DAY, CLOUD_NIGHT, uNight.value)
-    m.emissive.lerpColors(CLOUD_GLOW_DAY, CLOUD_GLOW_NIGHT, uNight.value)
+    m.color.copy(grade.cloud)
+    m.emissive.copy(grade.cloudGlow)
   })
   return (
     <group position={CENTER.toArray()}>

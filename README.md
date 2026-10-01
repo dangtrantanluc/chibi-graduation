@@ -40,10 +40,12 @@ tracks in `public/audio/`.
 - A map button (top right, also the `M` key) pulls the lens back until the whole
   board is in frame; drag to turn it, tap anywhere (or `Esc`) to return to the
   story where it was.
-- Two more small buttons beside it: ♪ mutes/unmutes the music, and ☾ / ☀ switches
-  between the light theme (the sunset the story was painted in) and the dark
-  theme (the same journey by night: a moon and stars, lanterns and lit windows,
-  fireflies in the village). Both choices are remembered.
+- ♪ (beside it) mutes/unmutes the music; the choice is remembered.
+
+The light is part of the story and is not a setting: the journey opens before
+dawn with one lamp alight, the sun rises over Bình Định, the city is grey
+until a friend calls his name, Hà Nội is a gold afternoon, he reaches home at
+sunset, and Huế is all lanterns at night (`src/three/grade.ts`).
 
 ## Run
 
@@ -75,7 +77,6 @@ Dialogue lines live in `src/story/director.ts` (`CAPTIONS`).
 ticket for them (`?name=` / `?guest=` also work). Vietnamese diacritics render
 correctly everywhere, including the golden list.
 `?skip` jumps straight to the invitation (for returning guests);
-`?theme=dark` / `?theme=light` opens the link in that theme;
 `?q=low` / `?q=high` forces a quality tier.
 
 ## Music

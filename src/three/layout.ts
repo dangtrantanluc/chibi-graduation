@@ -53,6 +53,29 @@ export const TOPIARY = { x: TOP[0], z: TOP[1], r: 0.62 }
 const UNI = campusToWorld(-2.1, 5.7)
 export const UNI_BENCH = { x: UNI[0], z: UNI[1], ry: RANGDONG.ry + 0.45 }
 
+/**
+ * The city street between the citadel wall and the campus: the first thing
+ * Lực meets when he leaves home. It runs the width of the board (along x):
+ * two lanes of motorbikes either side of a painted centre line, a pavement on
+ * each side, and a zebra crossing where his lane meets it — with a refuge in
+ * the middle, where he stands lost while the city flows past.
+ */
+export const STREET = {
+  /** the carriageway, kerb to kerb */
+  z0: 1.2,
+  z1: 3.5,
+  /** centre line / the refuge he stands on */
+  mid: 2.35,
+  /** lane centres: A runs toward +x, B toward −x */
+  laneA: 1.66,
+  laneB: 3.04,
+  /** where people walk: the campus pavement and the one under the citadel wall */
+  walkA: 0.92,
+  walkB: 4.02,
+  /** half the width of the zebra crossing */
+  cross: 1.35,
+}
+
 // ── III · Thăng Long ────────────────────────────────────────
 /** Đoan Môn — south gate of the Forbidden City, Hoàng thành Thăng Long */
 export const DOANMON = { x: 0, z: -27.6, w: 11.2, d: 2.4, h: 2.55, archW: 1.5, archH: 2.05 }
@@ -132,6 +155,8 @@ export const MARKS = {
   lucSit: [BENCH.x, 0, BENCH.z] as const,
   /** where the IT friend sits with her laptop, on the pink campus bench */
   uniSit: [UNI[0], 0.265, UNI[1]] as const,
+  /** II-a: the refuge in the middle of the street, where he stands lost in the crowd */
+  lucStreet: [0, 0, STREET.mid] as const,
   /** Lực stands beside her bench, an arm's length away */
   lucCampus: [3.42, 0, -6.66] as const,
   hanoi: [-1.75, 0, -21.4] as const,
@@ -141,38 +166,42 @@ export const MARKS = {
    * IV: the family meets in the yard, in a row square to the lens with the
    * house behind them — Lực on the left, then his father and mother
    */
-  lucVillage: [2.21, 0, -39.85] as const,
+  // (Lực 1.32 from his father, on his father's right: where a bowed head meets an outstretched hand)
+  lucVillage: [2.146, 0, -39.926] as const,
   father: [3.0, 0, -38.92] as const,
   mother: [3.79, 0, -37.99] as const,
   /** then Lực stands in the lane and his parents step to either side of it, to see him off */
   lucLane: [0, 0, -40.4] as const,
-  fatherAside: [-1.5, 0, -41.1] as const,
-  motherAside: [1.5, 0, -41.1] as const,
+  fatherAside: [1.5, 0, -41.1] as const,
+  motherAside: [-1.5, 0, -41.1] as const,
+  /** … he steps on between them, and his mother comes in behind him for a pat on the back */
+  lucGo: [0, 0, -41.5] as const,
+  motherPat: [-0.45, 0, -40.86] as const,
   princess: [0, 0, -52.7] as const,
   // Ngọ Môn formation, inside the U of the gate (x relative to the axis, z absolute)
   // Lực and the princess at the centre, his parents either side, the friends at the ends
   hue: {
     uni: [-3.35, -52.95],
-    father: [-2.05, -53.25],
+    mother: [-2.05, -53.25],
     luc: [-0.7, -52.75],
     princess: [0.7, -52.7],
-    mother: [2.05, -53.25],
+    father: [2.05, -53.25],
     hanoi: [3.35, -52.95],
   } as Record<string, [number, number]>,
   // the same on a phone, closed up so the row fits the narrow frame
   hueTall: {
     uni: [-2.6, -53.0],
-    father: [-1.6, -53.45],
+    mother: [-1.6, -53.45],
     luc: [-0.55, -52.9],
     princess: [0.55, -52.9],
-    mother: [1.6, -53.45],
+    father: [1.6, -53.45],
     hanoi: [2.6, -53.0],
   } as Record<string, [number, number]>,
   // the farewell before Điện Thái Hòa: three on the terrace at the head of the stairs, three in the court below
   hall: {
-    father: [-1.3, HALL.terraceY, HALL.terraceFront - 0.5],
+    mother: [-1.3, HALL.terraceY, HALL.terraceFront - 0.5],
     princess: [0, HALL.terraceY, HALL.terraceFront - 0.5],
-    mother: [1.3, HALL.terraceY, HALL.terraceFront - 0.5],
+    father: [1.3, HALL.terraceY, HALL.terraceFront - 0.5],
     uni: [-1.35, 0, HALL.terraceFront + 2.4],
     luc: [0, 0, HALL.terraceFront + 2.4],
     hanoi: [1.35, 0, HALL.terraceFront + 2.4],

@@ -11,6 +11,7 @@ import { Sky } from './world/Sky'
 import { Board } from './world/Board'
 import { BinhDinh } from './world/BinhDinh'
 import { Campus } from './world/Campus'
+import { Street } from './world/Street'
 import { ThangLong } from './world/ThangLong'
 import { Village } from './world/Village'
 import { Hue } from './world/Hue'
@@ -105,6 +106,7 @@ export default function Experience() {
         <Board />
         <BinhDinh />
         <Campus />
+        <Street />
         <ThangLong />
         <Village />
         <Hue />

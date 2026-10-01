@@ -3,21 +3,16 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useMemo } from 'react'
 import { uNight, uTime } from '../lib/materials'
 import { world } from '../../state/world'
+import { grade } from '../grade'
 import { rng } from '../lib/kit'
 import { BANYAN, HALL, HOUSE, HUE_PONDS, POND, VILLAGE_END } from '../layout'
 
-const BG_DAY = new THREE.Color('#e7b9a4')
-const BG_NIGHT = new THREE.Color('#141a3c')
-const FOG_DAY = new THREE.Color('#e8b8a6')
-const FOG_NIGHT = new THREE.Color('#1b2350')
-
-/** The dark theme's backdrop: the far haze and background sink from sunset peach to night blue. */
+/** The backdrop follows the time of day: the far haze and background take the colour of the hour. */
 export function NightBackdrop() {
   const scene = useThree((s) => s.scene)
   useFrame(() => {
-    const n = uNight.value
-    if (scene.background instanceof THREE.Color) scene.background.lerpColors(BG_DAY, BG_NIGHT, n)
-    if (scene.fog) scene.fog.color.lerpColors(FOG_DAY, FOG_NIGHT, n)
+    if (scene.background instanceof THREE.Color) scene.background.copy(grade.fog)
+    if (scene.fog) scene.fog.color.copy(grade.fog)
   })
   return null
 }

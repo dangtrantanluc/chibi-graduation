@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
-import { BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, TOPIARY, VILLAGE_END, houseToWorld } from '../layout'
+import { BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, houseToWorld } from '../layout'
 import { blob, G, mergeKit, rng, type Part } from '../lib/kit'
 import { kitMat } from '../lib/materials'
 import { canvas, toTexture, waterNormalTex } from '../lib/textures'
@@ -145,6 +145,40 @@ function paintGround() {
     2.3,
     '#d2cec4',
   )
+  // the city street behind the citadel wall: pavements, asphalt, a centre line, a zebra crossing
+  {
+    const S = STREET
+    paving(BOARD.minX, 0.62, BOARD.maxX, S.z0, '#bcb8ae', 0.6, 0.58, 'rgba(110,105,95,0.4)', true)
+    paving(BOARD.minX, S.z1, BOARD.maxX, 4.52, '#bcb8ae', 0.6, 0.51, 'rgba(110,105,95,0.4)', true)
+    rect(BOARD.minX, S.z0, BOARD.maxX, S.z1, '#5c5f67')
+    for (let i = 0; i < 2600; i++) {
+      g.fillStyle = r() < 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)'
+      g.fillRect(px(BOARD.minX + r() * BW), py(S.z0 + r() * (S.z1 - S.z0)), 2 + r() * 3, 2)
+    }
+    // worn tyre tracks down each lane
+    for (const z of [S.laneA, S.laneB]) {
+      const grd = g.createLinearGradient(0, py(z + 0.42), 0, py(z - 0.42))
+      grd.addColorStop(0, 'rgba(40,42,48,0)')
+      grd.addColorStop(0.5, 'rgba(40,42,48,0.22)')
+      grd.addColorStop(1, 'rgba(40,42,48,0)')
+      g.fillStyle = grd
+      g.fillRect(0, py(z + 0.42), TW, 0.84 * SZ)
+    }
+    // kerbs
+    rect(BOARD.minX, S.z0 - 0.06, BOARD.maxX, S.z0 + 0.04, '#d8d4c8')
+    rect(BOARD.minX, S.z1 - 0.04, BOARD.maxX, S.z1 + 0.06, '#d8d4c8')
+    // dashed yellow centre line, broken at the crossing
+    for (let x = BOARD.minX + 0.3; x < BOARD.maxX; x += 1.1) {
+      if (Math.abs(x + 0.35) < S.cross + 0.5) continue
+      rect(x, S.mid - 0.035, x + 0.7, S.mid + 0.035, '#e6c64a')
+    }
+    // the zebra crossing, and the refuge in its middle
+    for (let x = -S.cross; x < S.cross - 0.05; x += 0.36) rect(x, S.z0 + 0.08, x + 0.2, S.z1 - 0.08, '#eeeae0')
+    rect(-S.cross - 0.05, S.mid - 0.2, S.cross + 0.05, S.mid + 0.2, '#8f939b')
+    g.strokeStyle = '#e6c64a'
+    g.lineWidth = 3
+    g.strokeRect(px(-S.cross - 0.05), py(S.mid + 0.2), (2 * S.cross + 0.1) * SX, 0.4 * SZ)
+  }
   // ── III · Thăng Long: great stone slabs in front of Đoan Môn, fallen gold leaves ──
   paving(-6.2, DOANMON.z + DOANMON.d / 2, 6.2, -17.6, '#cfc4ae', 0.9, 0.62, 'rgba(110,95,75,0.35)', true)
   pathStroke(

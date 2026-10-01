@@ -1,5 +1,5 @@
 import { rng } from '../lib/kit'
-import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, TOPIARY, VILLAGE_END, WELL } from '../layout'
+import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, WELL } from '../layout'
 import { CAMPUS_TREES } from './Campus'
 
 /** Deterministic placement of buildings, trees, rocks and flowers, region by region. */
@@ -92,6 +92,7 @@ const SIGHTS: [number, number, number, number][] = [
   [2.6, 11.5, 0.9, 6.4], // I · Lực on his bench
   [0.4, 26, 0.4, 5], // the opening wide shot
   [-2.6, -1.6, 3.2, -7.4], // II · the campus bench
+  [-5.4, -3.6, 0.2, STREET.mid], // II · lost in the street, seen from the campus side
   [1.6, -16.2, -1.8, -21.8], // III · by the bicycle
   [-1.1, -35.5, 3.8, -38.0], // IV · the family in the yard
   [-0.6, -35.9, 2.2, -39.9],
@@ -119,6 +120,8 @@ export function isFree(x: number, z: number, m = 0) {
   if (x > PADDY.x0 - 1.8 - m && x < PADDY.x1 + 0.8 + m && z > PADDY.z0 - 0.8 - m && z < PADDY.z1 + 1 + m) return false
   if (((x - POND.x) / (POND.rx + 0.9 + m)) ** 2 + ((z - POND.z) / (POND.rz + 0.9 + m)) ** 2 < 1) return false
   if (x > -3 - m && x < 3 - m && z > 5 && z < 9 + m) return false // benches
+  // the city street and its pavements, the width of the board
+  if (z > 0.55 - Math.max(m, 0) && z < 4.6 + Math.max(m, 0)) return false
   // Nông Lâm: the building and its plaza (between the lane and the façade)
   if (x > RANGDONG.xf - 1.4 - m && x < RANGDONG.xf + RANGDONG.d + 1.2 + m && Math.abs(z - RANGDONG.zc) < RANGDONG.w / 2 + 1.2 + m) return false
   if (x > -0.4 - m && x < RANGDONG.xf + m && Math.abs(z - RANGDONG.zc) < RANGDONG.w / 2 + 0.2 + m) return false
@@ -178,8 +181,8 @@ export const TREES: TreeDef[] = (() => {
 export const BUSHES: [number, number, number][] = (() => {
   const r = rng(23)
   const out: [number, number, number][] = [
-    [-3.8, 3.6, 0.6],
-    [3.8, 3.6, 0.6],
+    [-9.5, 0.2, 0.55],
+    [-14.2, 0.1, 0.6],
     [-5.6, -47.4, 0.7],
     [5.6, -47.4, 0.7],
   ]

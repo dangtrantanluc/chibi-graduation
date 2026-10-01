@@ -186,14 +186,30 @@ Giữ nguyên: **múa hoa đăng** trước Ngọ Môn khi bảng vàng mở ra.
 - **Miệng cử động khi nói**: ai đang nói câu thoại thì miệng mấp máy theo chữ đang hiện, đầu khẽ gật.
 - **Gương mặt**: thêm bóng tóc mái đổ xuống trán, một nét mũi nhỏ, và màu môi cho các nhân vật nữ.
 
-## 2c. Giao diện tối (ban đêm)
+## 2c. Một ngày bằng bốn năm — và ngọn đèn
 
-Nút ☾ / ☀ ở góc trên bên phải đổi giữa hai giao diện; lựa chọn được ghi nhớ, và có thể mở thẳng bằng `?theme=dark`.
+Ánh sáng không còn là tuỳ chọn của người xem (nút sáng/tối đã bỏ) mà là một phần câu chuyện. Cả hành trình trôi qua trong một ngày:
 
-- **Bầu trời**: xanh đêm, có sao lấp lánh và trăng tròn ở đúng vị trí mặt trời lúc hoàng hôn; núi và mây chìm thành bóng xanh thẫm.
-- **Ánh sáng**: nắng chiều đổi thành ánh trăng lạnh; đèn lồng, đèn ông sao và cửa sổ giấy sáng rực hơn; nhân vật được giữ sáng vừa đủ để vẫn rõ mặt.
-- **Đom đóm** bay quanh ao làng, sân nhà, vòm tre, ruộng lúa Bình Định và hồ sen ở Huế.
-- **Giao diện**: vé tàu, thiệp mời và thẻ cuối đổi sang giấy chàm, chữ vàng.
+| Chương | Thời khắc | Ý nghĩa |
+| --- | --- | --- |
+| Mở đầu | Trước bình minh: trời sao, trăng lặn, chỉ một ngọn đèn sáng | Chưa bắt đầu |
+| I · Bình Định | Bình minh | Lên đường |
+| II-a · Phố Sài Gòn | Trời xám | Năm nhất, năm hai: lạc giữa phố đông |
+| II-b · Nông Lâm | Nắng trưa bừng lên khi bạn gọi tên | Có bạn |
+| III · Hà Nội | Chiều thu vàng | Đi xa |
+| IV · Về nhà | Hoàng hôn | Trở về |
+| V · Huế và cảnh kết | Đêm đèn lồng | Báo tin ở kinh đô |
+
+**Ngọn đèn ("đèn sách").** Lực cầm một chiếc đèn bão nhỏ ở tay trái suốt hành trình. Đèn là nguồn sáng duy nhất ở màn mở đầu, gần như chìm đi trong nắng trưa, và sáng lại khi trời tối dần. Khi cần cả hai tay (ôm quyền, khoanh tay cúi chào, mở bằng), đèn được móc vào bên hông ba lô.
+
+**Lực**: ba lô thu nhỏ lại thành túi đeo lưng gọn, không còn che hết lưng.
+
+**Chương II-a — lạc giữa phố đông.** Sau đoàn tàu không phải sân trường mà là một con phố Sài Gòn chạy ngang bàn, ngay sau tường thành: cột điện dây chằng chịt, xe bánh mì, đèn giao thông, hai làn xe máy và người đi bộ hai bên. Đám đông không có mặt; chỉ Lực có gương mặt. Cậu dừng trên vạch giữa đường, nhỏ dần trong khung hình, nhìn bên này bên kia. Rồi bạn gọi tên, nắng lên, cậu băng qua đường tới sân trường. Xe và người luôn nhường đường cho Lực nên không ai đi xuyên qua cậu.
+
+**Chương IV — gần như không lời, có chạm.**
+- Lực khoanh tay cúi thật sâu; **bố đặt tay xoa đầu con**; mẹ đưa tay lên má, mắt rưng rưng.
+- Khi tiễn con đi tiếp, **mẹ bước tới sau lưng vỗ hai cái vào lưng con**, rồi Lực mới bước qua vòm tre.
+- Giới hạn của dáng chibi (đầu to, tay ngắn) được giải bằng cách để Lực cúi sâu cho đầu hạ xuống ngang tầm tay bố, và cho cánh tay duỗi dài thêm một chút khi chạm.
 
 ### Dấu thời gian trên các công trình cổ
 
