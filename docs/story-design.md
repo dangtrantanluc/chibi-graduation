@@ -15,14 +15,12 @@ xem; sau đó tân khoa mới vinh quy bái tổ. Thiệp mượn đúng nghi th
 
 - Bảng vàng hạ từ lầu Ngũ Phụng có **hai phần**. Phần trên xướng tên tân khoa
   Lực; mở tiếp xuống, phần dưới **kính mời khách** đến chung vui.
-- **Công nương là người xướng danh**: cô kể vì sao tin vui được báo ở đây, đọc
-  tên Lực, rồi đọc lời mời.
+- **Công nương là người xướng danh**: cô chỉ nói một câu, "Tân khoa Lực!". Lời
+  mời do bảng vàng tự hiện chữ.
 - **Ba kinh đô** nối thành một sợi chỉ: thành Hoàng Đế (kinh đô thời Tây Sơn),
-  Thăng Long (kinh đô xưa), rồi Huế. Lực nhắc ở chương I, cô bạn Hà Nội nhắc ở
-  chương III.
+  Thăng Long (kinh đô xưa), rồi Huế. Ý này nằm trong bối cảnh, không ai nói ra.
 - Thứ tự cố ý đảo so với xưa: Lực **báo tin cho bố mẹ trước**, rồi mới ra kinh
-  đô báo với mọi người ("Bố mẹ mừng trước rồi, giờ con ra kinh đô báo tin cho
-  mọi người đi").
+  đô ("Về là mừng rồi. Đi đi con, mọi người đang đợi.").
 - Phóng tác: bảng treo ngay ở Ngọ Môn thay vì Phu Văn Lâu. Đôi câu đối trong
   điện Thái Hòa ghi 金榜題名 (tên đề bảng vàng) và 前程萬里 (đường xa vạn dặm).
 
@@ -210,6 +208,7 @@ hàng trăm năm, nên chúng được làm cho cũ đi theo ba lớp:
   dương xỉ mọc từ khe gạch, dây leo buông từ đỉnh tường xuống. Thềm và bậc cấp điện
   Thái Hòa đổi từ đá trắng tinh sang đá cũ có rêu ở góc bậc.
 - **Trên nền**: rêu lan từ chân tường và bờ hồ sen ra mặt gạch lát.
+- **Màu rêu** là rêu lâu năm: nâu sẫm ở chỗ đã khô, ô-liu đậm ở chỗ còn sống, chỉ cỏ dại và lá dây leo còn xanh thẫm.
 
 Các lối đi và chỗ nhân vật đứng được để trống; bảng vàng và các cổng vòm không bị
 dây leo che.
@@ -226,10 +225,25 @@ dây leo che.
 | Sau Ngọ Môn → thềm điện Thái Hòa | 7,9 | 9,5 (có một khoảng sân trước bậc cấp) |
 | Mép bàn hai bên và phía trước | — | thêm 3 mỗi bên, 2 phía trước; thêm cây, cỏ, đá |
 
+**Xem toàn bộ bản đồ**: nút bản đồ ở góc trên bên phải (hoặc phím `M`) kéo máy quay lùi ra tới khi thấy trọn bàn diorama và vành núi. Kéo để xoay, chạm (hoặc `Esc`) để quay lại đúng chỗ câu chuyện đang dừng. Trên điện thoại, góc nhìn dựng đứng hơn để bàn chạy dọc màn hình.
+
 **Vành núi miền Bắc** bao quanh bàn, ba lớp từ xa đến gần:
 - **Xa**: những dãy núi dài kiểu Hoàng Liên Sơn, lớp sau nhạt dần vào sương.
 - **Giữa**: núi đá vôi dạng tháp (Tràng An, Hạ Long, Đồng Văn): vách đá xám dựng đứng, đỉnh phủ rừng, chân chìm trong biển mây.
 - **Gần**: đồi ruộng bậc thang mùa lúa chín (Mù Cang Chải, Sa Pa), có vài nếp nhà sàn.
+
+### Lời thoại: ngắn, không giới thiệu
+
+Nhân vật không thuyết minh nơi chốn hay lịch sử (dòng địa điểm trên khung thoại và bối cảnh đã lo việc đó); họ chỉ nói câu người ta thật sự nói với nhau:
+
+| Chương | Ai nói | Câu |
+| --- | --- | --- |
+| I | Lực | "{Tên} tới rồi à! Đi với mình một chuyến nhé." |
+| II | bạn CNTT | "Ê Lực! Bốn năm rồi đó. Đập tay cái nào!" |
+| III | bạn Hà Nội | "Cúc họa mi đầu mùa đó. Cầm đi cho may." |
+| IV | Lực | "Bố mẹ ơi… con làm được rồi." |
+| IV | Bố & Mẹ | "Về là mừng rồi. Đi đi con, mọi người đang đợi." |
+| V | Công nương | "Tân khoa Lực!" |
 
 ## 3. Chuyển cảnh = các chặng đời
 
@@ -249,11 +263,11 @@ dây leo che.
 - Chuông chùa, tiếng gảy khi chạm màn hình, **tiếng bước chân** và **tiếng gió** được tổng hợp trực tiếp, không cần file.
 - **Cầu nối IV → V**: bài hành trình tắt dần trong 3 giây → bước chân trên đường gạch → gió qua tre → một tiếng chuông nhỏ → bài Huế nổi lên trong 4 giây. Người xem thấy âm nhạc chuyển vùng chứ không phải bị đổi bài.
 - **Nghi thức hạ bảng vàng** (chương V, phỏng theo lễ Truyền lô), nhạc hạ nhỏ trong lúc này:
-  1. Công nương cúi chào khách và kể: ngày xưa tên người đỗ đạt được xướng trước Ngọ Môn.
+  1. Công nương cúi chào khách, không nói gì.
   2. Không gian lắng lại, một cơn gió nhẹ thổi qua sân.
   3. **Ba hồi trống**; máy quay ngước lên lầu Ngũ Phụng. Một dải vàng ló ra ở lan can.
   4. Một tiếng chuông; bảng hạ xuống **nửa chừng**, chỉ hiện phần xướng danh: "TÂN KHOA · Lực".
-  5. Công nương xướng tên. Lực quay về phía bảng, ôm quyền cúi chào; bố mẹ và bạn bè reo mừng. Lực quay lại, gãi đầu cười ngượng.
+  5. Công nương xướng tên: "Tân khoa Lực!" Lực quay về phía bảng, ôm quyền cúi chào; bố mẹ và bạn bè reo mừng. Lực quay lại, gãi đầu cười ngượng.
   6. Bảng mở nốt phần dưới: "KÍNH MỜI · {tên khách} · đến chung vui". Mọi người quay về phía khách.
   7. Một tiếng chuông khẽ, một vệt sáng chạy dọc dòng chữ, rồi thiệp mời hiện ra.
 

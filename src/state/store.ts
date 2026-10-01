@@ -32,6 +32,8 @@ interface UIState {
   flash: number
   quality: Quality
   theme: Theme
+  /** the map view is open (see world.overview) */
+  overview: boolean
   reduced: boolean
   /** number of lazily-mounted scene groups */
   mounted: number
@@ -70,6 +72,7 @@ export const useUI = create<UIState>((set) => ({
   flash: 0,
   quality: initialQuality,
   theme: initialTheme,
+  overview: false,
   reduced: typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
   mounted: 1,
   set: (p) => set(p),

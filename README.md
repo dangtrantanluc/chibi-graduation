@@ -37,7 +37,10 @@ tracks in `public/audio/`.
 - **Drag** (mouse or one finger) — look around the current scene.
 - **Scroll / pinch** — lean in or out a little.
 - Keyboard: Enter / Space / → continue.
-- Two small buttons, top right: ♪ mutes/unmutes the music, and ☾ / ☀ switches
+- A map button (top right, also the `M` key) pulls the lens back until the whole
+  board is in frame; drag to turn it, tap anywhere (or `Esc`) to return to the
+  story where it was.
+- Two more small buttons beside it: ♪ mutes/unmutes the music, and ☾ / ☀ switches
   between the light theme (the sunset the story was painted in) and the dark
   theme (the same journey by night: a moon and stars, lanterns and lit windows,
   fireflies in the village). Both choices are remembered.

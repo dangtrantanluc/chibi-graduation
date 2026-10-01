@@ -3,6 +3,7 @@ import { CAST, INVITE, MUSIC, PROCLAMATION } from '../config'
 import { useUI, type Caption } from '../state/store'
 import { world } from '../state/world'
 import { advance, replay } from '../story/director'
+import { setOverview } from './interaction'
 import { chime, isMuted, onMute, playZone, setMuted } from '../audio/music'
 
 /*
@@ -21,6 +22,11 @@ const bus = {
 function onGlobalTap() {
   const s = useUI.getState()
   if (s.phase !== 'ready') return
+  // in the map view a tap just goes back to the story
+  if (s.overview) {
+    setOverview(false)
+    return
+  }
   if (s.step === 'intro' && !s.busy) {
     bus.introSubmit?.()
     return
@@ -45,6 +51,7 @@ export function Overlay({ webgl }: { webgl: boolean }) {
   const finale = useUI((s) => s.finale)
   const flash = useUI((s) => s.flash)
   const guest = useUI((s) => s.guest)
+  const overview = useUI((s) => s.overview)
 
   useEffect(() => {
     const tap = () => onGlobalTap()
@@ -53,6 +60,10 @@ export function Overlay({ webgl }: { webgl: boolean }) {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
         e.preventDefault()
         onGlobalTap()
+      } else if (e.key === 'Escape') setOverview(false)
+      else if (e.key === 'm' || e.key === 'M') {
+        const s = useUI.getState()
+        if (s.phase === 'ready' && (s.overview || !s.busy)) setOverview(!s.overview)
       }
     }
     window.addEventListener('village-tap', tap)
@@ -67,12 +78,18 @@ export function Overlay({ webgl }: { webgl: boolean }) {
 
   const showDialogue = caption && !(step === 'hue' && invite)
   return (
-    <div className="overlay">
+    <div className={overview ? 'overlay is-overview' : 'overlay'}>
       <div className="flash" style={{ opacity: flash }} aria-hidden="true" />
 
       {phase === 'loading' && <Loader />}
       {phase === 'ready' && <SoundToggle />}
       {phase === 'ready' && <ThemeToggle />}
+      {phase === 'ready' && (overview || !busy) && <MapToggle on={overview} />}
+      {overview && (
+        <p className="map-hint" aria-hidden="true">
+          kéo để xoay · chạm để quay lại
+        </p>
+      )}
       {phase === 'ready' && step === 'intro' && !busy && <IntroTicket />}
 
       <div className="dialogue-slot" aria-live="polite">
@@ -83,6 +100,17 @@ export function Overlay({ webgl }: { webgl: boolean }) {
       {step === 'hue' && invite && <InviteCard guest={guest} ready={canContinue && !busy} />}
       {finale && <Finale />}
     </div>
+  )
+}
+
+/** Pull back to see the whole board — the journey as a map — and back again. */
+function MapToggle({ on }: { on: boolean }) {
+  return (
+    <button className="sound map" data-interactive aria-label={on ? 'Quay lại câu chuyện' : 'Xem toàn bộ bản đồ'} aria-pressed={on} onClick={() => setOverview(!on)}>
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" strokeLinecap="round">
+        {on ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M3.5 6.5l5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2zM9 4.5v13M15 6.5v13" />}
+      </svg>
+    </button>
   )
 }
 

@@ -31,12 +31,14 @@ export function Effects() {
 
   useFrame(() => {
     const c = world.cam
+    // the map view: no depth of field, a strong tilt-shift instead — the board as a miniature
+    const map = world.overview.k
     if (dof.current) {
       dof.current.target = c.focus
-      dof.current.bokehScale = 3.2 * c.dof
+      dof.current.bokehScale = 3.2 * c.dof * (1 - map)
       dof.current.cocMaterial.worldFocusRange = c.range
     }
-    if (tilt.current) tilt.current.blur = high ? 0.22 * c.tilt : 0.1 + 0.18 * Math.max(c.tilt, c.dof * 0.5)
+    if (tilt.current) tilt.current.blur = (high ? 0.22 * c.tilt : 0.1 + 0.18 * Math.max(c.tilt, c.dof * 0.5)) * (1 - map) + 0.16 * map
   })
 
   if (high) {

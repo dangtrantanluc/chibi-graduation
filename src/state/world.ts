@@ -105,6 +105,8 @@ export const world = {
   },
   /** guest's drag-to-look offsets, eased back to 0 on every new shot */
   look: { yaw: 0, pitch: 0, zoom: 0, active: false },
+  /** the map view: the lens pulls back until the whole board is in frame. `k` is eased 0‥1 by the camera rig */
+  overview: { on: false, k: 0 },
   chars: {
     luc: char([1.55, 0, 7.35], 0, 'sit'),
     uni: char([1.05, 0, -6.35], 0.4, 'sit'),

@@ -5,7 +5,7 @@ import { act, emit, lookAt, place, walk, world, type Action, type CharId } from 
 import { BENCH, BIKE, CONGLANG, DOANMON, GATE, HALL, MARKS, NGOMON, SCROLL, SCROLL_HALF, UNI_BENCH, VILLAGE_END } from '../three/layout'
 import { uGlow } from '../three/lib/materials'
 import { bell, drum, duckMusic, fadeOutMusic, footsteps, playZone, wind } from '../audio/music'
-import { CAST, INVITE, PROCLAMATION } from '../config'
+import { CAST, INVITE } from '../config'
 
 /**
  * The story director: Lực's journey, one chapter per tap. Every camera move,
@@ -198,55 +198,40 @@ const CAPTIONS: Record<string, () => Caption> = {
     place: 'Bình Định · Cổng thành Hoàng Đế',
     speaker: CAST.luc,
     color: '#34353b',
-    line: `Chào ${name()}! Quê mình đây — Bình Định, đất võ trời văn; thành Hoàng Đế này từng là kinh đô thời Tây Sơn. Small steps, big dreams… đi cùng mình một chuyến nhé!`,
+    line: `${Name()} tới rồi à! Đi với mình một chuyến nhé.`,
   }),
   campus: () => ({
     chapter: 'II',
     place: 'Sài Gòn · ĐH Nông Lâm',
-    line: `Ê ${name()}, tới Nông Lâm rồi nè! Khoa CNTT không chỉ là code — mà còn là những người bạn tuyệt vời.`,
+    line: `Ê ${CAST.luc}! Bốn năm rồi đó. Đập tay cái nào!`,
   }),
   hanoi: () => ({
     chapter: 'III',
     place: 'Hà Nội · Hoàng thành Thăng Long',
-    line: `${Name()} ơi! Thu ở kinh đô xưa Thăng Long đẹp lắm luôn. Tặng bạn bó cúc họa mi nè. Cùng nhau đi thật xa nhé!`,
+    line: 'Cúc họa mi đầu mùa đó. Cầm đi cho may.',
   }),
   village: () => ({
     chapter: 'IV',
     place: 'Về nhà · Làng quê',
     speaker: CAST.luc,
     color: '#34353b',
-    line: 'Con chào bố mẹ ạ! Con tốt nghiệp rồi — bằng của con đây ạ!',
+    line: 'Bố mẹ ơi… con làm được rồi.',
   }),
   parents: () => ({
     chapter: 'IV',
     place: 'Về nhà · Làng quê',
     speaker: CAST.parents,
     color: '#8a5a32',
-    line: `Giỏi lắm con trai! Bố mẹ mừng trước rồi, giờ con ra kinh đô báo tin cho mọi người đi. ${Name()} đi cùng Lực nhé!`,
+    line: 'Về là mừng rồi. Đi đi con, mọi người đang đợi.',
   }),
-  // V: the princess is the herald — she tells why the news is announced here …
-  hue: () => ({
-    chapter: 'V',
-    place: 'Huế · Ngọ Môn',
-    speaker: CAST.princess,
-    color: '#b3262e',
-    line: `Chào mừng ${name()} đến kinh đô Huế! Ngày xưa, tên người đỗ đạt được xướng trước Ngọ Môn này và yết lên bảng vàng.`,
-  }),
-  // … reads out the graduate's name (xướng danh) …
+  // V: the princess is the herald — one line, the graduate's name (xướng danh).
+  // The invitation is left to the golden list itself, as it unrolls.
   proclaim: () => ({
     chapter: 'V',
     place: 'Huế · Ngọ Môn',
     speaker: CAST.princess,
     color: '#b3262e',
-    line: `Tân khoa hôm nay: ${CAST.luc} — ${PROCLAMATION.lines.join(', ')}!`,
-  }),
-  // … and then the invitation
-  invite: () => ({
-    chapter: 'V',
-    place: 'Huế · Ngọ Môn',
-    speaker: CAST.princess,
-    color: '#b3262e',
-    line: `Và bảng vàng kính mời ${name()} đến chung vui cùng ${CAST.luc}!`,
+    line: `Tân Kỹ Sư ${CAST.luc}!`,
   }),
 }
 
@@ -670,8 +655,7 @@ function playHue(bridge = true) {
     orbit(0.5, 0.28, 0.12, 0.25)
   })
   setStep(t, 7.6, 'hue')
-  caption(t, 7.7, CAPTIONS.hue(), ['princess'])
-  // the princess is the herald: a courtly bow to the guest, then she tells why the news is proclaimed here
+  // the princess is the herald: a courtly bow to the guest — no words yet
   beat(t, 7.7, () => {
     lookAt('princess', 'camera')
     act('princess', 'bow')
@@ -697,53 +681,53 @@ function playHue(bridge = true) {
       })()
   const others: CharId[] = ['uni', 'father', 'mother', 'hanoi']
   // a hush, and a breath of wind across the plaza
-  beat(t, 11.6, () => {
+  beat(t, 9.9, () => {
     duckMusic(0.3, 1.2)
     wind(3, 0.06)
     emit({ type: 'gust', x: 0, z: -52.5, strength: 0.5, radius: 7 })
   })
   // three beats of the court drum: the lens goes up to the balcony
-  beat(t, 12.4, () => {
+  beat(t, 10.7, () => {
     drum(0.5, 0)
     drum(0.5, 0.75)
     drum(0.62, 1.5)
   })
-  camTo(t, 12.4, 2.0, { target: up, pos: [hp.pos[0], hp.pos[1], hp.pos[2] - 0.3] })
+  camTo(t, 10.7, 2.0, { target: up, pos: [hp.pos[0], hp.pos[1], hp.pos[2] - 0.3] })
   // a band of gold appears at the rail …
-  t.to(world, { scroll: 0.08, duration: 1.0, ease: 'power2.out' }, 14.3)
-  beat(t, 14.5, () => emit({ type: 'sparkle', pos: new THREE.Vector3(SCROLL.x, SCROLL.top - 0.1, SCROLL.z + 0.1), count: 10, color: '#fff2b8' }))
+  t.to(world, { scroll: 0.08, duration: 1.0, ease: 'power2.out' }, 12.6)
+  beat(t, 12.8, () => emit({ type: 'sparkle', pos: new THREE.Vector3(SCROLL.x, SCROLL.top - 0.1, SCROLL.z + 0.1), count: 10, color: '#fff2b8' }))
   // … a bell, and it comes down half-way: the proclamation
-  beat(t, 15.3, () => bell(440, 0.26))
-  t.to(world, { scroll: SCROLL_HALF, duration: 2.6, ease: 'sine.inOut' }, 15.5)
-  camTo(t, 15.5, 2.6, { target: watch })
+  beat(t, 13.6, () => bell(440, 0.26))
+  t.to(world, { scroll: SCROLL_HALF, duration: 2.6, ease: 'sine.inOut' }, 13.8)
+  camTo(t, 13.8, 2.6, { target: watch })
   // xướng danh: the princess reads out his name, and Lực turns to the list and salutes it
-  caption(t, 17.8, CAPTIONS.proclaim(), ['princess'])
-  beat(t, 17.8, () => act('princess', 'usher'))
-  beat(t, 18.3, () => {
+  caption(t, 16.1, CAPTIONS.proclaim(), ['princess'])
+  beat(t, 16.1, () => act('princess', 'usher'))
+  beat(t, 16.6, () => {
     lookAt('luc', null)
     world.chars.luc.faceY = Math.PI
     for (const id of others) lookAt(id, 'luc')
   })
-  beat(t, 19.0, () => act('luc', 'omQuyen'))
-  beat(t, 19.4, () => {
+  beat(t, 17.3, () => act('luc', 'omQuyen'))
+  beat(t, 17.7, () => {
     act('father', 'cheer')
     act('mother', 'clap')
   })
-  beat(t, 19.7, () => act('uni', 'clap'))
-  beat(t, 20.0, () => act('hanoi', 'cheer'))
+  beat(t, 18, () => act('uni', 'clap'))
+  beat(t, 18.3, () => act('hanoi', 'cheer'))
   // he turns back to you with a shy grin
-  beat(t, 21.2, () => {
+  beat(t, 19.5, () => {
     world.chars.luc.faceY = 0
     lookAt('luc', 'camera')
   })
-  beat(t, 21.8, () => act('luc', 'scratch'))
+  beat(t, 20.1, () => act('luc', 'scratch'))
   // then the list unrolls the rest of the way: the invitation, by name
-  caption(t, 22.2, CAPTIONS.invite(), ['princess'])
-  beat(t, 22.4, () => bell(392, 0.18))
-  t.to(world, { scroll: 1, duration: 3.0, ease: 'sine.inOut' }, 22.4)
-  if (narrow()) camTo(t, 22.4, 3.0, { target: down })
+  caption(t, 20.5, null)
+  beat(t, 20.7, () => bell(392, 0.18))
+  t.to(world, { scroll: 1, duration: 3.0, ease: 'sine.inOut' }, 20.7)
+  if (narrow()) camTo(t, 20.7, 3.0, { target: down })
   // everyone turns to you
-  beat(t, 24.4, () => {
+  beat(t, 22.7, () => {
     for (const id of others) lookAt(id, 'camera')
     act('uni', 'peace')
     act('hanoi', 'wave')
@@ -751,7 +735,7 @@ function playHue(bridge = true) {
     act('mother', 'clap')
     act('luc', 'wave')
   })
-  beat(t, 24.8, () => {
+  beat(t, 23.1, () => {
     act('princess', 'dance')
     for (let i = 0; i < 6; i++) {
       gsap.delayedCall(i * 0.4, () => {
@@ -761,17 +745,17 @@ function playHue(bridge = true) {
       gsap.delayedCall(0.2 + i * 0.35, () => emit({ type: 'sparkle', pos: new THREE.Vector3(SCROLL.x + (Math.random() - 0.5) * 1.6, SCROLL.top - Math.random() * 2.4, SCROLL.z + 0.1), count: 3, color: '#fff2b8' }))
     }
   })
-  beat(t, 25.0, () => duckMusic(1, 2.5))
+  beat(t, 23.3, () => duckMusic(1, 2.5))
   // it hangs open: a last soft bell, and light runs down the writing
-  beat(t, 25.6, () => bell(523, 0.16))
-  t.fromTo(world, { scrollSheen: -0.1 }, { scrollSheen: 1.1, duration: 1.7, ease: 'sine.inOut' }, 25.6)
-  beat(t, 27.35, () => (world.scrollSheen = -1))
-  t.to(world.glow, { hue: 1.25, duration: 2.5, ease: 'sine.inOut' }, 26.0)
-  t.to(uGlow, { value: 1.25, duration: 2.5, ease: 'sine.inOut' }, 26.0)
+  beat(t, 23.9, () => bell(523, 0.16))
+  t.fromTo(world, { scrollSheen: -0.1 }, { scrollSheen: 1.1, duration: 1.7, ease: 'sine.inOut' }, 23.9)
+  beat(t, 25.65, () => (world.scrollSheen = -1))
+  t.to(world.glow, { hue: 1.25, duration: 2.5, ease: 'sine.inOut' }, 24.3)
+  t.to(uGlow, { value: 1.25, duration: 2.5, ease: 'sine.inOut' }, 24.3)
   // the invitation card appears, and the lens rises again to take in the gate
-  if (!narrow()) camTo(t, 26.6, 2.6, { target: down })
-  beat(t, 27.4, () => useUI.setState({ invite: true }))
-  allowContinue(t, 28.4)
+  if (!narrow()) camTo(t, 24.9, 2.6, { target: down })
+  beat(t, 25.7, () => useUI.setState({ invite: true }))
+  allowContinue(t, 26.7)
 }
 
 /** The farewell — the list rolls up, and they all go in through Ngọ Môn to stand before Điện Thái Hòa. */

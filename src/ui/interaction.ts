@@ -1,11 +1,13 @@
 import gsap from 'gsap'
 import { world } from '../state/world'
+import { useUI } from '../state/store'
 
 /**
  * One gesture vocabulary for the whole experience — no buttons needed:
  *   • tap / click anywhere       → continue (fires `village-tap`)
  *   • drag (mouse or one finger) → look around the current scene
  *   • wheel / pinch              → lean in or out a little
+ * In the map view (setOverview) a drag turns the whole board and a tap goes back.
  */
 const INTERACTIVE = 'input, textarea, button, a, [data-interactive]'
 
@@ -16,8 +18,14 @@ export function installInteraction() {
   let pinch0 = 0
 
   const clampLook = () => {
-    const o = world.cam.orbit
     const l = world.look
+    if (world.overview.on) {
+      // the map turns freely; tilt and zoom within reason
+      l.pitch = Math.max(-0.5, Math.min(0.4, l.pitch))
+      l.zoom = Math.max(-0.4, Math.min(0.25, l.zoom))
+      return
+    }
+    const o = world.cam.orbit
     l.yaw = Math.max(-o.yaw, Math.min(o.yaw, l.yaw))
     l.pitch = Math.max(-o.down, Math.min(o.up, l.pitch))
     l.zoom = Math.max(-o.zoom, Math.min(o.zoom, l.zoom))
@@ -99,4 +107,13 @@ export function installInteraction() {
     window.removeEventListener('pointercancel', onUp)
     window.removeEventListener('wheel', onWheel)
   }
+}
+
+/** Open or close the map view: the lens pulls back until the whole board is in frame. */
+export function setOverview(on: boolean) {
+  if (world.overview.on === on) return
+  world.overview.on = on
+  useUI.setState({ overview: on })
+  // whatever looking-around was going on eases home, in either direction
+  gsap.to(world.look, { yaw: 0, pitch: 0, zoom: 0, duration: 0.9, ease: 'sine.inOut', overwrite: true })
 }

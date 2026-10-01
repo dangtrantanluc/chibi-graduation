@@ -6,6 +6,7 @@ import { useUI } from '../state/store'
 import { world } from '../state/world'
 import { uNight, uTime } from './lib/materials'
 import { SUN_DIR } from './world/Sky'
+import { BOARD } from './layout'
 
 /** Advances the shared clock (world.time + shader time). Runs first. */
 export function Ticker() {
@@ -18,18 +19,26 @@ export function Ticker() {
   return null
 }
 
+// ── the map view ──
+const MAP_CENTRE = new THREE.Vector3((BOARD.minX + BOARD.maxX) / 2, 1.5, (BOARD.minZ + BOARD.maxZ) / 2)
+/** what has to stay in frame: the board, and the tallest roofs on it */
+const MAP_CORNERS = [BOARD.minX - 1.5, BOARD.maxX + 1.5].flatMap((x) => [BOARD.minZ - 1.5, BOARD.maxZ + 1.5].flatMap((z) => [-1, 9].map((y) => new THREE.Vector3(x, y, z))))
+const ease = (k: number) => k * k * (3 - 2 * k)
+
 /**
  * Applies the director's camera state with:
  *  • aspect-aware framing (portrait phones dolly back + widen the lens)
  *  • a slow "handheld" float and gentle pointer parallax
+ *  • the map view: blended over the story camera, so the story's own moves carry on underneath
  */
 export function CameraRig() {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera
   const size = useThree((s) => s.size)
+  const scene = useThree((s) => s.scene)
   const reduced = useUI((s) => s.reduced)
   const pointer = useRef({ x: 0, y: 0, sx: 0, sy: 0 })
   const tmp = useMemo(
-    () => ({ base: new THREE.Vector3(), dir: new THREE.Vector3(), right: new THREE.Vector3(), up: new THREE.Vector3(), tgt: new THREE.Vector3(), axis: new THREE.Vector3(), Y: new THREE.Vector3(0, 1, 0) }),
+    () => ({ base: new THREE.Vector3(), dir: new THREE.Vector3(), right: new THREE.Vector3(), up: new THREE.Vector3(), tgt: new THREE.Vector3(), axis: new THREE.Vector3(), Y: new THREE.Vector3(0, 1, 0), d: new THREE.Vector3(), r: new THREE.Vector3(), u: new THREE.Vector3(), v: new THREE.Vector3(), map: new THREE.Vector3() }),
     [],
   )
 
@@ -48,16 +57,21 @@ export function CameraRig() {
     const aspect = size.width / Math.max(1, size.height)
     const narrow = THREE.MathUtils.clamp((1.35 - aspect) / (1.35 - 0.46), 0, 1)
     const back = 1 + 0.6 * narrow * c.backoff
-    const fov = c.fov + 17 * narrow
+    let fov = c.fov + 17 * narrow
+    const ov = world.overview
+    ov.k = THREE.MathUtils.damp(ov.k, ov.on ? 1 : 0, 2.6, dt)
+    if (!ov.on && ov.k < 0.002) ov.k = 0
+    const e = ease(ov.k)
 
     tmp.dir.subVectors(c.pos, c.target).multiplyScalar(back)
     // the guest's drag-to-look: orbit around the shot's target, lean in/out
+    // (in the map view the same drag turns the map instead)
     const L = world.look
-    if (L.yaw || L.pitch || L.zoom) {
-      tmp.dir.applyAxisAngle(tmp.Y, L.yaw)
+    if (e < 1 && (L.yaw || L.pitch || L.zoom)) {
+      tmp.dir.applyAxisAngle(tmp.Y, L.yaw * (1 - e))
       tmp.axis.crossVectors(tmp.Y, tmp.dir).normalize()
-      if (tmp.axis.lengthSq() > 0.5) tmp.dir.applyAxisAngle(tmp.axis, -L.pitch)
-      tmp.dir.multiplyScalar(1 + L.zoom)
+      if (tmp.axis.lengthSq() > 0.5) tmp.dir.applyAxisAngle(tmp.axis, -L.pitch * (1 - e))
+      tmp.dir.multiplyScalar(1 + L.zoom * (1 - e))
     }
     tmp.base.copy(c.target).add(tmp.dir)
     tmp.dir.divideScalar(back)
@@ -79,8 +93,37 @@ export function CameraRig() {
     camera.position.y += Math.sin(t * 0.17) * 0.03 * drift
     tmp.tgt.copy(c.target)
     tmp.tgt.y += Math.sin(t * 0.29 + 2) * 0.02 * drift
+    if (e > 0) {
+      // from the front and a little to one side on wide screens; steeper and square-on on phones,
+      // where the long board then runs up the tall screen
+      const az = THREE.MathUtils.lerp(0.42, 0, narrow) + L.yaw * e
+      const el = THREE.MathUtils.clamp(THREE.MathUtils.lerp(0.62, 1.12, narrow) - L.pitch * e, 0.32, 1.4)
+      const mapFov = THREE.MathUtils.lerp(38, 46, narrow)
+      tmp.d.set(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el))
+      tmp.r.crossVectors(tmp.Y, tmp.d).normalize()
+      tmp.u.crossVectors(tmp.d, tmp.r)
+      // back off until every corner of the board is inside the frame
+      const tv = Math.tan(THREE.MathUtils.degToRad(mapFov) / 2)
+      const th = tv * aspect
+      let dist = 0
+      for (const corner of MAP_CORNERS) {
+        tmp.v.subVectors(corner, MAP_CENTRE)
+        const z = tmp.v.dot(tmp.d)
+        dist = Math.max(dist, z + Math.abs(tmp.v.dot(tmp.r)) / th, z + Math.abs(tmp.v.dot(tmp.u)) / tv)
+      }
+      dist *= 1.09 * (1 + L.zoom * e)
+      tmp.map.copy(MAP_CENTRE).addScaledVector(tmp.d, dist)
+      camera.position.lerp(tmp.map, e)
+      tmp.tgt.lerp(MAP_CENTRE, e)
+      fov = THREE.MathUtils.lerp(fov, mapFov, e)
+    }
+    // from that far off the haze would wash the board out: push it back
+    if (scene.fog instanceof THREE.Fog) {
+      scene.fog.near = THREE.MathUtils.lerp(70, 260, e)
+      scene.fog.far = THREE.MathUtils.lerp(280, 700, e)
+    }
     camera.lookAt(tmp.tgt)
-    camera.rotateZ(Math.sin(t * 0.21) * 0.004 * drift)
+    camera.rotateZ(Math.sin(t * 0.21) * 0.004 * drift * (1 - e))
 
     if (Math.abs(camera.fov - fov) > 0.01) {
       camera.fov = fov
@@ -123,9 +166,15 @@ export function Lighting() {
 
   const focus = useMemo(() => new THREE.Vector3(0, 0, 4), [])
   useFrame((_, dt) => {
-    focus.lerp(world.shadowFocus, Math.min(1, dt * 1.5))
+    // in the map view the shadow map is stretched over the whole board
+    const map = world.overview.on
+    focus.lerp(map ? MAP_CENTRE : world.shadowFocus, Math.min(1, dt * (map ? 4 : 1.5)))
     const cam = sun.current.shadow.camera
-    const sz = world.shadowSize
+    const wide = map || world.overview.k > 0.5
+    const sz = wide ? 58 : world.shadowSize
+    // … whose texels are then four times the size: more bias, or the lawns come out striped
+    sun.current.shadow.normalBias = wide ? 0.2 : 0.035
+    sun.current.shadow.bias = wide ? -0.0016 : -0.0004
     if (cam.right !== sz) {
       cam.left = -sz
       cam.right = sz

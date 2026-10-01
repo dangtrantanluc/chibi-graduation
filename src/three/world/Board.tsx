@@ -238,7 +238,7 @@ function paintGround() {
       const x = x0 + r() * (x1 - x0)
       const z = z0 + r() * (z1 - z0)
       const rad = (0.1 + r() * 0.28) * SX
-      const col = ['74,104,44', '92,122,52', '58,86,38', '104,126,58'][Math.floor(r() * 4)]
+      const col = ['70,58,38', '84,82,44', '56,70,40', '92,76,46'][Math.floor(r() * 4)]
       const grd = g.createRadialGradient(px(x), py(z), 0, px(x), py(z), rad)
       grd.addColorStop(0, `rgba(${col},${0.45 + r() * 0.35})`)
       grd.addColorStop(0.6, `rgba(${col},0.2)`)

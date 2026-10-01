@@ -105,8 +105,12 @@ export function patchMaterial<T extends THREE.MeshStandardMaterial>(mat: T, f: F
             float mPatch = smoothstep(0.565, 0.63, mN + 0.06 * low);
             ${ROOF}
             float m = clamp(max(mPatch * 0.85, max(mFoot, mUp * 0.92)) * ${MOSS}, 0.0, 1.0);
-            vec3 mossC = mix(vec3(0.13, 0.22, 0.07), vec3(0.40, 0.47, 0.14), smoothstep(0.3, 0.75, a.b * 0.7 + a.g * 0.4));
-            diffuseColor.rgb = mix(diffuseColor.rgb, mossC, m * 0.88);
+            // old moss: dark brown where it has dried and died back, deep olive where it still lives
+            // (linear values — on screen roughly #54402c, #5f5e34 and #3f5030)
+            float mK = smoothstep(0.3, 0.75, a.b * 0.7 + a.g * 0.4);
+            vec3 mossC = mix(vec3(0.089, 0.051, 0.025), vec3(0.115, 0.112, 0.034), mK);
+            mossC = mix(mossC, vec3(0.050, 0.080, 0.030), smoothstep(0.55, 0.8, b.b));
+            diffuseColor.rgb = mix(diffuseColor.rgb, mossC, m * 0.93);
             agedM = m;
           }`,
         )
@@ -253,7 +257,7 @@ export function kitMat(key: MatKey): THREE.Material {
       break
     case 'moss':
       // moss cushions, weeds and creepers on old masonry (no wind sway: they cling)
-      m = patchMaterial(std({ roughness: 1 }), { rim: { color: '#e8f0a8', strength: 0.22, power: 2.4 } }, 'moss')
+      m = patchMaterial(std({ roughness: 1 }), { rim: { color: '#c9c08a', strength: 0.08, power: 2.4 } }, 'moss')
       break
     case 'thatch': {
       const map = thatchTex()

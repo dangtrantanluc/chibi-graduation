@@ -14,8 +14,11 @@ import { BOARD, CHAM, DOANMON, GATE, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON } from 
  */
 
 type R = () => number
-const GREENS = ['#57742c', '#6b8b33', '#47632a', '#7d9838', '#3f5927', '#8aa343']
-const DRY = ['#9aa64a', '#b0a552', '#7d9838']
+// old growth: brown-olive cushions that have dried and darkened over the years, a few still deep green
+const GREENS = ['#4a3c26', '#56552c', '#3a4a2a', '#5e4a2a', '#33402a', '#4c4f28']
+const DRY = ['#7a6238', '#8a6e3c', '#665a30']
+// what still grows on top of it — weeds, ferns, creeper leaves — stays a dark, dusty green
+const LEAF = ['#3a4a2a', '#33402a', '#4c5230', '#44522c', '#565a2e']
 const pick = <T,>(r: R, a: readonly T[]) => a[Math.floor(r() * a.length)]
 let PADS: THREE.BufferGeometry[] | null = null
 const pads = () => (PADS ??= [blob(901, 1, 0.24), blob(902, 1, 0.3), blob(903, 1, 0.2)])
@@ -41,7 +44,7 @@ function tuft(r: R, p: V3, s = 1, lean: V3 = [0, 0, 0], wide = 1): Part[] {
     const len = (0.1 + 0.16 * r()) * s
     q.setFromUnitVectors(UP, dir).multiply(spin.setFromAxisAngle(UP, r() * 6.28))
     const mat = new THREE.Matrix4().compose(new THREE.Vector3(p[0], p[1], p[2]).addScaledVector(dir, len / 2), q, new THREE.Vector3(0.016 * s * wide, len, 0.006 * s))
-    out.push({ g: G.coneLo, c: r() < 0.25 ? pick(r, DRY) : pick(r, GREENS), m: 'moss', mat })
+    out.push({ g: G.coneLo, c: r() < 0.25 ? pick(r, DRY) : pick(r, LEAF), m: 'moss', mat })
   }
   return out
 }
@@ -64,7 +67,7 @@ function creeper(r: R, top: V3, len: number, nx: number, nz: number): Part[] {
       const w = off + Math.sin(t * 4 + ph) * 0.07 * t + (r() - 0.5) * 0.03
       pts.push(new THREE.Vector3(top[0] + tx * w + nx * 0.03, top[1] - t * L, top[2] + tz * w + nz * 0.03))
     }
-    out.push({ g: taperTube(pts, 0.011, 0.005, 14, 5), c: '#4a5a28', m: 'moss' })
+    out.push({ g: taperTube(pts, 0.011, 0.005, 14, 5), c: '#3e3420', m: 'moss' })
     const curve = new THREE.CatmullRomCurve3(pts)
     const count = Math.max(3, Math.round(L / 0.1))
     for (let j = 0; j < count; j++) {
@@ -72,7 +75,7 @@ function creeper(r: R, top: V3, len: number, nx: number, nz: number): Part[] {
       const side = (j % 2 ? 1 : -1) * (0.03 + 0.03 * r())
       out.push({
         g: G.sphereXs,
-        c: pick(r, GREENS),
+        c: pick(r, LEAF),
         m: 'moss',
         p: [pt.x + tx * side + nx * 0.02, pt.y, pt.z + tz * side + nz * 0.02],
         r: [0, ry, (j % 2 ? -1 : 1) * (0.6 + 0.5 * r())],
