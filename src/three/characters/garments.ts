@@ -839,65 +839,127 @@ export const ginghamTex = () =>
   })
 
 // ═══════════════════════════════════════════════════════════
-//  MẸ — áo tứ thân in faded indigo over a red yếm and a green skirt
+//  MẸ — áo bà ba, the countrywoman's blouse of the centre and the south: a
+//  worn plum, heart-shaped neck, press studs down the front, two pockets,
+//  slit at the hips over black lãnh trousers
 // ═══════════════════════════════════════════════════════════
-export const motherCoatTex = () =>
-  once('mother-coat', () => {
+const PLUM = '#74506e'
+const PLUM_DK = '#553a52'
+export const motherBaBaTex = () =>
+  once('mother-baba', () => {
     const [c, g] = canvas(W, H)
-    homespun(g, '#4d5a8c', W, H, 41)
-    // indigo fades unevenly
+    cotton(g, PLUM, W, H, 0.05, 41)
+    // washed a hundred times: it has faded unevenly, palest across the shoulders
     const r = rng(43)
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 26; i++) {
       const x = r() * W
       const y = r() * H
       const rad = 30 + r() * 90
       const grd = g.createRadialGradient(x, y, 0, x, y, rad)
-      grd.addColorStop(0, r() < 0.5 ? 'rgba(120,130,170,0.16)' : 'rgba(20,25,50,0.16)')
+      grd.addColorStop(0, r() < 0.55 ? 'rgba(190,160,185,0.15)' : 'rgba(45,20,45,0.14)')
       grd.addColorStop(1, 'rgba(0,0,0,0)')
       g.fillStyle = grd
       g.fillRect(x - rad, y - rad, rad * 2, rad * 2)
     }
+    const sun = g.createLinearGradient(0, 0, 0, Y(0.6))
+    sun.addColorStop(0, 'rgba(215,185,205,0.2)')
+    sun.addColorStop(1, 'rgba(215,185,205,0)')
+    g.fillStyle = sun
+    g.fillRect(0, 0, W, Y(0.6))
     folds(
       g,
       [
-        [W * 0.22, Y(0.8), W * 0.2, Y(0.45), W * 0.17, Y(0.05)],
-        [W * 0.78, Y(0.8), W * 0.8, Y(0.45), W * 0.83, Y(0.05)],
-        [W * 0.45, Y(0.5), W * 0.5, Y(0.25), W * 0.55, Y(0.05)],
+        [W * 0.2, Y(0.8), W * 0.17, Y(0.5), W * 0.15, Y(0.12)],
+        [W * 0.8, Y(0.8), W * 0.83, Y(0.5), W * 0.85, Y(0.12)],
+        [W * 0.42, Y(0.42), W * 0.5, Y(0.34), W * 0.58, Y(0.42)],
+        [W * 0.06, Y(0.62), W * 0.1, Y(0.56), W * 0.15, Y(0.6)],
+        [W * 0.94, Y(0.62), W * 0.9, Y(0.56), W * 0.85, Y(0.6)],
       ],
-      'rgba(10,15,40,0.25)',
-      'rgba(200,210,255,0.08)',
+      'rgba(40,15,40,0.24)',
+      'rgba(255,225,245,0.09)',
     )
-    // the open front: red yếm above the sash, dark green skirt below
-    const open = (x: number, half: number) => {
-      g.fillStyle = '#b04a36'
-      g.fillRect(x - half, 0, half * 2, Y(0.5))
-      g.fillStyle = 'rgba(255,200,170,0.15)'
-      g.fillRect(x - half, 0, half * 2, 6)
-      g.fillStyle = '#4c5a3b'
-      g.fillRect(x - half, Y(0.46), half * 2, H - Y(0.46))
-      g.fillStyle = 'rgba(0,0,0,0.12)'
-      for (let y = Y(0.46); y < H; y += 9) g.fillRect(x - half, y, half * 2, 1.5)
+    // xẻ tà: slit at each hip from the hem up, the black trousers showing in it
+    for (const u of [0.25, 0.75]) {
+      const x = W * u
+      g.fillStyle = '#26222a'
+      g.beginPath()
+      g.moveTo(x - 11, H)
+      g.lineTo(x, Y(0.34))
+      g.lineTo(x + 11, H)
+      g.closePath()
+      g.fill()
+      stitch(g, x - 15, H, x - 3, Y(0.36), 'rgba(35,15,35,0.6)')
+      stitch(g, x + 15, H, x + 3, Y(0.36), 'rgba(35,15,35,0.6)')
     }
-    open(0, 46)
-    open(W, 46)
-    // the coat's front edges (nẹp) in a darker indigo
-    for (const x of [46, W - 46]) {
-      g.fillStyle = '#34406a'
-      g.fillRect(x - 7, 0, 14, H)
+    // two patch pockets low on the front, their tops double-stitched
+    for (const x of [W * 0.088, W * 0.912]) {
+      g.fillStyle = 'rgba(50,22,50,0.2)'
+      roundRect(g, x - 36, Y(0.4), 72, 84, 10)
+      g.fill()
+      g.strokeStyle = 'rgba(35,15,35,0.45)'
+      g.lineWidth = 2
+      g.stroke()
+      stitch(g, x - 34, Y(0.4) + 9, x + 34, Y(0.4) + 9, 'rgba(240,215,235,0.45)')
     }
-    // hem
-    g.fillStyle = '#34406a'
-    g.fillRect(0, H - 12, W, 12)
+    // the hem, turned and stitched
+    g.fillStyle = PLUM_DK
+    g.fillRect(0, H - 9, W, 9)
+    stitch(g, 0, H - 14, W, H - 14, 'rgba(240,215,235,0.4)')
+    for (const x of [0, W]) {
+      // it opens down the middle: one edge laps the other, closed by five press studs (nút bấm)
+      g.fillStyle = 'rgba(40,15,40,0.42)'
+      g.fillRect(x - 2, 0, 4, H)
+      g.fillStyle = 'rgba(255,225,245,0.12)'
+      g.fillRect(x + 3, 0, 2, H)
+      for (const v of [0.76, 0.62, 0.48, 0.34, 0.2]) {
+        g.fillStyle = '#eadfce'
+        g.beginPath()
+        g.arc(x, Y(v), 6.5, 0, Math.PI * 2)
+        g.fill()
+        g.strokeStyle = 'rgba(50,30,50,0.7)'
+        g.lineWidth = 2
+        g.stroke()
+        g.fillStyle = 'rgba(90,70,80,0.7)'
+        g.beginPath()
+        g.arc(x, Y(v), 2, 0, Math.PI * 2)
+        g.fill()
+      }
+      // cổ tim: the heart-shaped neck — a V of bare skin, edged with piping
+      g.fillStyle = '#fde2cc'
+      g.beginPath()
+      g.moveTo(x - 74, 0)
+      g.quadraticCurveTo(x - 46, Y(0.9), x, Y(0.83))
+      g.quadraticCurveTo(x + 46, Y(0.9), x + 74, 0)
+      g.closePath()
+      g.fill()
+      g.strokeStyle = PLUM_DK
+      g.lineWidth = 7
+      g.beginPath()
+      g.moveTo(x - 74, 0)
+      g.quadraticCurveTo(x - 46, Y(0.9), x, Y(0.83))
+      g.quadraticCurveTo(x + 46, Y(0.9), x + 74, 0)
+      g.stroke()
+    }
     return toTexture(c)
   })
 
 export const motherSleeve = () =>
   once('mother-sleeve', () => {
     const [c, g] = canvas(256, 256)
-    homespun(g, '#4d5a8c', 256, 256, 45)
-    folds(g, [[30, 120, 120, 100, 220, 130]], 'rgba(10,15,40,0.25)', 'rgba(200,210,255,0.08)')
-    g.fillStyle = '#34406a'
-    g.fillRect(0, 226, 256, 30)
+    cotton(g, PLUM, 256, 256, 0.05, 45)
+    folds(
+      g,
+      [
+        [30, 120, 120, 100, 220, 130],
+        [20, 60, 110, 44, 236, 66],
+      ],
+      'rgba(40,15,40,0.24)',
+      'rgba(255,225,245,0.09)',
+    )
+    // a narrow turned cuff
+    g.fillStyle = PLUM_DK
+    g.fillRect(0, 238, 256, 18)
+    stitch(g, 0, 233, 256, 233, 'rgba(240,215,235,0.4)')
     return toTexture(c)
   })
 

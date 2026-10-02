@@ -21,7 +21,7 @@ import {
   laptopScreenTex,
   lucTeeSleeve,
   lucTeeTex,
-  motherCoatTex,
+  motherBaBaTex,
   motherSleeve,
   nhatBinhSleeve,
   nhatBinhTex,
@@ -337,7 +337,7 @@ function LucBackpack() {
 }
 
 /** what he cannot do with a lamp in his hand: it goes on the backpack hook meanwhile */
-const TWO_HANDED = ['omQuyen', 'greet', 'bowDeep', 'present', 'clap']
+const TWO_HANDED = ['omQuyen', 'greet', 'bowDeep', 'present', 'clap', 'lift']
 
 /**
  * "Đèn sách" — the lamp of the years of study, a little storm lantern (đèn
@@ -783,7 +783,7 @@ const LONG_ROBE: [number, number][] = [
 ]
 
 // ═══════════════════════════════════════════════════════════
-//  BỐ & MẸ — Lực's parents, farm folk waiting at the village gate
+//  BỐ & MẸ — Lực's parents, Bình Định farm folk waiting in the yard of their house
 // ═══════════════════════════════════════════════════════════
 const BLACK_HAIR = '#1e1718'
 
@@ -907,15 +907,15 @@ const fatherLook: ChibiLook = {
   scale: 1.06,
 }
 
-const MOTHER_ROBE: [number, number][] = [
-  [0, -0.24],
-  [0.27, -0.24],
-  [0.262, -0.16],
-  [0.235, -0.04],
-  [0.215, 0.08],
-  [0.205, 0.18],
-  [0.168, 0.29],
-  [0.105, 0.355],
+/** áo bà ba: hip-length, a little flared over the trousers */
+const BABA: [number, number][] = [
+  [0, -0.1],
+  [0.214, -0.1],
+  [0.234, -0.03],
+  [0.228, 0.08],
+  [0.212, 0.2],
+  [0.172, 0.3],
+  [0.106, 0.358],
   [0, 0.372],
 ]
 
@@ -923,36 +923,28 @@ const motherLook: ChibiLook = {
   skin: '#fde2cc',
   face: { iris: ['#3a2418', '#b07a50'], brow: '#2a1d17', lash: '#231512', tilt: 0.08, sparkle: true, eyeW: 0.138, eyeH: 0.178, lashWing: 0.8, lip: '#e07a78' },
   head: (p) => {
-    hairCap(p, BLACK_HAIR, 1.03, 0.03, 0.05)
-    // hair parted in the middle, swept to both sides under the turban
-    for (const s of [-1, 1]) p.push({ g: G.sphere, c: BLACK_HAIR, mat: faceMatrix(s * 0.13, 0.22, 0.012, [0.17, 0.07, 0.03], s * 0.35) })
-    // khăn vấn in dark indigo: a wrapped crown, two coils, a tail by her left ear
-    const IND = '#2e3452'
-    p.push({ g: G.sphere, c: IND, p: [0, 0.14, -0.03], s: [0.43, 0.3, 0.44] })
-    p.push({ g: new THREE.TorusGeometry(0.4, 0.06, 8, 36), c: '#353c5c', p: [0, 0.2, -0.02], r: [Math.PI / 2 - 0.22, 0, 0] })
-    p.push({ g: new THREE.TorusGeometry(0.37, 0.05, 8, 36), c: IND, p: [0, 0.27, -0.05], r: [Math.PI / 2 - 0.3, 0, 0.1] })
-    p.push({ g: G.box, c: IND, p: [0.4, -0.05, -0.12], r: [0.2, 0.3, -0.12], s: [0.07, 0.3, 0.025] })
+    hairCap(p, BLACK_HAIR, 1.05, 0.05, 0.05)
+    // parted in the middle and drawn back over the ears to a low bun at the nape (búi tóc), a brass pin through it
+    for (const s of [-1, 1]) {
+      p.push({ g: G.sphere, c: BLACK_HAIR, mat: faceMatrix(s * 0.13, 0.235, 0.012, [0.185, 0.085, 0.03], s * 0.42) })
+      p.push({ g: G.sphere, c: BLACK_HAIR, mat: faceMatrix(s * 0.31, 0.1, 0.01, [0.06, 0.16, 0.03], s * 0.12) })
+    }
+    p.push({ g: G.sphere, c: BLACK_HAIR, p: [0, -0.1, -0.37], s: [0.175, 0.15, 0.14] })
+    p.push({ g: G.cyl, c: '#c9953f', m: 'gold', p: [0, -0.07, -0.44], r: [0.2, 0, 1.15], s: [0.011, 0.22, 0.011] })
+    shine(p, '#4a3c44', 0.27, 1.075, 1.8, 0.013)
     // turquoise earrings
     for (const s of [-1, 1]) p.push({ g: G.sphere, c: '#3fb5a8', m: 'gloss', p: [s * 0.4, -0.15, 0.03], s: [0.024, 0.03, 0.024] })
   },
   torso: (p) => {
-    p.push({ g: garmentLathe(MOTHER_ROBE), c: '#ffffff', m: 'garment' })
-    // the coat's collar band, and the beige sash knotted in front with its ends hanging
-    p.push({ g: new THREE.TorusGeometry(0.1, 0.018, 5, 22), c: '#34406a', p: [0, 0.362, 0.004], r: [Math.PI / 2 - 0.08, 0, 0] })
-    p.push({ g: new THREE.TorusGeometry(0.214, 0.026, 6, 30), c: '#cbb48a', p: [0, 0.06, 0], r: [Math.PI / 2, 0, 0] })
-    p.push({ g: G.sphere, c: '#cbb48a', p: [0, 0.06, 0.21], s: [0.05, 0.04, 0.03] })
-    for (const [dx, rz] of [
-      [-0.03, 0.12],
-      [0.03, -0.12],
-    ])
-      p.push({ g: G.box, c: '#bfa87e', p: [dx, -0.06, 0.225], r: [0.08, 0, rz], s: [0.05, 0.2, 0.012] })
-    // bare toes peeping out under the skirt
-    for (const s of [-1, 1]) p.push({ g: G.sphere, c: '#fde2cc', p: [s * 0.08, -0.225, 0.2], s: [0.055, 0.035, 0.07] })
+    p.push({ g: garmentLathe(BABA), c: '#ffffff', m: 'garment' })
+    // the piping round the back of the neck (the front is the painted heart-shaped opening)
+    p.push({ g: new THREE.TorusGeometry(0.1, 0.014, 5, 22, Math.PI), c: '#553a52', p: [0, 0.362, 0.004], r: [Math.PI / 2 - 0.08, 0, Math.PI] })
   },
-  garment: motherCoatTex,
+  garment: motherBaBaTex,
   sleeveTex: motherSleeve,
-  arm: { sleeve: '#4d5a8c', cuff: '#34406a' },
-  leg: { pant: '#4c5a3b', shoe: '#fde2cc', hidden: true },
+  arm: { sleeve: '#74506e', cuff: '#553a52' },
+  // black lãnh trousers, bare feet
+  leg: { pant: '#28242c', cuff: '#322d37', wide: true, shoe: '#fde2cc', bare: true },
   idle: 'carry',
   handL: (
     <Upright id="mother">

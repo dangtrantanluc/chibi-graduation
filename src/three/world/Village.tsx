@@ -4,7 +4,7 @@ import { G, offsetParts, rng, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { canvas, toTexture } from '../lib/textures'
 import { taperTube } from '../characters/hair'
-import { BANYAN, BOARD, CONGLANG, HAYSTACK, HOUSE, VILLAGE_END, WELL, houseToWorld } from '../layout'
+import { BANYAN, BOARD, CONGLANG, HAYSTACK, HOUSE, VILLAGE_END, WELL, YARD_LAMP, houseToWorld } from '../layout'
 import { hipRoof } from '../lib/roof'
 import { matTex } from '../characters/garments'
 import { PLAQUES } from '../../config'
@@ -12,7 +12,9 @@ import { archRing, archedWall, box, cyl, nghe, panel, plinth, skirting } from '.
 import { Flags, Plaque, Sign } from './Common'
 
 /*
- * IV · A NORTHERN VILLAGE — home.
+ * IV · THE VILLAGE — home, and home is Bình Định (the train brings him back
+ * to it): coconut palms, a Cham tower behind the house (BinhDinh.tsx), rice
+ * paper drying in the yard.
  * You come in through the village gate, set into the bamboo hedge just
  * behind Đoan Môn. After the photograph: a round-arched central gate of
  * weathered grey plaster, a calligraphy band (地靈人傑) crowned by a "cuốn thư"
@@ -310,7 +312,48 @@ function yardParts(): Part[] {
   )
   p.push({ g: jar, c: '#8a5a3c', m: 'aged', p: [2.0, 0, 1.4] })
   p.push({ g: G.torusLo, c: '#6f4630', m: 'aged', p: [2.0, 0.55, 1.4], r: [Math.PI / 2, 0, 0], s: [0.42, 0.42, 0.2] })
+  p.push(...offsetParts(banhTrangRack(), [2.35, 0, 2.45], -0.3))
   return offsetParts(p, [HOUSE.x, 0, HOUSE.z], HOUSE.ry, HOUSE.s)
+}
+/**
+ * Phơi bánh tráng: a woven bamboo tray (liếp) propped up to the sun on two legs, six rounds of
+ * rice paper drying on it — the yards of Bình Định are full of them.
+ */
+function banhTrangRack(): Part[] {
+  const p: Part[] = []
+  const lean = 0.7 // from upright
+  const w = 1.15
+  const h = 0.86
+  const foot = 0.1
+  /** a point on the tray: u across, v up its slope */
+  const at = (u: number, v: number, off = 0): [number, number, number] => [u, foot + v * Math.cos(lean) + off * Math.sin(lean), -v * Math.sin(lean) + off * Math.cos(lean)]
+  p.push({ g: G.box, c: '#c2a468', m: 'wood', p: at(0, h / 2), r: [-lean, 0, 0], s: [w, h, 0.02] })
+  // the weave, and a bamboo frame round it
+  for (let k = 1; k < 8; k++) p.push({ g: G.box, c: k % 2 ? '#a88a50' : '#b89a5c', m: 'wood', p: at(0, (k / 8) * h, 0.012), r: [-lean, 0, 0], s: [w, 0.012, 0.006] })
+  for (const u of [-w / 2, w / 2]) p.push({ g: G.cyl, c: '#b8a064', m: 'wood', p: at(u, h / 2, 0.01), r: [-lean, 0, 0], s: [0.02, h + 0.06, 0.02] })
+  for (const v of [0, h]) p.push({ g: G.cyl, c: '#b8a064', m: 'wood', p: at(0, v, 0.01), r: [0, 0, Math.PI / 2], s: [0.02, w + 0.04, 0.02] })
+  // the rounds of rice paper, a little uneven, flecked with sesame
+  const rnd = rng(909)
+  for (const [u, v] of [
+    [-0.37, 0.22],
+    [0, 0.22],
+    [0.37, 0.22],
+    [-0.37, 0.64],
+    [0, 0.64],
+    [0.37, 0.64],
+  ]) {
+    const r = 0.165 + rnd() * 0.012
+    p.push({ g: new THREE.CylinderGeometry(r, r, 0.006, 20), c: rnd() < 0.5 ? '#f6efdc' : '#efe5cc', m: 'toy', p: at(u + (rnd() - 0.5) * 0.02, v + (rnd() - 0.5) * 0.02, 0.028), r: [Math.PI / 2 - lean, 0, 0] })
+    for (let k = 0; k < 5; k++) {
+      const a = rnd() * Math.PI * 2
+      const d = rnd() * r * 0.75
+      p.push({ g: G.sphereXs, c: '#3a3028', m: 'toy', p: at(u + Math.cos(a) * d, v + Math.sin(a) * d, 0.033), s: [0.008, 0.008, 0.003] })
+    }
+  }
+  // two legs behind, down to the ground
+  const [, ty, tz] = at(0, h * 0.92)
+  for (const u of [-w / 2 + 0.08, w / 2 - 0.08]) p.push({ g: G.cyl, c: '#9c8650', m: 'wood', p: [u, ty / 2, tz - 0.16], r: [0.36, 0, 0], s: [0.018, ty * 1.08, 0.018] })
+  return p
 }
 /** where the sedge mat lies, in the house's frame */
 const MAT: [number, number] = [1.2, 3.2]
@@ -367,6 +410,13 @@ function poleParts(): Part[] {
     // a crooked bamboo arm holding the lantern out over the path
     p.push({ g: taperTube([new THREE.Vector3(x, 2.2, z), new THREE.Vector3(x - Math.sign(x) * 0.25, 2.34, z), new THREE.Vector3(x - Math.sign(x) * 0.48, 2.3, z)], 0.022, 0.016, 8, 5), c: '#b8a064', m: 'wood' })
   }
+  // đèn ngõ: a knee-high bamboo stand at the edge of the lane — two short posts and a bar, the lantern under it
+  const { x, y, z } = YARD_LAMP
+  for (const s of [-1, 1]) {
+    p.push(cyl(0.02, y + 0.04, [x + s * 0.19, (y + 0.04) / 2, z], '#b8a064', 'wood'))
+    p.push(cyl(0.024, 0.022, [x + s * 0.19, 0.3, z], '#8f7a44', 'wood'))
+  }
+  p.push({ g: G.cyl, c: '#b8a064', m: 'wood', p: [x, y + 0.005, z], r: [0, 0, Math.PI / 2], s: [0.016, 0.46, 0.016] })
   return p
 }
 

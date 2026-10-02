@@ -5,7 +5,7 @@ import { on, world } from '../../state/world'
 import { mergeKit, G, type Part } from '../lib/kit'
 import { glowTex, silkTex } from '../lib/textures'
 import { uGlow, uNight } from '../lib/materials'
-import { NGOMON } from '../layout'
+import { NGOMON, YARD_LAMP } from '../layout'
 import { VILLAGE_POLES } from './Village'
 import { PLAZA0, STRING_X } from './Hue'
 import { LAMP_X } from './ThangLong'
@@ -41,8 +41,11 @@ export const LANTERNS: LanternDef[] = (() => {
     const y = 2.62 - 0.42 * Math.sin(Math.PI * t)
     L.push({ a: [x, y, -24.8], len: 0.1, size: k % 2 ? 0.7 : 0.8, zone: 'hanoi', style: k % 2 ? 'hoian' : 'star', color: k % 2 ? HOIAN[h++ % HOIAN.length] : ['#e8453a', '#f2c14e', '#e9577f'][k % 3] })
   }
-  // the village: red lanterns on bamboo arms, lit one by one by threads of gold
-  VILLAGE_POLES.forEach(([x, z], i) => L.push({ a: [x - Math.sign(x) * 0.46, 2.28, z], len: 0.1, size: 0.72, zone: 'village', style: 'hoian', color: '#d8352c', idx: i }))
+  // the village: red lanterns on bamboo arms. The first is the low one at the edge of the lane,
+  // which Lực lights from his own lamp; the others take from it, the nearest first
+  L.push({ a: [YARD_LAMP.x, YARD_LAMP.y, YARD_LAMP.z], len: 0.04, size: 0.6, zone: 'village', style: 'hoian', color: '#d8352c', idx: 0 })
+  const near = VILLAGE_POLES.map(([x, z], i) => ({ i, d: Math.hypot(x - YARD_LAMP.x, z - YARD_LAMP.z) })).sort((a, b) => a.d - b.d)
+  VILLAGE_POLES.forEach(([x, z], i) => L.push({ a: [x - Math.sign(x) * 0.46, 2.28, z], len: 0.1, size: 0.72, zone: 'village', style: 'hoian', color: '#d8352c', idx: 1 + near.findIndex((n) => n.i === i) }))
   // Huế: lanterns under Lầu Ngũ Phụng, along the two strings, stars on bamboo poles
   for (const x of [-3.6, -1.6, 1.6, 3.6]) L.push({ a: [x, NGOMON.h + 1.3, NGOMON.z + 0.95], len: 0.3, size: 1.05, zone: 'hue', style: 'hoian', color: HOIAN[h++ % HOIAN.length] })
   const front = NGOMON.z + NGOMON.depth / 2 + NGOMON.wing + 0.2
@@ -212,7 +215,8 @@ export function Lanterns() {
       if (l.zone === 'hanoi') g = 0.9 + world.glow.hanoi
       else if (l.zone === 'hue') g = 0.95 + world.glow.hue
       else {
-        const th = (l.idx ?? 0) / VILLAGE_POLES.length
+        // (unlit until the flame reaches it: the first by villageWave ≈ 0.15, the last by 1)
+        const th = ((l.idx ?? 0) + 0.4) / (VILLAGE_POLES.length + 1)
         const w = THREE.MathUtils.smoothstep(world.villageWave, th - 0.05, th + 0.08)
         g = 0.05 + 1.3 * w + world.glow.village
       }

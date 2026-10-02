@@ -9,14 +9,15 @@ import { rng } from '../lib/kit'
 /**
  * Foreground objects that sweep right in front of the lens to hide a cut —
  * each one is a beat of Lực's journey:
- *   train  — the North–South express (Diêu Trì → Sài Gòn) roars past
+ *   train  — the North–South express (Bồng Sơn → Sài Gòn) roars past
+ *   trainHome — the same train, years later, the other way: Hà Nội → Bồng Sơn
  *   leaves — a gust of Hà Nội autumn leaves fills the frame
  *   bamboo — the camera slips through the culms of the village hedge
  * At p = 0.5 the frame is covered.
  */
 
 /** the side of a Thống Nhất coach: deep blue, a cream band, warm windows, a destination board */
-function coachTex(loco: boolean) {
+function coachTex(loco: boolean, board = 'BỒNG SƠN – SÀI GÒN') {
   const [c, g] = canvas(1024, 256)
   const body = loco ? '#c8352e' : '#2f4f8f'
   g.fillStyle = body
@@ -58,14 +59,18 @@ function coachTex(loco: boolean) {
         g.fillRect(x + 20, 96, 30, 20)
       }
     }
-    // destination board
+    // destination board, under the windows in the middle of the coach (the lens sees the coach from
+    // the window line down to the stripes)
     g.fillStyle = '#f7f3e8'
-    roundRect(g, 380, 196, 264, 44, 8)
+    roundRect(g, 292, 126, 440, 52, 9)
     g.fill()
+    g.strokeStyle = '#1d2433'
+    g.lineWidth = 3
+    g.stroke()
     g.fillStyle = '#b8352c'
-    g.font = `900 28px ${FONT_UI}`
+    g.font = `900 36px ${FONT_UI}`
     g.textAlign = 'center'
-    g.fillText('DIÊU TRÌ – SÀI GÒN', 512, 228)
+    g.fillText(board, 512, 165)
     g.textAlign = 'left'
   }
   return toTexture(c)
@@ -79,8 +84,10 @@ export function Wipe() {
   const train = useRef<THREE.Group>(null!)
   const bamboo = useRef<THREE.Group>(null!)
 
-  const { coach, loco, dark, culmMat, nodeMat, leafMesh, leafSeeds } = useMemo(() => {
-    const coach = new THREE.MeshStandardMaterial({ map: coachTex(false), roughness: 0.45, metalness: 0.15 })
+  const { coach, boards, loco, dark, culmMat, nodeMat, leafMesh, leafSeeds } = useMemo(() => {
+    // the destination board: out to Sài Gòn, and home again
+    const boards = { train: coachTex(false), trainHome: coachTex(false, 'HÀ NỘI – BỒNG SƠN') }
+    const coach = new THREE.MeshStandardMaterial({ map: boards.train, roughness: 0.45, metalness: 0.15 })
     const loco = new THREE.MeshStandardMaterial({ map: coachTex(true), roughness: 0.45, metalness: 0.15 })
     const dark = new THREE.MeshStandardMaterial({ color: '#23262e', roughness: 0.7 })
     const culmMat = patchMaterial(new THREE.MeshStandardMaterial({ color: '#86b35e', roughness: 0.55 }), { rim: { color: '#f4ffd0', strength: 0.5, power: 2 } }, 'wipeCulm')
@@ -99,7 +106,7 @@ export function Wipe() {
       leafMesh.setColorAt(i, col.set(pal[Math.floor(r() * pal.length)]))
       return { d: 0.45 + r() * 1.4, y: (r() - 0.5) * 2.2, lag: (r() - 0.5) * 0.5, spin: 3 + r() * 8, s: 0.9 + r() * 1.6, ph: r() * 6.3 }
     })
-    return { coach, loco, dark, culmMat, nodeMat, leafMesh, leafSeeds }
+    return { coach, boards, loco, dark, culmMat, nodeMat, leafMesh, leafSeeds }
   }, [])
   const tmp = useMemo(() => ({ m: new THREE.Matrix4(), q: new THREE.Quaternion(), e: new THREE.Euler(), v: new THREE.Vector3(), s: new THREE.Vector3() }), [])
 
@@ -113,16 +120,20 @@ export function Wipe() {
     const persp = camera as THREE.PerspectiveCamera
     const halfH = Math.tan(THREE.MathUtils.degToRad(persp.fov) / 2)
     const halfW = halfH * persp.aspect
-    train.current.visible = kind === 'train'
+    const home = kind === 'trainHome'
+    train.current.visible = kind === 'train' || home
     bamboo.current.visible = kind === 'bamboo'
     leafMesh.visible = kind === 'leaves'
-    if (kind === 'train') {
+    if (kind === 'train' || home) {
       // the whole train passes right → left; the view is covered around p = 0.5
+      // (the train home is turned about, engine first the other way: left → right)
       const d = 1.25
       const sc = Math.max(1, (halfH * d * 2.3) / 1.0)
       const reach = halfW * d + (4 * 2.3 * sc) / 2 + 0.3
-      train.current.position.set(THREE.MathUtils.lerp(reach, -reach, p), -0.06, -d)
+      train.current.position.set(THREE.MathUtils.lerp(reach, -reach, home ? 1 - p : p), -0.06, -d)
+      train.current.rotation.y = home ? Math.PI : 0
       train.current.scale.setScalar(sc)
+      coach.map = boards[home ? 'trainHome' : 'train']
     } else if (kind === 'bamboo') {
       bamboo.current.children.forEach((culm, i) => {
         const d = 0.6 + i * 0.22

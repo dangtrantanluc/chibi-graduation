@@ -405,6 +405,8 @@ export const ACTION_DUR: Record<string, number> = {
   patBack: 1.7,
   nudge: 0.7,
   tear: 2.6,
+  kindle: 2.4,
+  lift: 3.5,
   lookAbout: 6.6,
 }
 
@@ -630,6 +632,30 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
         tg.hX += 0.3 * e
         armR(e, -0.85, 0.3, 1.5, 0.75)
         armL(e, 0.45, 0.3, 0.3, 0)
+        mood = 'happy'
+        break
+      }
+      case 'kindle': {
+        // châm đèn: he leans to his left and holds the lamp out low, to the mouth of the lantern
+        const e = env(tau, ACTION_DUR.kindle, 0.45, 0.5)
+        armL(e, -0.12, 0.72, 0.1, 0)
+        tg.tZ += 0.15 * e
+        tg.tX += 0.1 * e
+        tg.hZ += 0.16 * e
+        tg.hipX += 0.03 * e
+        break
+      }
+      case 'lift': {
+        // he stoops to the lantern on his left, then brings it up over his head in both hands
+        // and holds it there until it pulls away
+        const up = sstep(0.25, 1.35, tau) * (1 - sstep(ACTION_DUR.lift - 0.6, ACTION_DUR.lift, tau))
+        const stoop = sstep(0, 0.3, tau) * (1 - sstep(0.35, 1.1, tau))
+        armL(Math.max(up, stoop), -0.15 * stoop, lerp(0.8, 2.6, up), 0.08, lerp(0, 0.4, up))
+        armR(up, 0, -2.6, 0.08, -0.4)
+        tg.sL = 0.28 * up
+        tg.sR = 0.28 * up
+        tg.tZ += 0.15 * stoop
+        tg.tX += 0.1 * stoop - 0.04 * up
         mood = 'happy'
         break
       }

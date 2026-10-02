@@ -36,6 +36,16 @@ export const PROCLAMATION = {
 }
 
 /**
+ * Thả đèn trời: where a guest's wish goes when they let a lantern go. Paste the
+ * "web app URL" (…/exec) of the Google Apps Script in docs/wishes-apps-script.gs
+ * — it adds a row to your own sheet, and only you can read it. Left empty,
+ * nothing is sent: the wish stays in the guest's browser.
+ */
+export const WISHES = {
+  endpoint: 'https://script.google.com/macros/s/AKfycbyZUL6V33BO205pZwqTolxAaXErf66EgbTsnxXSIQoTtv-uaOaDY0iXgV4Pj2Scfkw8/exec',
+}
+
+/**
  * Background music. Files live in /public/audio. The journey track plays from
  * the first tap; the Huế track fades in as the guest steps through the village
  * gate toward Ngọ Môn. Keep the credit lines if a track's licence asks for it.
@@ -61,6 +71,27 @@ export const MUSIC = {
       license: 'CC BY 4.0',
       licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
     },
+  },
+}
+
+/**
+ * Recorded sounds. Files live in /public/audio and are optional: while a file
+ * is not there the story keeps its synthesized stand-in, and the credit line
+ * is not shown.
+ */
+export const SFX = {
+  // The North–South train going by (chapters II and IV): two short cuts from
+  // "Train Sounds & Train Station Sound Effects Library Vietnam", recorded on
+  // Vietnam's railways — CC BY 4.0 (attribution required).
+  train: {
+    /** leaving home (Bồng Sơn → Sài Gòn), and coming back (Hà Nội → Bồng Sơn): each about 5 s, loudest 1.6 s in */
+    out: `${import.meta.env.BASE_URL}audio/train-out.mp3`,
+    home: `${import.meta.env.BASE_URL}audio/train-home.mp3`,
+    title: 'Train Sounds Vietnam',
+    author: 'Free To Use Sounds',
+    url: 'https://freetousesounds.bandcamp.com/album/train-sounds-train-station-sound-effects-library-vietnam',
+    license: 'CC BY 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
   },
 }
 

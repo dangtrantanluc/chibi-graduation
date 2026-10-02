@@ -35,14 +35,17 @@ export function Effects() {
     const c = world.cam
     // the map view: no depth of field, a strong tilt-shift instead — the board as a miniature
     const map = world.overview.k
+    // while a train goes by right in front of the lens, the lens is on it (its destination board can be read)
+    const w = world.wipe
+    const near = w.kind === 'train' || w.kind === 'trainHome' ? 1 - Math.sin(Math.PI * Math.min(Math.max(w.p, 0), 1)) : 1
     if (dof.current) {
       dof.current.target = c.focus
-      dof.current.bokehScale = 3.2 * c.dof * (1 - map)
+      dof.current.bokehScale = 3.2 * c.dof * (1 - map) * near
       dof.current.cocMaterial.worldFocusRange = c.range
     }
     // the grey city drains the colour out of the picture; it comes back with the sun
     if (hue.current) hue.current.saturation = grade.sat
-    if (tilt.current) tilt.current.blur = (high ? 0.22 * c.tilt : 0.1 + 0.18 * Math.max(c.tilt, c.dof * 0.5)) * (1 - map) + 0.16 * map
+    if (tilt.current) tilt.current.blur = (high ? 0.22 * c.tilt : 0.1 + 0.18 * Math.max(c.tilt, c.dof * 0.5)) * (1 - map) * near + 0.16 * map
   })
 
   if (high) {

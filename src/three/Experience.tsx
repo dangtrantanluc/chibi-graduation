@@ -29,6 +29,7 @@ import { PottedMai } from './world/Foliage'
 import { Fireflies, NightBackdrop } from './fx/Night'
 import { CloudDragon } from './fx/CloudDragon'
 import { LacBirds } from './fx/LacBirds'
+import { SkyLanterns } from './fx/SkyLanterns'
 import { MAI_POTS } from './layout'
 
 const MAI: [number, number, number][] = MAI_POTS.map(([x, z]) => [x, 0.4, z])
@@ -137,6 +138,7 @@ export default function Experience() {
         <Lazy at={5}>
           <Princess />
           <HangingScroll />
+          <SkyLanterns />
           {MAI.map((p, i) => (
             <PottedMai key={i} position={p} />
           ))}

@@ -1,4 +1,4 @@
-import { MUSIC } from '../config'
+import { MUSIC, SFX } from '../config'
 
 /*
  * Background music + a few synthesized sound touches.
@@ -35,7 +35,59 @@ function ensure() {
   master.connect(ctx.destination)
   bus = ctx.createGain()
   bus.connect(master)
+  loadSamples(ctx)
   return ctx
+}
+
+// ── recorded sounds ─────────────────────────────────────────
+const SAMPLES = { trainOut: SFX.train.out, trainHome: SFX.train.home }
+type Sample = keyof typeof SAMPLES
+const samples = new Map<Sample, AudioBuffer>()
+const sampleListeners = new Set<() => void>()
+/** Fetch and decode the recorded sounds, once. A file that is not there is simply left out. */
+function loadSamples(c: AudioContext) {
+  for (const key of Object.keys(SAMPLES) as Sample[])
+    fetch(SAMPLES[key])
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error('missing'))))
+      .then((data) => c.decodeAudioData(data))
+      .then((buf) => {
+        samples.set(key, buf)
+        sampleListeners.forEach((f) => f())
+      })
+      .catch(() => undefined)
+}
+/** is there a recording of the train to play (and to credit)? */
+export function trainReady() {
+  return samples.has('trainOut') || samples.has('trainHome')
+}
+export function onSamples(fn: () => void) {
+  sampleListeners.add(fn)
+  return () => {
+    sampleListeners.delete(fn)
+  }
+}
+
+/**
+ * The train going by: a recording, cut so that it is loudest about 1.6 s in — call it that long
+ * before the coaches fill the frame. The music gives way to it. Does nothing if there is no file.
+ */
+export function train(home = false, level = 0.9) {
+  const c = ensure()
+  if (!c || !master || muted) return
+  const buf = samples.get(home ? 'trainHome' : 'trainOut') ?? samples.get(home ? 'trainOut' : 'trainHome')
+  if (!buf) return
+  const now = c.currentTime
+  const src = c.createBufferSource()
+  src.buffer = buf
+  const g = c.createGain()
+  g.gain.setValueAtTime(0, now)
+  g.gain.linearRampToValueAtTime(level, now + 0.3)
+  g.gain.setValueAtTime(level, now + Math.max(0.3, buf.duration - 1.4))
+  g.gain.linearRampToValueAtTime(0, now + buf.duration)
+  src.connect(g).connect(master)
+  src.start(now)
+  duckMusic(0.3, 0.6)
+  setTimeout(() => duckMusic(1, 1.6), Math.max(0, buf.duration - 1.6) * 1000)
 }
 
 function channel(zone: Zone) {

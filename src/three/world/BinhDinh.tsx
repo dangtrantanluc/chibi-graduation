@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { G, offsetParts, rng, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { canvas, FONT_CJK, toTexture } from '../lib/textures'
-import { BENCH, BOARD, CHAM, GATE, PADDY } from '../layout'
+import { BENCH, BOARD, CHAM, CHAM_HOME, GATE, PADDY } from '../layout'
 import { PLAQUES } from '../../config'
 import { bench, box, cyl, dragon, lotusBud, plinth, stoneElephant } from './parts'
 import { dragonParts } from './dragon'
@@ -291,7 +291,7 @@ function wallParts(): Part[] {
 // ═══════════════════════════════════════════════════════════
 //  Tháp Cánh Tiên — a Cham brick tower (kalan)
 // ═══════════════════════════════════════════════════════════
-function chamTower(): Part[] {
+function chamTower(at: { x: number; z: number } = CHAM, ry = -0.35, scale = 1): Part[] {
   const BR = '#9a5a45'
   const BR2 = '#86503e'
   const p: Part[] = []
@@ -355,8 +355,10 @@ function chamTower(): Part[] {
     { g: G.cone, c: BR2, m: 'aged', p: [0, 2.35, 0], s: [0.34, 0.5, 0.3] },
   ]
   p.push(...offsetParts(ves, [1.4, 0, 0], Math.PI / 2))
-  return offsetParts(p, [CHAM.x, 0, CHAM.z], -0.35)
+  return offsetParts(p, [at.x, 0, at.z], ry, scale)
 }
+/** … and the one behind his parents' house (chapter IV): home is this same country */
+const chamTowerHome = () => chamTower(CHAM_HOME, CHAM_HOME.ry, CHAM_HOME.s)
 
 // ═══════════════════════════════════════════════════════════
 //  countryside: paddy dykes, haystacks, a field hut, the bench
@@ -451,6 +453,7 @@ export function BinhDinh() {
       <KitMesh build={gateParts} />
       <KitMesh build={wallParts} />
       <KitMesh build={chamTower} />
+      <KitMesh build={chamTowerHome} />
       <KitMesh build={countryParts} />
       {faces.map((f, i) => (
         <mesh key={i} position={f.p} rotation-y={f.ry} material={f.big ? faceMat.big : faceMat.small}>

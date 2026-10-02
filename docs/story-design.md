@@ -7,6 +7,18 @@ cổng, và cả năm cổng nằm thẳng trên một trục của bàn diorama
 
 Khách (người được mời) đi theo Lực từ quê nhà đến kinh thành Huế.
 
+**Luận điểm của truyện: không cổng nào Lực tự qua một mình.** Ở cổng thành
+Hoàng Đế, khách tới thì cậu mới đứng dậy đi. Ở Sài Gòn, bạn gọi tên thì nắng
+mới lên. Ở Đoan Môn, cô bạn Hà Nội dạy cậu bớt nhát. Ở cổng làng, bố mẹ đứng ra
+hai bên đường và mẹ vỗ lưng. Ở Ngọ Môn, bảng vàng cuộn lên thì lối vào mới mở.
+Vì vậy mới có lời mời: cổng cuối cùng cần khách. "Đi với mình một chuyến nhé" ở
+đầu và "See you inside" ở cuối là hai đầu của cùng một câu.
+
+**Hai sự thật của Lực mà truyện dựa vào.** Hà Nội là chuyến đi đầu tiên cậu
+bước ra khỏi vùng an toàn: tự đặt vé, đi xa, một mình; những người bạn ở đó đã
+giúp cậu thay đổi. Và nhà cậu ở Bình Định, nên "về nhà" ở chương IV là về lại
+đúng miền quê của chương I.
+
 **Vì sao là Huế.** Huế là cố đô còn giữ kiến trúc thời phong kiến, và ngày xưa
 tin đỗ đạt hay việc hệ trọng được báo ở kinh đô. Triều Nguyễn làm **lễ Truyền
 lô** ở điện Thái Hòa và trước Ngọ Môn: quan Bộ Lễ xướng tên các tân khoa ghi
@@ -81,9 +93,15 @@ vào máy quay. Đây là tình bạn qua những buổi code chung.
 | Túi đeo chéo navy, móc thỏ trắng thắt nơ xanh | Dây túi vắt chéo ngực, túi có nắp và khoá vàng, móc thỏ và cỏ bốn lá đung đưa |
 | Tính cách năng động, yêu thiên nhiên; nháy mắt giơ chữ V | Hai ngón chữ V hiện ra khi giơ tay |
 
-**Hoạt ảnh**: nhảy chân sáo, vẫy thật to, **giơ chữ V nháy mắt** (key art), rồi
-**chìa bó cúc hoạ mi** về phía khách. Cúc hoạ mi là loài hoa của Hà Nội cuối thu,
-nên vừa đúng mùa, vừa đúng tính cách "yêu thiên nhiên".
+**Hoạt ảnh**: cùng Lực ngước nhìn rồng, rồi nhảy chân sáo quay sang cậu: "Ngày
+đầu ra đây cậu nhát lắm. Cười lên xem nào!" Cô **giơ chữ V nháy mắt** (key art)
+về phía khách; Lực bắt chước, lần đầu còn liếc sang cô xem đã đúng chưa, cô bật
+cười; lần hai cả hai cùng giơ về phía khách. Cuối cùng cô **chìa bó cúc hoạ mi**
+cho khách, không cần lời. Cúc hoạ mi là loài hoa của Hà Nội cuối thu, nên vừa
+đúng mùa, vừa đúng tính cách "yêu thiên nhiên".
+
+Chữ V là thứ Lực mang theo từ Hà Nội: cậu dùng lại nó ở Ngọ Môn, khi mọi người
+quay về phía khách, và ở cảnh kết. Đó là "phiên bản tốt hơn" nhìn thấy được.
 
 ### Bố & Mẹ — thay cho nữ quan (theo ảnh tham chiếu)
 
@@ -92,8 +110,8 @@ nên vừa đúng mùa, vừa đúng tính cách "yêu thiên nhiên".
 | Bố: khăn caro đen trắng quấn đầu, thắt nút bên hông | Khăn vải caro (vẽ ô kẻ) phủ đỉnh đầu, một vòng khăn cuộn, nút khăn bên phải với hai đầu khăn vểnh ra |
 | Áo cánh nâu, thắt lưng vải, quần đùi nâu, chân trần | Áo vải thô dệt tay: cúc vải, xẻ cổ, túi đắp, **miếng vá sau lưng**, chỗ bạc màu; tay áo xắn; thắt lưng vải buông hai đầu; quần đùi xắn gấu; bàn chân trần có ngón |
 | Tay cầm liềm | Liềm cán gỗ, lưỡi cong |
-| Mẹ: khăn vấn chàm, hoa tai ngọc | Khăn vấn hai vòng quấn, đuôi khăn buông cạnh tai, tóc rẽ ngôi giữa; hoa tai ngọc lam |
-| Áo tứ thân chàm, yếm đỏ, thắt lưng vải, váy | Áo vẽ tay: vải chàm bạc màu loang, nẹp áo chàm đậm; mở vạt thấy yếm đỏ gạch và váy xanh rêu; thắt lưng thắt nút trước bụng, buông hai đầu; ngón chân trần ló dưới váy |
+| Mẹ: tóc búi, hoa tai ngọc | Tóc rẽ ngôi giữa, vuốt ra sau tai, **búi thấp sau gáy** có trâm đồng; hoa tai ngọc lam |
+| **Áo bà ba** màu mận, quần lãnh đen, chân trần (người Bình Định, không còn áo tứ thân và khăn vấn của miền Bắc) | Áo vẽ tay: vải bạc màu loang, nhạt nhất ở vai; **cổ tim** viền nẹp; hàng **nút bấm** giữa thân; hai túi đắp ở vạt trước; **xẻ tà** hai bên hông lộ quần đen; gấu và cổ tay may gập; quần ống rộng, bàn chân trần có ngón |
 | Tay xách giỏ lúa | Giỏ tre đan (sọc nan), quai, bông lúa chín vàng rủ xuống |
 
 Bối cảnh của họ là **nhà tranh vách đất** nằm *trong* làng: đi qua cổng làng rồi
@@ -102,18 +120,20 @@ mới về tới nhà. Nhà ở bên phải đường gạch, quay mặt ra phí
 - **Mái rạ hai lớp**: sợi rơm chạy dọc mái, tua rơm xù so le ở mép, bó nóc buộc lạt tre.
 - Trước nhà trải **chiếu cói viền đỏ**, trên chiếu có **hai chiếc nón lá**, bên cạnh là **rổ bắp** và **chum sành**.
 - Bên hông nhà là **cây rơm**, sau nhà là lũy tre.
+- Dấu hiệu Bình Định: **liếp phơi bánh tráng** (sáu chiếc bánh tròn có mè) dựng cạnh chum sành; cây trong làng là **dừa**; sau mái rạ nhô lên mấy tầng trên của một **tháp Chăm**, cùng kiểu với tháp Cánh Tiên ở chương I.
 
 **Chương IV — hoạt ảnh và lý do**
-1. Lực vẫy chào cô bạn Hà Nội rồi **bước qua vòm Đoan Môn và cổng làng**; máy quay đi theo sau lưng cậu trong một cú máy liền.
+1. Lực vẫy chào cô bạn Hà Nội rồi **bước qua vòm Đoan Môn**; vừa ra khỏi vòm thì **tàu Thống Nhất lướt qua ống kính lần nữa, chạy ngược chiều, bảng ghi "HÀ NỘI – BỒNG SƠN"**; tàu đi khỏi là tới cổng làng. Máy quay đi theo sau lưng cậu trong một cú máy liền.
 2. Bố mẹ đứng trong sân trước nhà tranh, ngóng về phía cổng. Thấy con, bố vẫy tay, mẹ mỉm cười.
 3. Lực **khoanh tay cúi chào**: "Con chào bố mẹ ạ!" Ba người đứng thành hàng ngang, hơi xoay về phía ống kính để thấy rõ mặt cả ba.
 4. Lực lấy ra **bằng tốt nghiệp** làm theo lối **tờ sớ** (hình thức cổ, nội dung vẫn là tấm bằng): "Con tốt nghiệp rồi — bằng của con đây ạ!"
    - Giấy vàng, viền đỏ kép, hai cột chữ Hán đỏ **文憑** (văn bằng) và **畢業** (tốt nghiệp).
    - Nội dung: "BẰNG TỐT NGHIỆP · Trường ĐH Nông Lâm TP.HCM · Khoa CNTT · Sinh viên Lực", có dấu son.
    - Tờ giấy cuộn trên hai trục gỗ sơn son, **trải dần ra từ giữa** khi hai tay dang.
-5. Mẹ vỗ tay, bố giơ tay reo. **Đèn lồng dọc đường làng sáng dần lên**, từng chiếc một (không còn tia sáng nối từ tờ giấy). Lực quay sang giơ giấy cho khách xem.
-6. Lực bước ra giữa đường làng; bố mẹ **đứng ra hai bên đường** và đưa tay mời con: "Giỏi lắm con trai! … đi cùng Lực vào Huế nhé". Phía sau họ là **vòm tre** cuối làng và Ngọ Môn.
-7. Lực đi giữa bố mẹ, qua vòm tre. Bố mẹ reo cổ vũ rồi đi theo sau, vào đứng hai bên Lực và công nương ở Ngọ Môn.
+5. Mẹ vỗ tay, bố giơ tay reo. Lực quay sang giơ giấy cho khách xem.
+6. **Châm đèn ngõ.** Lực cuộn bằng lại, bước ra mép đường làng, nơi có một chiếc đèn lồng treo trên **giá tre thấp ngang gối**. Cậu nghiêng người đưa **ngọn đèn đã cầm suốt hành trình** tới; đốm lửa nhảy sang, đèn ngõ sáng lên. Rồi **đèn dọc đường làng bắt lửa theo, chiếc gần nhất trước**. Trước đây hàng đèn tự sáng khi mở bằng; giờ nó có nguyên nhân: Lực mang lửa về nhà.
+7. Lực bước ra giữa đường làng; bố mẹ **đứng ra hai bên đường** và đưa tay mời con: "Về là mừng rồi. Đi đi con, mọi người đang đợi." Phía sau họ là **vòm tre** cuối làng và Ngọ Môn.
+8. Lực đi giữa bố mẹ, qua vòm tre. Bố mẹ reo cổ vũ rồi đi theo sau, vào đứng hai bên Lực và công nương ở Ngọ Môn.
 
 ### Công nương (áo nhật bình)
 
@@ -156,7 +176,12 @@ Giữ nguyên: **múa hoa đăng** trước Ngọ Môn khi bảng vàng mở ra.
 - **Lầu hai tầng mái ngói mũi hài** màu đất nung, có **rồng đá** trên các góc mái dưới và **đầu hồi** quay ra mặt tiền.
 - Không khí thu: **cây lá vàng** và **hoa sữa**, lá vàng phủ sân và bay khi có gió, **xe đạp chở cúc hoạ mi và cúc vàng**, **gánh cốm** gói lá sen kèm nón lá, **cột đèn gang xanh** kiểu phố cổ, ghế công viên, và một dây **đèn Trung Thu** (đèn ông sao, đèn lồng) giăng qua đường.
 
-### IV · Làng Bắc Bộ — cổng làng và nhà bố mẹ (ảnh 7, ảnh 8)
+### IV · Về nhà (Bình Định) — cổng làng và nhà bố mẹ (ảnh 7, ảnh 8)
+
+Cổng làng dựng theo ảnh tham chiếu (kiểu cổng làng Bắc Bộ) và được giữ nguyên,
+cùng cây đa và giếng. Những thứ nói "đây là Bình Định" nằm quanh nó: chuyến tàu
+về Bồng Sơn, dòng địa điểm "Về nhà · Bình Định", dừa, tháp Chăm sau nhà, liếp
+bánh tráng trong sân và áo bà ba của mẹ.
 
 - Cổng **vòm cuốn** trát vữa xám ám rêu, có ô trang trí lõm.
 - **Bảng chữ 地靈人傑** (địa linh nhân kiệt), bên trên là **cuốn thư** cuộn hai đầu và hạt châu.
@@ -201,7 +226,7 @@ Giữ nguyên: **múa hoa đăng** trước Ngọ Môn khi bảng vàng mở ra.
 | I · Bình Định | Bình minh | Lên đường |
 | II-a · Phố Sài Gòn | Trời xám | Năm nhất, năm hai: lạc giữa phố đông |
 | II-b · Nông Lâm | Nắng trưa bừng lên khi bạn gọi tên | Có bạn |
-| III · Hà Nội | Chiều thu vàng | Đi xa |
+| III · Hà Nội | Chiều thu vàng | Tự mình đi xa |
 | IV · Về nhà | Hoàng hôn | Trở về |
 | V · Huế và cảnh kết | Đêm đèn lồng | Báo tin ở kinh đô |
 
@@ -214,6 +239,10 @@ Giữ nguyên: **múa hoa đăng** trước Ngọ Môn khi bảng vàng mở ra.
 **Con phố lạnh, và cổng thành không nhìn ra phố.**
 - Dưới trời xám, cả khung hình bị rút bớt màu, bóng đổ mềm và nhạt, sương kéo gần lại, có mưa bụi và mặt đường ướt bóng. Xe, mũ, xe bánh mì đều sơn màu trầm; đèn đường và đèn xe là ánh trắng lạnh. Thứ ấm duy nhất là ngọn đèn của Lực (màu lửa được đẩy ấm lên đúng bằng mức khung hình bị rút màu).
 - Con phố (xe, người, cột điện) chỉ tồn tại từ chương II. Ở màn mở đầu và chương I, các ô cổng thành phủ một lớp sương sáng: dày sát mặt đất, mỏng dần lên trên, chỉ lờ mờ thấy ngọn cây phía sau.
+
+**Chương III — một mình lần thứ hai.** Chương này mở bằng đúng khung hình của con phố: máy cao và xa, Lực nhỏ giữa một nơi lạ, một mình với ngọn đèn. Nhưng ở phố cậu bị cuốn tới và đứng khựng, máy lùi ra xa cho cậu nhỏ dần; còn đây là chuyến đi cậu tự chọn, nên cậu **đi thẳng tới** và máy hạ dần xuống với cậu. Rồng vàng bay lên từ sau Đoan Môn đúng lúc cậu đang bước, nên "Thăng Long" là chuyện của Lực chứ không chỉ là cảnh để xem.
+
+**Đường đi của ngọn lửa.** Một ngọn đèn trước bình minh ở quê → thứ ấm duy nhất giữa phố xám → về tới nhà thì châm đèn ngõ, hàng đèn làng bắt lửa theo → kinh thành đèn lồng → châm chiếc đèn trời mang lời chúc của khách → một trời đèn. Ánh trời tắt dần qua một ngày, ánh người sáng dần.
 
 **Chương IV — gần như không lời, có chạm.**
 - Lực khoanh tay cúi thật sâu; **bố đặt tay xoa đầu con**; mẹ đưa tay lên má, mắt rưng rưng.
@@ -265,7 +294,7 @@ Nhân vật không thuyết minh nơi chốn hay lịch sử (dòng địa đi�
 | --- | --- | --- |
 | I | Lực | "{Tên} tới rồi à! Đi với mình một chuyến nhé." |
 | II | bạn CNTT | "Ê Lực! Bốn năm rồi đó. Đập tay cái nào!" |
-| III | bạn Hà Nội | "Cúc họa mi đầu mùa đó. Cầm đi cho may." |
+| III | bạn Hà Nội | "Ngày đầu ra đây cậu nhát lắm. Cười lên xem nào!" |
 | IV | Lực | "Bố mẹ ơi… con làm được rồi." |
 | IV | Bố & Mẹ | "Về là mừng rồi. Đi đi con, mọi người đang đợi." |
 | V | Công nương | "Tân khoa Lực!" |
@@ -276,13 +305,13 @@ Nhân vật không thuyết minh nơi chốn hay lịch sử (dòng địa đi�
 
 | Di tích | Kiểu rồng | Đặc điểm | Ở đâu |
 | --- | --- | --- | --- |
-| Hoàng thành Thăng Long | **Thời Lý** | Thân thon uốn nhiều khúc mềm thu nhỏ dần về đuôi; không sừng, mào lửa chữ S trên môi, bờm dài, miệng ngậm ngọc, chân nhỏ ba móng, đuôi thuôn nhọn | Thềm rồng đá hai bên lối vào cửa giữa Đoan Môn; rồng trên góc mái; rồng vàng bay |
+| Hoàng thành Thăng Long | **Thời Lý** | Thân thon uốn nhiều khúc mềm, thu đều về đuôi; **không sừng**; môi trên vươn thành **mào hình lá** có gờ uốn chữ S; **ngà cong dài** từ khóe miệng; mày dày, tai cuộn xoắn; miệng há có răng nhỏ, lưỡi dài, ngậm ngọc; bờm và râu thành lọn dài bay ngược ra sau; **vảy** xếp lớp như ngói trên lưng, **tấm bụng** nhạt màu; vây lửa nhỏ sát nhau, dài như bờm ở cổ; bốn chân mảnh ba móng một cựa, khuỷu có chùm lông; đuôi roi có chùm lông ở chót | Thềm rồng đá hai bên lối vào cửa giữa Đoan Môn; rồng trên góc mái; rồng vàng bay |
 | Cổng thành Hoàng Đế | **Thời Tây Sơn** (theo lối Lê Trung Hưng) | Thân mập uốn vài khúc mạnh, đầu to có sừng, các "đao mác" (dải lửa dài thẳng) từ đầu và khuỷu chân, đuôi một ngọn lửa dài | Rồng khảm sành quấn cột; rồng trên xà và đầu tường |
 | Ngọ Môn, điện Thái Hòa | **Thời Nguyễn** | Thân mập, đầu to sừng nhánh, mắt lồi, mày lửa, nanh và râu, bờm lửa cong, vây cao nhọn, bốn chân có móng, đuôi xòe lửa | Lưỡng long chầu nhật (Ngọ Môn) và triều hồ lô (Thái Hòa) trên nóc; rồng đá lan can bậc thềm; rồng vàng quấn cột; đầu kỳ lân |
 
 Thân rồng nào cũng có bụng nhạt màu và các vòng đậm nhạt xen kẽ như hàng vảy.
 
-**Rồng vàng Thăng Long** (`fx/CloudDragon.tsx`): khi Lực tới Hà Nội, một con rồng vàng bay lên từ sau Đoan Môn, lượn một vòng quanh lầu rồi bay vào trời thu, theo tích Lý Thái Tổ thấy rồng vàng bay lên mà đặt tên Thăng Long. Hai người cùng ngước nhìn, máy quay ngước theo. Rồng lướt qua mái Ngọ Môn một lần nữa khi bảng vàng mở hết.
+**Rồng vàng Thăng Long** (`fx/CloudDragon.tsx`): khi Lực tới Hà Nội, một con rồng vàng bay lên từ sau Đoan Môn, lượn một vòng quanh lầu rồi bay vào trời thu, theo tích Lý Thái Tổ thấy rồng vàng bay lên mà đặt tên Thăng Long. Hai người cùng ngước nhìn, máy quay ngước theo. Rồng lướt qua mái Ngọ Môn một lần nữa khi bảng vàng mở hết. Rồng dựng theo các bản phục dựng rồng thời Lý (tượng 3D của D'Sculpt Studio và Viện Nghiên cứu Kinh thành): đủ đầu, vảy, vây, bốn chân và chùm đuôi, thân uốn sóng khi bay (`lyHead`, `lyHide`, `lyLeg`, `lyTailTuft` trong `world/dragon.ts`).
 
 **Chim Lạc** (hình chim trên trống đồng Đông Sơn): một đàn tám con bay vòng ngược chiều kim đồng hồ, như trên mặt trống, trên bầu trời của cảnh đang diễn; ẩn đi khi trời mưa ở cảnh phố.
 
@@ -296,11 +325,28 @@ Thân rồng nào cũng có bụng nhạt màu và các vòng đậm nhạt xen 
 
 | Từ → đến | Chuyển cảnh | Ý nghĩa |
 | --- | --- | --- |
-| Bình Định → Sài Gòn | Lực bước vào luồng sáng qua cổng; **tàu Thống Nhất** (toa ghi "DIÊU TRÌ – SÀI GÒN", ga Diêu Trì là ga của Bình Định) lao qua ống kính | Rời quê vào Nam đi học |
+| Bình Định → Sài Gòn | Lực bước vào luồng sáng qua cổng; **tàu Thống Nhất** (toa ghi "BỒNG SƠN – SÀI GÒN", ga Bồng Sơn là ga quê của Lực ở Bình Định) lao qua ống kính | Rời quê vào Nam đi học |
 | Sài Gòn → Hà Nội | Một **cơn gió lá vàng** cuốn kín màn hình | Ra Bắc vào mùa thu |
-| Hà Nội → nhà | Lực chào bạn, **bước qua vòm giữa Đoan Môn rồi qua cổng làng**, máy quay đi theo | Về báo tin với bố mẹ |
+| Hà Nội → nhà | Lực chào bạn, **bước qua vòm giữa Đoan Môn**; đoàn tàu ở chương II lướt qua lần nữa theo chiều ngược lại, bảng ghi **"HÀ NỘI – BỒNG SƠN"**; rồi qua cổng làng, máy quay đi theo | Chuyến tàu đưa cậu đi nay đưa cậu về: về Bình Định báo tin với bố mẹ |
 | Nhà → Huế | Bố mẹ đứng ra hai bên đường cổ vũ; máy quay đi giữa hai người, theo hàng đèn vừa thắp, **qua vòm tre cuối làng**. Nhạc không đổi bài đột ngột: bài hành trình nhỏ dần, còn lại **tiếng bước chân**, **gió qua tre**, **một tiếng chuông nhỏ**, rồi giai điệu Huế mới nổi lên | Cha mẹ tiễn con bước tiếp; âm nhạc "đổi vùng" |
 | Huế → kết | Bảng vàng cuộn lên; cả nhóm nối nhau **đi qua cửa giữa Ngọ Môn**, qua cầu Trung Đạo, tới trước điện Thái Hòa; máy quay đi theo sau | "See you inside" — hẹn gặp bên trong |
+
+### Sau cảnh kết: thả đèn trời (khách tương tác)
+
+Khách không chỉ đọc thiệp rồi đi: trên thẻ cuối có nút **"Viết lời chúc, thả đèn trời"**. Đây là bước tự chọn, thông tin mời vẫn hiện đủ trước đó.
+
+1. **Viết lên đèn.** Một chiếc đèn giấy được đặt ở đầu cầu Trung Đạo, Lực bước ra đứng cạnh, hai bạn dạt sang hai bên nhường chỗ. Khách gõ tới đâu, chữ hiện trên mặt giấy tới đó, ký tên khách bên dưới. Tối đa 60 ký tự, có bốn câu gợi ý để bấm chọn; để trống thì đèn mang câu "Chúc mừng tân kỹ sư Lực!".
+2. **Châm lửa.** Lực nghiêng người đưa **ngọn đèn đã cầm suốt hành trình** tới miệng đèn giấy; đốm lửa nhảy sang, giấy sáng dần từ dưới lên. Ngọn đèn sách của bốn năm được trao lại cho lời chúc của khách.
+3. **Nhặt lên, cả nhà cùng thả.** Đèn không bay lên từ mặt đất. Máy quay lùi ra; hai bạn bước lại, bố mẹ xuống thềm, cả nhà đứng thành vòng cung quanh Lực (công nương đứng trên thềm). Lực treo đèn bão lên ba lô, **nhặt chiếc đèn trời nâng qua đầu**, mọi người cùng giơ tay reo, rồi đèn rời tay Lực.
+4. **Bay lên.** Máy quay chờ một nhịp cho thấy cả nhà và chiếc đèn vừa rời tay, rồi ngước theo đèn qua mái điện Thái Hòa. Lực ôm quyền cảm ơn, sau đó quay lại nhìn theo. Từ sau tường thành, mấy chục chiếc đèn khác cùng bay lên.
+5. **Giữ lại.** Thẻ "Đèn đã bay lên" có nút **Lưu ảnh đèn**: một tấm ảnh 1080×1350 vẽ chiếc đèn mang lời chúc trên mái điện. Khách tự gửi ảnh cho Lực — đó là cách lời chúc tới nơi, vì trang không gửi gì đi đâu cả.
+
+Ghi chú thiết kế:
+- **Lời chúc chỉ Lực đọc được.** Khi khách thả đèn, lời chúc được gửi tới một Google Apps Script (`docs/wishes-apps-script.gs`) để ghi thêm một dòng vào bảng tính riêng của Lực. Script chỉ ghi, không trả lại gì, nên khách không đọc được lời chúc của nhau; vì vậy những chiếc đèn khác vẫn chỉ là cảnh nền, không mang tên ai và không có con số "đã có N đèn". Địa chỉ script đặt ở `WISHES.endpoint` trong `src/config.ts`; để trống thì không gửi gì.
+- Lời chúc cũng được giữ trong trình duyệt của khách (`localStorage`) để lần sau mở lại vẫn thấy đèn của mình trên trời. Nếu mất mạng lúc thả, lời chúc nằm chờ và tự gửi lại ở lần mở thiệp sau (`ui/wishPost.ts`); mỗi lời chúc có mã riêng nên không bị ghi hai lần.
+- **Không giới hạn** số đèn mỗi khách thả. Trên trời luôn có tối đa ba đèn mang chữ của khách (`LANTERN_POOL`); thả chiếc thứ tư thì chiếc cũ nhất nhường chỗ.
+- Trên điện thoại khung nhập nằm ở trên cùng, vì bàn phím chiếm nửa dưới màn hình.
+- Mã: `fx/SkyLanterns.tsx` (đèn của khách + đàn đèn nền, một lưới vẽ bằng shader), `fx/lanternPaper.ts` (chữ trên đèn), `ui/lanternCard.ts` (ảnh lưu), `openLantern / releaseLantern / closeLantern` trong `director.ts`.
 
 ## 4. Âm nhạc
 
@@ -308,6 +354,7 @@ Thân rồng nào cũng có bụng nhạt màu và các vòng đậm nhạt xen 
 - Đoạn Huế dùng "Shenyang" (nhị, tỳ bà, tam thập lục).
 - Hai bài đều của Kevin MacLeod, giấy phép CC BY 4.0, nên phải ghi nguồn; dòng ghi nguồn đã đặt ở thẻ cuối.
 - Chuông chùa, tiếng gảy khi chạm màn hình, **tiếng bước chân** và **tiếng gió** được tổng hợp trực tiếp, không cần file.
+- **Tiếng tàu** ở hai lần tàu lướt qua (chương II và IV) dùng bản thu thật trên đường sắt Việt Nam: bộ "Train Sounds & Train Station Sound Effects Library Vietnam" của Free To Use Sounds (CC BY 4.0, phải ghi nguồn). Hai đoạn cắt khoảng 5 giây, to nhất ở giây 1,6, đặt tại `public/audio/train-out.mp3` (lúc đi) và `public/audio/train-home.mp3` (lúc về); khai báo ở `SFX` trong `src/config.ts`. Khi chưa có hai file này, thiệp vẫn chạy với tiếng chuông nhỏ như cũ và không hiện dòng ghi nguồn.
 - **Cầu nối IV → V**: bài hành trình tắt dần trong 3 giây → bước chân trên đường gạch → gió qua tre → một tiếng chuông nhỏ → bài Huế nổi lên trong 4 giây. Người xem thấy âm nhạc chuyển vùng chứ không phải bị đổi bài.
 - **Nghi thức hạ bảng vàng** (chương V, phỏng theo lễ Truyền lô), nhạc hạ nhỏ trong lúc này:
   1. Công nương cúi chào khách, không nói gì.

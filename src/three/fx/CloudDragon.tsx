@@ -2,9 +2,9 @@ import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
-import { bake, blob, G } from '../lib/kit'
+import { bake, G, type Part } from '../lib/kit'
 import { emit, world } from '../../state/world'
-import { dragonHead } from '../world/dragon'
+import { dragonHead, lyGirth, lyHide, lyLeg, lyTailTuft } from '../world/dragon'
 import { DOANMON, NGOMON } from '../layout'
 
 /*
@@ -15,9 +15,10 @@ import { DOANMON, NGOMON } from '../layout'
  * about the gate pavilion and is gone into the sky; and when the golden list
  * hangs open at Huế it passes, once more, across the roofs of Ngọ Môn.
  *
- * It is a Lý dragon (slender, a flame crest, a long mane, a pearl) made of
- * light and cloud: a chain of glowing puffs following a path, the head at the
- * front, flame fins along the back.
+ * It is a Lý dragon, whole: the leaf crest and the tusk, the mane, the scaled
+ * hide and its belly plates, the low close fin, four slender legs with a tuft
+ * at each elbow, the whip of a tail and its tuft — gold that gives its own
+ * light, swimming along a path through the air.
  */
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
@@ -33,38 +34,53 @@ const ROUTES = [
   // 1 · Huế: in from the left behind the wall, across the front of Lầu Ngũ Phụng, and up over the far wing
   new THREE.CatmullRomCurve3([V(-12, 2.2, NZ - 3.6), V(-8.6, 4.2, NZ + 0.4), V(-4.4, 5.2, NZ + 2.2), V(0, 5.5, NZ + 2.4), V(4.4, 5.2, NZ + 2.1), V(8.0, 6.4, NZ + 0.2), V(10.5, 9.6, NZ - 4), V(13, 14.5, NZ - 9)], false, 'centripetal'),
 ]
-const N = 46
-const SPACING = 0.235
+/** its length, nose to tail, and its girth at the shoulders */
+const LENGTH = 10.8
 const R = 0.4
+const SEG = 72
+const RADIAL = 12
+const FINS = 64
+/** where the legs are, along the body (0 head ‥ 1 tail) */
+const LEGS = [0.17, 0.5]
 const Y = new THREE.Vector3(0, 1, 0)
+const GOLD = '#ffc93c'
+const BELLY = '#ffeeb0'
+const MANE = '#f08c22'
+
+/** kit parts merged into one vertex-coloured geometry */
+function merged(parts: Part[]) {
+  const baked = parts.map(bake)
+  const g = mergeGeometries(baked, false)!
+  baked.forEach((b) => b.dispose())
+  return g
+}
+/** the frame the legs and the tail tuft are modelled in: x left, y up, z toward the tail; one unit = the girth there */
+const UNIT = { P: new THREE.Vector3(), S: new THREE.Vector3(1, 0, 0), U: new THREE.Vector3(0, 1, 0), T: new THREE.Vector3(0, 0, 1) }
 
 export function CloudDragon() {
   const group = useRef<THREE.Group>(null!)
   const sys = useMemo(() => {
     // gold that glows: lit by the scene a little, mostly its own light
     const mk = (vertexColors: boolean) => new THREE.MeshStandardMaterial({ vertexColors, color: '#ffffff', emissive: '#ff7a14', emissiveIntensity: 0.42, roughness: 0.7, transparent: true, opacity: 0, fog: false })
-    const bodyMat = mk(false)
-    const headMat = mk(true)
-    const body = new THREE.InstancedMesh(blob(1010, 1, 0.16), bodyMat, N)
-    const finGeo = G.coneLo.clone()
-    const fin = new THREE.InstancedMesh(finGeo, bodyMat, N)
+    const finMat = mk(false)
+    const mat = mk(true)
+    // the hide: scale by scale, deeper gold toward the tail; moved every frame as the body swims
+    const hide = lyHide(SEG, RADIAL, GOLD, BELLY, '#f08a1c')
+    const body = new THREE.Mesh(hide.g, mat)
+    const fin = new THREE.InstancedMesh(G.coneLo.clone(), finMat, FINS)
     const c = new THREE.Color()
-    for (let i = 0; i < N; i++) {
-      // paler along the belly end of the gradient, deeper gold toward the tail
-      // (alternate puffs a shade apart, so the body reads as rows of scales)
-      body.setColorAt(i, c.set('#ffc93c').lerp(new THREE.Color('#f08a1c'), i / N).multiplyScalar(i % 2 ? 0.86 : 1))
-      fin.setColorAt(i, c.set(i % 2 ? '#d8402a' : '#ee6a2a'))
-    }
-    const parts = dragonHead(new THREE.Matrix4(), 'ly', { body: '#ffc93c', belly: '#ffeeb0', mane: '#d8402a', horn: '#fff0c4' }, 'toy', 'toy', true, true)
-    const baked = parts.map(bake)
-    const headGeo = mergeGeometries(baked, false)!
-    baked.forEach((g) => g.dispose())
-    const head = new THREE.Mesh(headGeo, headMat)
-    for (const m of [body, fin, head]) {
+    for (let i = 0; i < FINS; i++) fin.setColorAt(i, c.set(i % 2 ? '#e8791f' : '#f6a43a'))
+    const head = new THREE.Mesh(merged(dragonHead(new THREE.Matrix4(), 'ly', { body: GOLD, belly: BELLY, mane: MANE, horn: '#fff0c4' }, 'toy', 'toy', true, true)), mat)
+    const legGeo = merged([-1, 1].flatMap((side) => lyLeg(UNIT, 1, side, { body: GOLD, mane: MANE, claw: '#fff6e0' }, 'toy', 'toy', true)))
+    const legs = LEGS.map(() => new THREE.Mesh(legGeo, mat))
+    const tuft = new THREE.Mesh(merged(lyTailTuft(UNIT, 1, MANE, 'toy', true)), mat)
+    const all = [body, fin, head, tuft, ...legs]
+    for (const m of all) {
       m.frustumCulled = false
       m.renderOrder = 4
     }
-    return { body, fin, head, bodyMat, headMat }
+    for (const m of [head, tuft, ...legs]) m.matrixAutoUpdate = false
+    return { hide, body, fin, head, legs, tuft, finMat, mat, all }
   }, [])
   const tmp = useMemo(() => ({ m: new THREE.Matrix4(), p: new THREE.Vector3(), t: new THREE.Vector3(), u: new THREE.Vector3(), s: new THREE.Vector3(), x: new THREE.Vector3(), y: new THREE.Vector3(), z: new THREE.Vector3(), zero: new THREE.Matrix4().makeScale(0, 0, 0), acc: 0 }), [])
 
@@ -75,52 +91,73 @@ export function CloudDragon() {
     if (!on) return
     const curve = ROUTES[d.route]
     const len = curve.getLength()
-    const bodyLen = (N * SPACING) / len
+    const bodyLen = LENGTH / len
     // the head runs from the start of the path to beyond its end, so the whole body passes
     const uh = d.k * (1 + bodyLen)
     const time = world.time
     // it comes out of nothing and goes back into it
     const fade = THREE.MathUtils.smoothstep(d.k, 0, 0.08) * (1 - THREE.MathUtils.smoothstep(d.k, 0.86, 1))
-    sys.bodyMat.opacity = sys.headMat.opacity = fade
-    const frameAt = (u: number, i: number) => {
-      curve.getPointAt(u, tmp.p)
-      curve.getTangentAt(u, tmp.t)
+    sys.finMat.opacity = sys.mat.opacity = fade
+    /**
+     * the body at `t` along it (0 head ‥ 1 tail): tmp.p its centre, tmp.t the way it is going there,
+     * tmp.u its back, tmp.s its left. False where that part has not come out of the path's start
+     * yet, or has already gone past its end.
+     */
+    const frameAt = (t: number) => {
+      const u = uh - (0.03 + t) * bodyLen
+      const uc = Math.min(0.999, Math.max(0.001, u))
+      curve.getPointAt(uc, tmp.p)
+      curve.getTangentAt(uc, tmp.t)
       tmp.u.copy(Y).addScaledVector(tmp.t, -tmp.t.y).normalize()
       tmp.s.crossVectors(tmp.u, tmp.t).normalize()
       // the body swims: a wave runs down it from head to tail
-      const w = i * 0.42 - time * 3.2
-      const amp = 0.34 * Math.min(1, i / 6)
+      const w = t * 19 - time * 3.2
+      const amp = 0.34 * Math.min(1, t * 7.5)
       tmp.p.addScaledVector(tmp.s, Math.sin(w) * amp).addScaledVector(tmp.u, Math.cos(w * 0.8) * amp * 0.45)
+      return u > 0 && u < 1
     }
-    for (let i = 0; i < N; i++) {
-      const u = uh - (i + 1.2) * (SPACING / len)
-      if (u <= 0 || u >= 1) {
-        sys.body.setMatrixAt(i, tmp.zero)
+    /** a part modelled in the UNIT frame, set on the body at `t`, `k` units to the girth */
+    const mount = (mesh: THREE.Mesh, t: number, k: number) => {
+      mesh.visible = frameAt(t)
+      // (x: the body's left looking from above with the tail ahead, which is −s; z: toward the tail, −t)
+      mesh.matrix.makeBasis(tmp.x.copy(tmp.s).multiplyScalar(-k), tmp.y.copy(tmp.u).multiplyScalar(k), tmp.z.copy(tmp.t).multiplyScalar(-k)).setPosition(tmp.p)
+    }
+
+    for (let i = 0; i <= SEG; i++) {
+      const t = i / SEG
+      const there = frameAt(t)
+      sys.hide.set(i, tmp.p, tmp.u, tmp.x.copy(tmp.s).negate(), there ? R * lyGirth(t) : 0)
+    }
+    sys.hide.commit()
+
+    // the fin: small close flames all the way down the back, long as a mane on the neck
+    for (let i = 0; i < FINS; i++) {
+      const t = 0.05 + (i / FINS) * 0.94
+      if (!frameAt(t)) {
         sys.fin.setMatrixAt(i, tmp.zero)
         continue
       }
-      frameAt(u, i)
-      const t = i / (N - 1)
-      const r = R * (0.72 + 0.28 * Math.min(1, i / 5)) * (t < 0.25 ? 1 : THREE.MathUtils.lerp(1, 0.14, Math.pow((t - 0.25) / 0.75, 1.1)))
-      // puffs: longer along the body than across it
-      tmp.m.makeBasis(tmp.x.copy(tmp.s).multiplyScalar(r), tmp.y.copy(tmp.u).multiplyScalar(r), tmp.z.copy(tmp.t).multiplyScalar(r * 1.25)).setPosition(tmp.p)
-      sys.body.setMatrixAt(i, tmp.m)
-      // a flame fin on its back, leaning toward the tail
-      tmp.y.copy(tmp.u).multiplyScalar(0.8).addScaledVector(tmp.t, -0.6).normalize()
+      const rr = R * lyGirth(t)
+      const h = (0.62 * rr + 0.1 * R) * (i % 2 ? 0.72 : 1) * (1 + 1.5 * Math.max(0, 1 - t / 0.24))
+      tmp.y.copy(tmp.u).multiplyScalar(0.62).addScaledVector(tmp.t, -0.78).normalize()
       tmp.z.copy(tmp.s)
       tmp.x.crossVectors(tmp.y, tmp.z)
-      const fh = r * (i % 2 ? 0.9 : 1.25)
-      tmp.p.addScaledVector(tmp.u, r * 0.75).addScaledVector(tmp.y, fh / 2)
-      tmp.m.makeBasis(tmp.x.multiplyScalar(r * 0.42), tmp.y.multiplyScalar(fh), tmp.z.multiplyScalar(r * 0.1)).setPosition(tmp.p)
+      tmp.p.addScaledVector(tmp.u, rr * 0.82).addScaledVector(tmp.y, h / 2)
+      tmp.m.makeBasis(tmp.x.multiplyScalar(0.34 * rr + 0.06 * R), tmp.y.multiplyScalar(h), tmp.z.multiplyScalar(rr * 0.12 + 0.01 * R)).setPosition(tmp.p)
       sys.fin.setMatrixAt(i, tmp.m)
     }
-    sys.body.instanceMatrix.needsUpdate = true
     sys.fin.instanceMatrix.needsUpdate = true
+
+    LEGS.forEach((t, i) => mount(sys.legs[i], t, R * lyGirth(t) * (t > 0.4 ? 1.15 : 1) * 0.9))
+    mount(sys.tuft, 0.985, R)
+
     // the head, facing the way it flies
-    const u0 = Math.min(0.999, Math.max(0.001, uh))
     sys.head.visible = uh > 0.001 && uh < 1
-    frameAt(u0, 0)
-    const h = R * 1.55
+    const u0 = Math.min(0.999, Math.max(0.001, uh))
+    curve.getPointAt(u0, tmp.p)
+    curve.getTangentAt(u0, tmp.t)
+    tmp.u.copy(Y).addScaledVector(tmp.t, -tmp.t.y).normalize()
+    const h = R * 1.6
     tmp.x.crossVectors(tmp.u, tmp.t).normalize()
     tmp.m.makeBasis(tmp.x.multiplyScalar(h), tmp.y.copy(tmp.u).multiplyScalar(h), tmp.z.copy(tmp.t).multiplyScalar(h)).setPosition(tmp.p)
     sys.head.matrix.copy(tmp.m)
@@ -138,9 +175,9 @@ export function CloudDragon() {
 
   return (
     <group ref={group} visible={false}>
-      <primitive object={sys.body} />
-      <primitive object={sys.fin} />
-      <primitive object={sys.head} matrixAutoUpdate={false} />
+      {sys.all.map((m, i) => (
+        <primitive key={i} object={m} />
+      ))}
     </group>
   )
 }

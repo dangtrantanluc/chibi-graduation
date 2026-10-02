@@ -50,6 +50,10 @@ export type Action =
   | 'tear'
   /** lost: looking one way, then the other */
   | 'lookAbout'
+  /** leaning over to hold his lamp to the mouth of the sky lantern on his left */
+  | 'kindle'
+  /** picking the lantern up and holding it over his head in both hands, until it is let go */
+  | 'lift'
 
 export type Mood = 'calm' | 'happy' | 'surprised'
 
@@ -82,10 +86,11 @@ function char(pos: [number, number, number], rotY = 0, pose: 'stand' | 'sit' = '
 }
 
 /**
- * Foreground cut-hiders: the North–South express rushing past the lens, a
- * gust of Hà Nội autumn leaves, bamboo culms of a village hedge.
+ * Foreground cut-hiders: the North–South express rushing past the lens (and,
+ * years later, the train home), a gust of Hà Nội autumn leaves, bamboo culms
+ * of a village hedge.
  */
-export type WipeKind = 'none' | 'train' | 'leaves' | 'bamboo'
+export type WipeKind = 'none' | 'train' | 'trainHome' | 'leaves' | 'bamboo'
 
 export interface LightSlot {
   pos: THREE.Vector3
@@ -156,6 +161,19 @@ export const world = {
   laptop: 0,
   /** "</>" speech bubble over the IT friend 0‥1 */
   bubble: 0,
+  /**
+   * đèn trời: the guest's own lanterns (up to three). `state` 0 = not there, 1 = with Lực (on the
+   * ground while it is written on, then `hold` 0‥1 lifted over his head), 2 = let go; `lit` 0‥1
+   * the flame taking; `k` 0‥1 along its way up
+   */
+  lanterns: [0, 1, 2].map(() => ({ state: 0, lit: 0, hold: 0, k: 0 })),
+  /** where the latest of them is — everyone watches it go */
+  lanternPos: new THREE.Vector3(0.82, 0.4, -62.9),
+  /** the flame carried over from Lực's lamp to a lantern 0‥1 (−1 = none), and the mouth it is carried to */
+  spark: -1,
+  sparkTo: new THREE.Vector3(0.78, 0.1, -62.9),
+  /** the other lanterns that rise from behind the hall: on, and the seconds since they began */
+  sky: { on: false, t: 0 },
   /** the campus cow: `up` 1 = it has lifted its head to watch Lực; `moo` 0‥1 its "ụm bò~" bubble */
   cow: { up: 0, moo: 0 },
   /** where the directional shadow camera is centred, and its half-size */

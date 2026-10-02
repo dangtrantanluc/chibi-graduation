@@ -1,12 +1,13 @@
 import gsap from 'gsap'
 import * as THREE from 'three'
-import { ui, useUI, type Caption, type Step } from '../state/store'
+import { keepWish, lanternSlots, ui, useUI, WISH_MAX, type Caption, type Step } from '../state/store'
 import { act, emit, lookAt, place, walk, world, type Action, type CharId } from '../state/world'
-import { BENCH, BIKE, CONGLANG, DOANMON, GATE, HALL, MARKS, NGOMON, SCROLL, SCROLL_HALF, STREET, UNI_BENCH, VILLAGE_END } from '../three/layout'
+import { BENCH, BIKE, CONGLANG, DOANMON, GATE, HALL, LANTERN, MARKS, NGOMON, SCROLL, SCROLL_HALF, STREET, UNI_BENCH, VILLAGE_END, YARD_LAMP } from '../three/layout'
 import { uGlow } from '../three/lib/materials'
-import { bell, drum, duckMusic, fadeOutMusic, footsteps, moo, playZone, wind } from '../audio/music'
+import { bell, drum, duckMusic, fadeOutMusic, footsteps, moo, playZone, train, trainReady, wind } from '../audio/music'
 import { CAST, INVITE } from '../config'
 import { setGrade } from '../three/grade'
+import { wishOr } from '../three/fx/lanternPaper'
 
 /**
  * The story director: Lực's journey, one chapter per tap. Every camera move,
@@ -16,13 +17,19 @@ import { setGrade } from '../three/grade'
  *       Bình Định martial salute, then he walks into the light
  *   II  Nông Lâm — the North–South express carries him to Sài Gòn; his CNTT
  *       friend looks up from her laptop, "</>", a high-five
- *   III Hà Nội — a gust of autumn leaves; a golden dragon rises from behind Đoan
- *       Môn (Thăng Long, 'the dragon rises'); by a bicycle loaded with daisies his
- *       Hà Nội friend flashes a V-sign and gives you a bunch of cúc họa mi
- *   IV  home — through Đoan Môn and the village gate to his parents, waiting
- *       in the yard of their thatched house; he greets them, shows his
- *       diploma (the lane's lanterns light up), and they step to either side
- *       of the lane to see him off
+ *   III Hà Nội — a gust of autumn leaves. The first journey he chose for himself,
+ *       far and alone: the street's high, wide frame again, but this time he
+ *       does not stop — and as he walks on a golden dragon rises from behind
+ *       Đoan Môn (Thăng Long, 'the dragon rises'). By a bicycle loaded with
+ *       daisies his Hà Nội friend teaches the shy boy her V-sign, and gives
+ *       you a bunch of cúc họa mi
+ *   IV  home — through Đoan Môn; the train passes again, the other way (Hà Nội –
+ *       Bồng Sơn), and he is back in Bình Định: the village gate, his parents
+ *       waiting in the yard of their thatched house. He greets them, shows
+ *       his diploma, and lights the lantern at the mouth of the yard from the
+ *       lamp he has carried all the way — the lane's lanterns take from it,
+ *       one after another; then they step to either side of the lane to see
+ *       him off
  *   V   Ngọ Môn — out under the bamboo to Huế (the journey theme dies away:
  *       footsteps, wind, a small bell, then the Huế theme); everyone is there.
  *       News of a degree was once proclaimed at the capital, so the golden
@@ -227,18 +234,18 @@ const CAPTIONS: Record<string, () => Caption> = {
   hanoi: () => ({
     chapter: 'III',
     place: 'Hà Nội · Hoàng thành Thăng Long',
-    line: 'Cúc họa mi đầu mùa đó. Cầm đi cho may.',
+    line: 'Ngày đầu ra đây cậu nhát lắm. Cười lên xem nào!',
   }),
   village: () => ({
     chapter: 'IV',
-    place: 'Về nhà · Làng quê',
+    place: 'Về nhà · Bình Định',
     speaker: CAST.luc,
     color: '#34353b',
     line: 'Bố mẹ ơi… con làm được rồi.',
   }),
   parents: () => ({
     chapter: 'IV',
-    place: 'Về nhà · Làng quê',
+    place: 'Về nhà · Bình Định',
     speaker: CAST.parents,
     color: '#8a5a32',
     line: 'Về là mừng rồi. Đi đi con, mọi người đang đợi.',
@@ -274,6 +281,25 @@ function lanePose(): Shot {
     ? { pos: [0, 1.9, -35.4], target: [0, 1.2, -43], fov: 46, focus: [0, 0.9, -40.7], dof: 0.7, tilt: 0.1, range: 4.5, backoff: 0 }
     : { pos: [0.2, 1.6, -36.1], target: [0, 1.15, -43], fov: 38, focus: [0, 0.9, -40.7], dof: 0.9, tilt: 0.1, range: 4.2, backoff: 0 }
 }
+/** … and before that, close on the two of them at the edge of the lane: Lực, and the lantern he lights */
+function kindlePose(): Shot {
+  const mid = (YARD_LAMP.x + YARD_LAMP.luc[0]) / 2
+  return narrow()
+    ? { pos: [mid + 0.15, 1.45, YARD_LAMP.z + 3.9], target: [mid + 0.03, 0.6, YARD_LAMP.z], fov: 38, focus: [YARD_LAMP.x, 0.4, YARD_LAMP.z], dof: 0.6, tilt: 0, range: 2, backoff: 0 }
+    : { pos: [mid + 0.45, 1.25, YARD_LAMP.z + 3.4], target: [mid + 0.39, 0.78, YARD_LAMP.z], fov: 34, focus: [YARD_LAMP.x, 0.4, YARD_LAMP.z], dof: 0.8, tilt: 0, range: 2, backoff: 0 }
+}
+/**
+ * III: the frame of the street again — high and far, Lực small in a wide place, alone. But there
+ * the lens drew away from him; here it comes down to him as he walks on.
+ */
+function alonePose(): [Shot, Shot] {
+  // (from over the lane behind him, between the crowns of the trees that line it: the gate ahead, he small before it)
+  const fov = narrow() ? 50 : 40
+  return [
+    { pos: [0.3, 8.0, -10.8], target: [0, 0.6, -21.4], fov, focus: [0.6, 0.8, -18.6], dof: 0.3, tilt: 0.55, range: 9, backoff: 0 },
+    { pos: [0.5, 5.8, -12.4], target: [-0.1, 0.9, -22.0], fov },
+  ]
+}
 /** IV: the way his father faces in the yard — square to the lens, so his right hand is toward his son */
 const FACE_LENS = -0.873
 /** … and the way Lực faces to bow to him */
@@ -305,7 +331,7 @@ export function startIntro() {
   idle.push(gsap.to(world.cam.pos, { x: 1.8, duration: 9, ease: 'sine.inOut', yoyo: true, repeat: -1 }))
   idle.push(gsap.to(world.cam.target, { x: 0.7, duration: 9, ease: 'sine.inOut', yoyo: true, repeat: -1 }))
   fidget('luc', ['think', 'smile'], 4.2)
-  useUI.setState({ step: 'intro', busy: false, canContinue: false, caption: null, invite: false, finale: false, flash: 0 })
+  useUI.setState({ step: 'intro', busy: false, canContinue: false, caption: null, invite: false, finale: false, lantern: 'off', wish: '', flash: 0 })
 }
 
 /** I · Bình Định */
@@ -356,7 +382,10 @@ function playCampus() {
   // the North–South express rushes past the lens: cut to Sài Gòn behind it
   beat(t, 2.9, () => (world.wipe.kind = 'train'))
   t.fromTo(world.wipe, { p: 0 }, { p: 1, duration: 1.8, ease: 'sine.inOut' }, 2.9)
-  beat(t, 3.2, () => bell(523, 0.12))
+  // its sound is a recording made on Vietnam's railways (begun early, so that it is loudest as the
+  // coaches fill the frame); a small bell stands in while that file is not there
+  beat(t, 2.2, () => train())
+  beat(t, 3.2, () => trainReady() || bell(523, 0.12))
   // II-a · the first years — lost in the crowd. Behind the train is not the campus but the
   // street: a grey sky, people and motorbikes streaming past, nobody who knows him. He stops on
   // the refuge in the middle of the crossing, small, with his lamp, and looks one way and the other.
@@ -458,63 +487,84 @@ function playHanoi() {
   beat(t, 0.7, () => (world.wipe.kind = 'leaves'))
   t.fromTo(world.wipe, { p: 0 }, { p: 1, duration: 2.4, ease: 'sine.inOut' }, 0.7)
   flash(t, 1.35, 0.3, 0.5, 0.9)
+  // He is alone again in a place he does not know — the street's frame, high and far — but this
+  // was the journey he chose and paid for himself, and he does not stop: he walks straight on.
+  const [alone, closer] = alonePose()
   beat(t, 1.9, () => {
     mount(4)
     setGrade('autumn')
     birdsTo(-6, 7.2, -22, 6.5)
-    setCam({ ...SHOTS.hanoi, pos: [2.8, 2.1, -13.8], target: [-0.6, 1.6, -22.6] })
-    world.shadowFocus.set(-1, 0, -21)
-    orbit(0.5, 0.28, 0.1)
-    place('luc', [1.2, 0, -18.4], Math.PI * 0.85)
-    walk('luc', [[0.4, 0, -20.4], [...MARKS.lucHanoi] as V3], 1.2, 0.2)
+    setCam(alone)
+    world.shadowFocus.set(-1, 0, -20)
+    orbit(0.3, 0.2, 0.1, 0.2)
+    place('luc', [1.2, 0, -16.8], Math.PI * 0.9)
+    walk('luc', [[0.4, 0, -20.0], [...MARKS.lucHanoi] as V3], 1.3, 0.2)
     lookAt('hanoi', null)
     world.chars.hanoi.faceY = BIKE.ry
     world.glow.hanoi = 0.35
     world.laptop = 0
   })
   beat(t, 3.1, () => (world.wipe.kind = 'none'))
-  camTo(t, 1.9, 3.6, SHOTS.hanoi, 'power2.out')
+  // (where the lens drew away from him in the street, here it comes down to him)
+  camTo(t, 1.9, 2.7, closer, 'sine.out')
   setStep(t, 2.6, 'hanoi')
   for (const at of [3.0, 4.6, 6.4, 9.0, 12.5]) beat(t, at, () => emit({ type: 'gust', x: -1 + Math.random() * 2, z: -21 + Math.random() * 2, strength: 0.7, radius: 4 }))
-  // Thăng Long — "the dragon rises". As he comes up to the gate a golden dragon lifts out from
-  // behind it, winds once about the pavilion and is gone into the autumn sky. They both look up;
-  // so does the lens.
-  beat(t, 5.2, () => flyDragon(0, 7))
-  beat(t, 5.6, () => {
+  // Thăng Long — "the dragon rises". As he walks on, a golden dragon lifts out from behind the
+  // gate ahead of him, winds once about the pavilion and is gone into the autumn sky. They both
+  // look up; so does the lens.
+  beat(t, 4.0, () => flyDragon(0, 7))
+  beat(t, 4.5, () => {
     act('hanoi', 'surprise')
     world.chars.hanoi.faceY = -2.6
     world.chars.hanoi.look = world.dragonPos
     world.chars.luc.look = world.dragonPos
   })
-  beat(t, 6.2, () => act('luc', 'surprise'))
-  camTo(t, 5.6, 2.0, { pos: [1.9, 1.15, -15.2], target: [-0.6, 4.6, -27.4], fov: 46, focus: [0, 5, -27], dof: 0.25, range: 12 })
-  beat(t, 8.4, () => act('hanoi', 'cheer'))
-  camTo(t, 10.2, 2.0, SHOTS.hanoi)
-  // she turns to you, hops, waves big
-  beat(t, 11.8, () => {
-    lookAt('hanoi', 'camera')
+  camTo(t, 4.7, 2.2, { pos: [1.9, 1.15, -15.2], target: [-0.6, 4.6, -27.4], fov: 46, focus: [0, 5, -27], dof: 0.25, tilt: 0.1, backoff: 0.6, range: 12 })
+  beat(t, 6.6, () => act('luc', 'surprise'))
+  beat(t, 7.7, () => act('hanoi', 'cheer'))
+  beat(t, 9.0, () => orbit(0.5, 0.28, 0.1))
+  camTo(t, 9.0, 2.0, SHOTS.hanoi)
+  // The friend who changed him. She turns to him with a hop: he was so shy, the first time …
+  beat(t, 10.4, () => {
     world.chars.hanoi.faceY = 0.9
+    lookAt('hanoi', 'luc')
     act('hanoi', 'hop')
     lookAt('luc', 'hanoi')
   })
-  beat(t, 12.4, () => act('hanoi', 'wave'))
-  caption(t, 12.6, CAPTIONS.hanoi(), ['hanoi'])
-  beat(t, 14.2, () => act('hanoi', 'peace'))
-  beat(t, 14.7, () => act('luc', 'smile'))
-  // … and holds out the daisies to you
-  beat(t, 16.4, () => {
+  caption(t, 10.9, CAPTIONS.hanoi(), ['hanoi'])
+  beat(t, 11.6, () => act('luc', 'scratch'))
+  // … so: like this. Her V-sign, to you, with a wink —
+  beat(t, 13.2, () => {
+    lookAt('hanoi', 'camera')
+    act('hanoi', 'peace')
+  })
+  // — and his: a first try with one eye still on her, to see if he has it right; she laughs;
+  beat(t, 14.4, () => act('luc', 'peace'))
+  beat(t, 15.5, () => {
+    lookAt('hanoi', 'luc')
+    act('hanoi', 'laugh')
+  })
+  // then the two of them together, to you. He keeps it: it is his from here to the end.
+  beat(t, 16.6, () => {
+    lookAt('hanoi', 'camera')
+    lookAt('luc', 'camera')
+    act('hanoi', 'peace')
+    act('luc', 'peace')
+  })
+  // … and she holds out the daisies to you
+  beat(t, 18.9, () => {
     act('hanoi', 'offer')
     const p = world.chars.hanoi.pos
     emit({ type: 'sparkle', pos: new THREE.Vector3(p.x + 0.3, 0.85, p.z + 0.3), count: 10, color: '#fff6d0' })
   })
-  allowContinue(t, 16.8)
-  beat(t, 19.6, () => {
+  allowContinue(t, 19.2)
+  beat(t, 22.0, () => {
     fidget('hanoi', ['peace', 'hop', 'laugh', 'wave'], 3.2)
-    fidget('luc', ['smile', 'scratch'], 4.4)
+    fidget('luc', ['smile', 'scratch', 'peace'], 4.4)
   })
 }
 
-/** IV · home — through Đoan Môn and the village gate, to his parents in the yard of their house */
+/** IV · home — through Đoan Môn, the train back to Bình Định, the village gate: to his parents in the yard of their house */
 function playVillage() {
   const t = newTimeline()
   useUI.setState({ busy: true, canContinue: false })
@@ -571,6 +621,13 @@ function playVillage() {
     'sine.inOut',
   )
   camTo(t, 1.5, 7.2, { fov: yp.fov, focus: yp.focus, dof: yp.dof, backoff: 0, range: yp.range })
+  // Out of Đoan Môn, and the North–South express goes by once more — the other way this time,
+  // Hà Nội – Bồng Sơn: the train that took him from home brings him back to it.
+  beat(t, 5.2, () => (world.wipe.kind = 'trainHome'))
+  t.fromTo(world.wipe, { p: 0 }, { p: 1, duration: 1.9, ease: 'sine.inOut' }, 5.2)
+  beat(t, 4.55, () => train(true))
+  beat(t, 5.4, () => trainReady() || bell(523, 0.12))
+  beat(t, 7.15, () => (world.wipe.kind = 'none'))
   beat(t, 3.8, () => {
     world.shadowFocus.set(3.1, 0, -39)
     world.glow.hanoi = 0
@@ -618,50 +675,89 @@ function playVillage() {
     act('mother', 'clap')
     act('father', 'cheer')
   })
-  // the lanterns along the lane come alight, one after another
-  t.to(world, { villageWave: 1, duration: 3.4, ease: 'sine.inOut' }, 14.1)
-  lightSlot(t, 14.1, 2, [3.0, 2.3, -39.1], 9, 2, '#ffcf80')
   beat(t, 14.3, () => emit({ type: 'gust', x: 2.8, z: -39.1, strength: 0.4, radius: 3 }))
   // he turns to show it to you too
   beat(t, 15.3, () => {
     lookAt('luc', 'camera')
     world.chars.luc.faceY = -0.8
   })
-  // then he steps back into the lane, and they go to either side of it to send him on:
+  // Then the lamp. He has carried its flame the whole way; now he brings it home: he goes to the
+  // low lantern at the edge of the lane and lights it from his own — and the lanterns along the lane
+  // take from it, one after another.
+  const KINDLE = 16.6
+  caption(t, KINDLE, null)
+  beat(t, KINDLE, () => {
+    act('luc', 'none')
+    lookAt('luc', null)
+    walk('luc', [[...YARD_LAMP.luc]], 1.5, 0.3)
+    world.shadowFocus.set(0.4, 0, -39.4)
+    world.sparkTo.set(YARD_LAMP.x - 0.02, YARD_LAMP.mouth, YARD_LAMP.z)
+    world.spark = -1
+  })
+  t.to(world, { diploma: 0, duration: 0.8 }, KINDLE)
+  beat(t, KINDLE + 0.3, () => {
+    world.chars.father.faceY = -1.7
+    world.chars.mother.faceY = -1.9
+    lookAt('father', 'luc')
+    lookAt('mother', 'luc')
+  })
+  camTo(t, KINDLE, 2.2, kindlePose())
+  beat(t, KINDLE + 1.8, () => {
+    // (his eyes on the lantern, but not so far round that the lens loses his face)
+    lookAt('luc', [YARD_LAMP.x - 0.3, 0.55, YARD_LAMP.z + 1.1])
+    act('luc', 'kindle')
+  })
+  t.fromTo(world, { spark: 0 }, { spark: 1, duration: 0.55, ease: 'none' }, KINDLE + 2.4)
+  beat(t, KINDLE + 2.96, () => {
+    world.spark = -1
+    bell(784, 0.1)
+    emit({ type: 'sparkle', pos: new THREE.Vector3(YARD_LAMP.x, YARD_LAMP.mouth + 0.1, YARD_LAMP.z), count: 8, color: '#ffd28a' })
+  })
+  t.to(world, { villageWave: 0.16, duration: 0.7, ease: 'sine.out' }, KINDLE + 2.95)
+  lightSlot(t, KINDLE + 2.95, 2, [YARD_LAMP.x + 0.35, 0.35, YARD_LAMP.z + 0.1], 1.4, 1.4, '#ffcf80', 3.5)
+  // (the lane's lanterns, nearest first)
+  t.to(world, { villageWave: 1, duration: 3.2, ease: 'sine.inOut' }, KINDLE + 3.8)
+  beat(t, KINDLE + 3.9, () => {
+    emit({ type: 'gust', x: 0.6, z: -39.4, strength: 0.4, radius: 3.5 })
+    lookAt('luc', 'camera')
+    act('luc', 'smile')
+    act('mother', 'clap')
+  })
+  // then he steps into the lane, and they go to either side of it to send him on:
   // his mother comes round behind him to the far side, his father down the house side
+  const LANE = KINDLE + 4.7
   const ax = asideX()
-  beat(t, 16.8, () => {
+  beat(t, LANE, () => {
     act('luc', 'none')
     lookAt('luc', null)
     walk('luc', [[...MARKS.lucLane] as V3], 1.5, 0)
     world.shadowFocus.set(0, 0, -40)
   })
-  t.to(world, { diploma: 0, duration: 0.8 }, 16.8)
-  beat(t, 17.2, () => {
+  beat(t, LANE + 0.2, () => {
     walk('father', [[2.2, 0, -40.3], [ax, 0, MARKS.fatherAside[2]]], 1.9, -0.2)
     lookAt('father', null)
   })
-  beat(t, 17.7, () => {
+  beat(t, LANE + 0.5, () => {
     walk('mother', [[3.0, 0, -39.4], [2.4, 0, -41.3], [1.4, 0, -42.0], [0, 0, -41.95], [-ax, 0, -41.6], [-ax, 0, MARKS.motherAside[2]]], 2.9, 0.2)
     lookAt('mother', null)
   })
-  camTo(t, 16.8, 3.0, lanePose())
-  lightSlot(t, 17.2, 2, [0, 2.4, -40.1], 8, 2, '#ffcf80')
-  beat(t, 18.5, () => {
+  camTo(t, LANE, 3.0, lanePose())
+  lightSlot(t, LANE + 0.4, 2, [0, 2.4, -40.1], 8, 2, '#ffcf80')
+  beat(t, LANE + 1.7, () => {
     lookAt('luc', 'camera')
     act('luc', 'smile')
   })
-  beat(t, 20.5, () => {
+  beat(t, LANE + 3.3, () => {
     lookAt('father', 'camera')
     lookAt('mother', 'camera')
   })
-  caption(t, 20.8, CAPTIONS.parents(), ['father', 'mother'])
-  beat(t, 21.8, () => {
+  caption(t, LANE + 3.6, CAPTIONS.parents(), ['father', 'mother'])
+  beat(t, LANE + 4.6, () => {
     act('father', 'usher')
     act('mother', 'usher')
   })
-  allowContinue(t, 22.4)
-  beat(t, 24.6, () => {
+  allowContinue(t, LANE + 5.2)
+  beat(t, LANE + 7.4, () => {
     fidget('father', ['usher', 'cheer', 'smile'], 3.6)
     fidget('mother', ['clap', 'usher', 'smile'], 3.9)
     fidget('luc', ['smile', 'scratch'], 4.4)
@@ -863,7 +959,8 @@ function playHue(bridge = true) {
     act('hanoi', 'wave')
     act('father', 'usher')
     act('mother', 'clap')
-    act('luc', 'wave')
+    // (the V-sign his Hà Nội friend taught him)
+    act('luc', 'peace')
   })
   beat(t, SHIFT + 23.1, () => {
     act('princess', 'dance')
@@ -897,9 +994,9 @@ function playFinale() {
   const tall = narrow()
   const H = MARKS.hall
   const back = NGOMON.z - NGOMON.depth / 2 // the inner face of Ngọ Môn
-  const foot = HALL.terraceFront + 1.5 // the foot of the stairs
   // the golden list rolls back up: the way in is open
   world.scrollSheen = -1
+  restoreLanterns()
   birdsTo(0, 6.0, HALL.bodyFront + 1.5, 6.2)
   t.to(world, { scroll: 0, duration: 1.5, ease: 'power2.inOut' }, 0)
   beat(t, 0.1, () => bell(392, 0.2))
@@ -936,9 +1033,7 @@ function playFinale() {
   })
   file('luc', 3.6, 0)
   // the lens follows well behind them, and stops just inside: the two rows, the great hall above
-  // (on wide screens it stands a little to the left, so the group clears the card in the corner)
-  const end: V3 = tall ? [0, 1.75, back - 0.3] : [-0.9, 1.6, back - 1.6]
-  const look: V3 = tall ? [0, 1.25, HALL.bodyFront] : [-0.9, 1.8, HALL.bodyFront]
+  const { pos: end, target: look } = hallPose()
   camPath(t, 2.5, 7.3, [[0, 2.2, -50.6], [0, 1.6, NGOMON.z + NGOMON.depth / 2 + 0.9], [0, 1.5, NGOMON.z], end], [[0, 1.6, -56], [0, 1.5, back - 3], [0, 1.7, foot], look], 'sine.inOut', false)
   camTo(t, 2.5, 7.3, { fov: tall ? 50 : 54, dof: 0.45, tilt: 0, backoff: 0, range: 7 }, 'sine.inOut')
   camTo(t, 4.2, 5, { focus: [0, 1, foot] })
@@ -946,11 +1041,11 @@ function playFinale() {
     world.shadowSize = 22
     world.shadowFocus.set(0, 0, -64)
   })
-  lightSlot(t, 4.0, 0, [0, 2.6, foot + 0.6], 8, 2.5, '#ffcf80', 10)
+  lightSlot(t, 4.0, 0, HALL_LIGHT, 8, 2.5, '#ffcf80', 10)
   lightSlot(t, 4.0, 1, [-3, 2.6, HALL.terraceFront - 0.6], 5, 2.5)
   lightSlot(t, 4.0, 2, [3, 2.6, HALL.terraceFront - 0.6], 5, 2.5)
   // they turn to you and wave goodbye
-  const ids: CharId[] = ['uni', 'father', 'luc', 'princess', 'mother', 'hanoi']
+  const ids = CAST_IDS
   beat(t, 8.5, () => ids.forEach((id) => lookAt(id, 'camera')))
   beat(t, 9.2, () => {
     act('luc', 'wave')
@@ -966,32 +1061,255 @@ function playFinale() {
     orbit(0.3, 0.16, 0.1, 0.12)
     useUI.setState({ finale: true, busy: false })
   })
-  beat(t, 10.8, () => {
-    idle.push(gsap.to(world.cam.pos, { x: end[0] + 0.4, duration: 11, ease: 'sine.inOut', yoyo: true, repeat: -1 }))
-    const acts: Record<string, readonly Action[]> = {
-      luc: ['wave', 'scratch', 'omQuyen', 'laugh'],
-      uni: ['wave', 'peace', 'hop'],
-      hanoi: ['peace', 'hop', 'wave', 'cheer'],
-      father: ['cheer', 'wave', 'usher'],
-      mother: ['clap', 'smile', 'wave'],
-      princess: ['dance', 'smile'],
-    }
-    finaleLoop = gsap.to(
-      {},
-      {
-        duration: 2.6,
-        repeat: -1,
-        onRepeat: () => {
-          const id = ids[Math.floor(Math.random() * ids.length)]
-          const list = acts[id]
-          act(id, list[Math.floor(Math.random() * list.length)])
-          if (Math.random() < 0.4) {
-            const c = world.chars.princess.pos
-            emit({ type: 'sparkle', pos: new THREE.Vector3(c.x, c.y + 1.2, c.z), count: 6, color: '#ffd98a' })
-          }
-        },
+  beat(t, 10.8, () => finaleIdle(end[0]))
+}
+
+const CAST_IDS: CharId[] = ['uni', 'father', 'luc', 'princess', 'mother', 'hanoi']
+const foot = HALL.terraceFront + 1.5 // the foot of the hall's stairs
+const HALL_LIGHT: V3 = [0, 2.6, foot + 0.6]
+/**
+ * Where the lens rests at the end: just inside Ngọ Môn, the two rows and the great hall above.
+ * (On wide screens it stands a little to the left, so the group clears the card in the corner.)
+ */
+function hallPose(): { pos: V3; target: V3; fov: number } {
+  const back = NGOMON.z - NGOMON.depth / 2
+  return narrow() ? { pos: [0, 1.75, back - 0.3], target: [0, 1.25, HALL.bodyFront], fov: 50 } : { pos: [-0.9, 1.6, back - 1.6], target: [-0.9, 1.8, HALL.bodyFront], fov: 54 }
+}
+/** while the guest lingers at the end: the lens drifts, and now one of them, now another does something */
+function finaleIdle(x: number) {
+  idle.push(gsap.to(world.cam.pos, { x: x + 0.4, duration: 11, ease: 'sine.inOut', yoyo: true, repeat: -1 }))
+  const acts: Record<string, readonly Action[]> = {
+    luc: ['wave', 'scratch', 'omQuyen', 'laugh', 'peace'],
+    uni: ['wave', 'peace', 'hop'],
+    hanoi: ['peace', 'hop', 'wave', 'cheer'],
+    father: ['cheer', 'wave', 'usher'],
+    mother: ['clap', 'smile', 'wave'],
+    princess: ['dance', 'smile'],
+  }
+  finaleLoop?.kill()
+  finaleLoop = gsap.to(
+    {},
+    {
+      duration: 2.6,
+      repeat: -1,
+      onRepeat: () => {
+        const id = CAST_IDS[Math.floor(Math.random() * CAST_IDS.length)]
+        const list = acts[id]
+        act(id, list[Math.floor(Math.random() * list.length)])
+        if (Math.random() < 0.4) {
+          const c = world.chars.princess.pos
+          emit({ type: 'sparkle', pos: new THREE.Vector3(c.x, c.y + 1.2, c.z), count: 6, color: '#ffd98a' })
+        }
       },
-    )
+    },
+  )
+}
+
+// ── đèn trời: the guest writes a wish on a sky lantern and lets it go ──────────
+let lanternTweens: gsap.core.Tween[] = []
+/** the one the next wish goes on (there is no limit: past the pool, the oldest in the sky makes way) */
+const nextLantern = () => world.lanterns[lanternSlots(ui().released, ui().wishCount).next]
+/** the lanterns this guest has let go (on an earlier visit too) are up there */
+function restoreLanterns() {
+  const { wishes } = lanternSlots(ui().released, ui().wishCount)
+  const n = ui().released.length
+  world.lanterns.forEach((L, i) => {
+    // (one that is still on its way up keeps climbing)
+    if (wishes[i] !== null && L.state === 2) return
+    Object.assign(L, wishes[i] !== null ? { state: 2, lit: 1, hold: 1, k: 1 } : { state: 0, lit: 0, hold: 0, k: 0 })
+  })
+  if (n) {
+    world.sky.on = true
+    world.sky.t = Math.max(world.sky.t, 45)
+  }
+}
+/** the lens follows the lantern up (eased, so it trails a little behind it) */
+function followLantern() {
+  const want = new THREE.Vector3()
+  return () => {
+    const p = world.lanternPos
+    want.set(p.x * 0.6, p.y * 0.92 + 0.35, p.z)
+    world.cam.target.lerp(want, 0.045)
+    world.cam.focus.lerp(p, 0.08)
+  }
+}
+
+/** the back row's way down the hall's stairs to a place in the court (and, reversed, back up) */
+function stairs(id: 'father' | 'mother', down: boolean, to: V3): V3[] {
+  const [x, y] = MARKS.hall[id]
+  const steps: V3[] = [
+    [x * 0.9, y, HALL.terraceFront - 0.05],
+    [x * 0.6, 0, foot + 0.05],
+  ]
+  return down ? [...steps, to] : [...steps.reverse(), to]
+}
+
+/** A new lantern is stood on the paving at the end of the bridge; Lực comes to stand by it. */
+export function openLantern() {
+  const s = ui()
+  if (!s.finale || s.lantern === 'write' || s.lantern === 'fly') return
+  finaleLoop?.kill()
+  finaleLoop = null
+  const again = s.lantern === 'done'
+  const t = newTimeline()
+  const L = nextLantern()
+  gsap.killTweensOf(L)
+  Object.assign(L, { state: 1, lit: 0, hold: 0, k: 0 })
+  world.spark = -1
+  useUI.setState({ lantern: 'write', wish: '', busy: true })
+  bell(523, 0.1)
+  emit({ type: 'sparkle', pos: new THREE.Vector3(LANTERN.x, 0.5, LANTERN.z), count: 10, color: '#ffe2a8' })
+  act('luc', 'none')
+  lookAt('luc', null)
+  walk('luc', [[...LANTERN.luc]], 1.5, 0.3)
+  // his friends stand out to either side: while it is written on, the lantern has the court to itself
+  // (and after an earlier lantern, his parents go back up to the terrace)
+  for (const [id, face] of [
+    ['uni', 0.9],
+    ['hanoi', -0.85],
+  ] as const) {
+    act(id, 'none')
+    walk(id, [[...LANTERN.aside[id]]], 1.7, face)
+  }
+  if (again)
+    for (const id of ['father', 'mother'] as const) {
+      act(id, 'none')
+      walk(id, stairs(id, false, MARKS.hall[id]), 2.2, 0)
+    }
+  CAST_IDS.forEach((id) => id !== 'luc' && (world.chars[id].look = world.lanternPos))
+  orbit(0.22, 0.12, 0.06, 0.1)
+  // close on the two of them: the lantern, and Lực with his lamp beside it
+  // (on a phone the panel is at the top and the keyboard below: the lantern sits in the band between)
+  const mid = (LANTERN.x + LANTERN.luc[0]) / 2
+  camTo(
+    t,
+    0,
+    2.2,
+    narrow()
+      ? { pos: [mid + 0.15, 1.45, -58.85], target: [mid + 0.03, 0.42, LANTERN.z], fov: 36, focus: [LANTERN.x, 0.4, LANTERN.z], dof: 0.6, tilt: 0, backoff: 0, range: 1.8 }
+      : { pos: [mid + 0.45, 1.25, -59.5], target: [mid + 0.39, 0.78, LANTERN.z], fov: 34, focus: [LANTERN.x, 0.4, LANTERN.z], dof: 0.8, tilt: 0, backoff: 0, range: 1.8 },
+  )
+  lightSlot(t, 0.4, 0, [LANTERN.x, 1.7, LANTERN.z + 1.3], 6, 1.6, '#ffd9a0', 7)
+  // he looks at what is being written, then up at whoever is writing it
+  beat(t, 1.3, () => (world.chars.luc.look = world.lanternPos))
+  beat(t, 2.4, () => {
+    let at = 0
+    idle.push(gsap.to({}, { duration: 3.2, repeat: -1, onRepeat: () => void (world.chars.luc.look = at++ % 2 ? world.lanternPos : 'camera') }))
+  })
+}
+
+/**
+ * The wish is written. Lực lights the lantern from his lamp, picks it up and holds it over his
+ * head; the others come and stand round him; and they let it go together, up over the hall.
+ */
+export function releaseLantern() {
+  const s = ui()
+  if (s.lantern !== 'write') return
+  const L = nextLantern()
+  keepWish(wishOr(s.wish).slice(0, WISH_MAX))
+  useUI.setState({ lantern: 'fly', wish: '' })
+  const t = newTimeline()
+  const tall = narrow()
+  const ring = tall ? LANTERN.ringTall : LANTERN.ring
+  const others = CAST_IDS.filter((id) => id !== 'luc')
+  beat(t, 0, () => {
+    world.chars.luc.look = world.lanternPos
+    others.forEach((id) => {
+      act(id, 'none')
+      world.chars[id].look = world.lanternPos
+    })
+  })
+  // the flame he has carried the whole way is held to its mouth, and takes
+  beat(t, 0.3, () => {
+    world.sparkTo.set(LANTERN.x - 0.04, 0.1, LANTERN.z)
+    act('luc', 'kindle')
+  })
+  t.fromTo(world, { spark: 0 }, { spark: 1, duration: 0.55, ease: 'none' }, 0.9)
+  beat(t, 1.46, () => {
+    world.spark = -1
+    bell(784, 0.1)
+    emit({ type: 'sparkle', pos: new THREE.Vector3(LANTERN.x, 0.2, LANTERN.z), count: 8, color: '#ffd28a' })
+  })
+  t.to(L, { lit: 1, duration: 1.5, ease: 'sine.inOut' }, 1.45)
+  lightSlot(t, 1.45, 0, [LANTERN.x + 0.5, 0.7, LANTERN.z + 0.5], 4.5, 1.5, '#ffc27a', 6)
+  // the lens draws back, and everyone comes in to stand round him: his friends from either side,
+  // his parents down the stairs (the princess watches from the terrace)
+  camTo(t, 2.5, 2.6, { pos: [0, 1.5, tall ? -58.0 : -59.2], target: [0, 1.45, LANTERN.z], fov: tall ? 58 : 50, focus: [0, 1.2, LANTERN.z], dof: 0.25, range: 9 })
+  beat(t, 2.6, () => {
+    walk('uni', [[...ring.uni]], 2.2, 0.75)
+    walk('hanoi', [[...ring.hanoi]], 2.2, -0.75)
+    walk('mother', stairs('mother', true, ring.mother), 2.6, 0.3)
+    walk('father', stairs('father', true, ring.father), 2.6, -0.3)
+  })
+  // he picks it up (the lamp goes on its hook) and holds it over his head
+  beat(t, 3.3, () => {
+    world.chars.luc.faceY = 0
+    lookAt('luc', 'camera')
+    act('luc', 'lift')
+  })
+  t.to(L, { hold: 1, duration: 1.15, ease: 'sine.inOut' }, 3.5)
+  lightSlot(t, 3.5, 0, [0, 2.3, LANTERN.z + 1.0], 5, 1.2, '#ffc27a', 7)
+  // … and together they let it go. From behind the hall the rest of the sky's lanterns are coming up too.
+  beat(t, 5.3, () => {
+    bell(392, 0.16)
+    others.forEach((id) => act(id, id === 'princess' ? 'dance' : 'cheer'))
+  })
+  beat(t, 5.7, () => {
+    L.state = 2
+    // (the first of them are already on their way up behind the roofs: they clear the ridge as the lens looks up)
+    if (!world.sky.on) world.sky.t = 11
+    world.sky.on = true
+    wind(5, 0.06)
+    lanternTweens.push(gsap.to(L, { k: 1, duration: 17, ease: (p: number) => 0.25 * p * p + 0.75 * p }))
+  })
+  // (the lens waits a moment — all of them, and the lantern leaving his hands — before it follows it up)
+  const follow = followLantern()
+  t.to({}, { duration: 6.6, onUpdate: follow }, 7.1)
+  lightSlot(t, 6.6, 0, HALL_LIGHT, 8, 2.5, '#ffcf80', 10)
+  // his thanks to you, in the way of his home town; then he turns to watch it go with the rest of them
+  beat(t, 7.2, () => act('luc', 'omQuyen'))
+  beat(t, 9.5, () => {
+    world.chars.luc.faceY = Math.PI
+    world.chars.luc.look = world.lanternPos
+  })
+  beat(t, 13.2, () => {
+    orbit(0.3, 0.16, 0.12, 0.12)
+    useUI.setState({ lantern: 'done', busy: false })
+  })
+  beat(t, 13.7, () => idle.push(gsap.to({}, { duration: 1, repeat: -1, onUpdate: follow })))
+}
+
+/** Back to the farewell and its card (an unlit lantern that was never let go is put away). */
+export function closeLantern() {
+  const s = ui()
+  if (s.lantern !== 'write' && s.lantern !== 'done') return
+  // (from the writing panel his parents never left the terrace; after a lantern they are down in the court)
+  const gathered = s.lantern === 'done'
+  if (s.lantern === 'write') {
+    // the unlit one is put away (and if it had taken the place of an old one, that one is back in the sky)
+    nextLantern().state = 0
+    restoreLanterns()
+  }
+  world.spark = -1
+  const t = newTimeline()
+  useUI.setState({ lantern: 'off', wish: '', busy: true })
+  const { pos, target, fov } = hallPose()
+  for (const id of ['luc', 'uni', 'hanoi'] as const) {
+    act(id, 'none')
+    walk(id, [[...MARKS.hall[id]]], 1.6, 0)
+  }
+  if (gathered)
+    for (const id of ['father', 'mother'] as const) {
+      act(id, 'none')
+      walk(id, stairs(id, false, MARKS.hall[id]), 2.2, 0)
+    }
+  CAST_IDS.forEach((id) => lookAt(id, 'camera'))
+  camTo(t, 0, 2.4, { pos, target, fov, focus: [0, 1, foot], dof: 0.45, tilt: 0, backoff: 0, range: 7 })
+  lightSlot(t, 0, 0, HALL_LIGHT, 8, 1.5, '#ffcf80', 10)
+  beat(t, 2.4, () => {
+    orbit(0.3, 0.16, 0.1, 0.12)
+    useUI.setState({ busy: false })
+    finaleIdle(pos[0])
   })
 }
 
@@ -1067,6 +1385,12 @@ export function resetWorld() {
   world.laptop = 0.9
   world.bubble = 0
   world.cow.up = world.cow.moo = 0
+  lanternTweens.forEach((tw) => tw.kill())
+  lanternTweens = []
+  world.lanterns.forEach((L) => Object.assign(L, { state: 0, lit: 0, hold: 0, k: 0 }))
+  world.spark = -1
+  world.sky.on = false
+  world.sky.t = 0
   world.wipe.kind = 'none'
   world.wipe.p = 0
   world.city = false

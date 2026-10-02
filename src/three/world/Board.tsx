@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
-import { BOARD, CHAM, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, houseToWorld } from '../layout'
+import { BOARD, CHAM, CHAM_HOME, CONGLANG, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, houseToWorld } from '../layout'
 import { blob, G, mergeKit, rng, type Part } from '../lib/kit'
 import { kitMat } from '../lib/materials'
 import { canvas, toTexture, waterNormalTex } from '../lib/textures'
@@ -315,6 +315,7 @@ function paintGround() {
   soft(NGOMON.x - NGOMON.w / 2, NGOMON.z - NGOMON.depth / 2, NGOMON.x + NGOMON.w / 2, NGOMON.z + NGOMON.depth / 2 + NGOMON.wing, 0.9, 0.45)
   soft(HALL.x - 7.2, HALL.terraceBack, HALL.x + 7.2, HALL.terraceFront, 1.0, 0.55)
   spot(CHAM.x, CHAM.z, 2.4, 0.5)
+  spot(CHAM_HOME.x, CHAM_HOME.z, 2.4 * CHAM_HOME.s, 0.5)
   spot(HOUSE.x, HOUSE.z, 2.5, 0.5)
   spot(HAYSTACK.x, HAYSTACK.z, 1.0, 0.45)
   for (const h of HOUSES) spot(h.x, h.z, Math.max(h.w, h.d) * 0.68, 0.45)

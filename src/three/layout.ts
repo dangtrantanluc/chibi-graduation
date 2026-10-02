@@ -9,7 +9,7 @@
  *           z = −56 │═══════ NGỌ MÔN ════════════│  V   Huế — the invitation
  *                   │   Ngọ Môn plaza (U)        │
  *           z = −44 │≋≋≋≋ lũy tre, a bamboo arch ≋│      the way out of the village
- *                   │ banyan · well · HOME, yard │  IV  his parents' house
+ *                   │ banyan · well · HOME, yard │  IV  his parents' house (Bình Định again)
  *           z = −33 │≋≋≋≋ CỔNG LÀNG in lũy tre ≋≋│      the way into the village
  *                   │        (a green)           │
  *           z = −28 │═══════ ĐOAN MÔN ═══════════│  III Hoàng thành Thăng Long (autumn)
@@ -89,7 +89,7 @@ export const BIKE = { x: -3.1, z: -20.4, ry: 0.5 }
 /** Cột cờ Hà Nội — the flag tower of the citadel, off to the west of the esplanade */
 export const FLAG_TOWER = { x: -13.4, z: -21.4 }
 
-// ── IV · Làng Bắc Bộ ────────────────────────────────────────
+// ── IV · Bình Định again — the village, home ────────────────
 /** the village gate, set into the bamboo hedge (lũy tre) across a green from Đoan Môn: the way INTO the village */
 export const CONGLANG = { x: 0, z: -33.5, archW: 1.25, archH: 2.1 }
 /** where the village ends: a second line of lũy tre; the lane leaves under arching bamboo, toward Huế */
@@ -108,6 +108,20 @@ export function houseToWorld(lx: number, lz: number): [number, number] {
   const sn = Math.sin(HOUSE.ry)
   return [HOUSE.x + (lx * c + lz * sn) * HOUSE.s, HOUSE.z + (-lx * sn + lz * c) * HOUSE.s]
 }
+/**
+ * Đèn ngõ — a lantern on a low bamboo stand at the edge of the lane, where the
+ * yard opens onto it. It is the one Lực lights from the lamp he has carried all
+ * the way; the lane's lanterns take from it. `luc` is where he stands to do it,
+ * the lantern at his left hand (`y` is the bar it hangs from, `mouth` its foot).
+ * It is kept knee-high: in the frames that follow it sits below everyone's feet.
+ */
+export const YARD_LAMP = { x: 0.65, y: 0.5, z: -38.9, mouth: 0.24, luc: [-0.17, 0, -38.95] as [number, number, number] }
+/**
+ * The village is the Bình Định he left in chapter I: the same country shows
+ * again here. A second Cham tower stands behind the house — from the yard its
+ * top storeys rise over the thatch — and the trees are coconut palms.
+ */
+export const CHAM_HOME = { x: 9.6, z: -42.1, ry: -2.57, s: 0.75 }
 /** cây rơm — the haystack beside the house */
 export const HAYSTACK = { x: 3.5, z: -41.6 }
 /** ao làng — the village pond by the banyan */
@@ -133,6 +147,24 @@ export const HUE_PONDS: [number, number, number, number][] = [
   [-6.4, -1.6, -62.7, -59.2],
   [1.6, 6.4, -62.7, -59.2],
 ]
+/**
+ * Đèn trời — where the guest's sky lantern stands to be written on, at the hall
+ * end of the Trung Đạo bridge, with Lực beside it (his lamp hand toward it).
+ * To let it go he picks it up and holds it over his head (`holdY` is its mouth
+ * then), and the others come and stand round him in an open arc.
+ */
+export const LANTERN = {
+  x: 0.82,
+  z: -62.9,
+  luc: [0, 0, -62.95] as [number, number, number],
+  holdY: 1.4,
+  /** while the wish is written his two friends stand out to either side, clear of the frame */
+  aside: { uni: [-3.1, 0, -63.5], hanoi: [3.3, 0, -63.5] } as Record<string, [number, number, number]>,
+  /** … and to let it go, everyone but the princess (who watches from the terrace) gathers round */
+  ring: { uni: [-1.9, 0, -63.3], hanoi: [1.9, 0, -63.3], mother: [-1.25, 0, -64.25], father: [1.25, 0, -64.25] } as Record<string, [number, number, number]>,
+  /** (a closer arc on a tall screen, where the frame is narrow) */
+  ringTall: { uni: [-1.55, 0, -63.3], hanoi: [1.55, 0, -63.3], mother: [-1.1, 0, -64.25], father: [1.1, 0, -64.25] } as Record<string, [number, number, number]>,
+}
 /** potted mai on the piers either side of Ngọ Môn's central arch (clear of the hanging scroll) */
 export const MAI_POTS: [number, number][] = [
   [-1.8, NGOMON.z + NGOMON.depth / 2 + 0.6],

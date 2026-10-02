@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { CAST, INVITE, MUSIC, PROCLAMATION } from '../config'
-import { useUI, type Caption } from '../state/store'
+import { CAST, INVITE, MUSIC, PROCLAMATION, SFX } from '../config'
+import { useUI, WISH_MAX, type Caption } from '../state/store'
 import { world } from '../state/world'
-import { advance, replay } from '../story/director'
+import { advance, closeLantern, openLantern, releaseLantern, replay } from '../story/director'
+import { DEFAULT_WISH, wishOr } from '../three/fx/lanternPaper'
+import { saveLanternCard } from './lanternCard'
+import { flushWishes, sendWish, wishesOn } from './wishPost'
 import { setOverview } from './interaction'
-import { chime, isMuted, onMute, playZone, setMuted } from '../audio/music'
+import { chime, isMuted, onMute, onSamples, playZone, setMuted, trainReady } from '../audio/music'
 
 /*
  * The HTML layer. There are no "next" buttons: the guest taps anywhere on the
@@ -52,11 +55,16 @@ export function Overlay({ webgl }: { webgl: boolean }) {
   const flash = useUI((s) => s.flash)
   const guest = useUI((s) => s.guest)
   const overview = useUI((s) => s.overview)
+  const lantern = useUI((s) => s.lantern)
+
+  // a wish that could not be posted on an earlier visit goes out now
+  useEffect(() => void flushWishes(), [])
 
   useEffect(() => {
     const tap = () => onGlobalTap()
     const key = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.tagName === 'INPUT') return
+      // typing in a field, or a focused button or link: the key is theirs
+      if ((e.target as HTMLElement)?.closest?.('input, button, a')) return
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
         e.preventDefault()
         onGlobalTap()
@@ -97,7 +105,8 @@ export function Overlay({ webgl }: { webgl: boolean }) {
 
       {step === 'home' && canContinue && <LookHint />}
       {step === 'hue' && invite && <InviteCard guest={guest} ready={canContinue && !busy} />}
-      {finale && <Finale />}
+      {finale && lantern === 'off' && <Finale />}
+      {finale && (lantern === 'write' || lantern === 'done') && <LanternPanel mode={lantern} />}
     </div>
   )
 }
@@ -356,6 +365,10 @@ function InviteCard({ guest, ready }: { guest: string; ready: boolean }) {
 
 function Finale() {
   const hasCal = Boolean(INVITE.startISO && INVITE.endISO)
+  const again = useUI((s) => s.wishCount > 0)
+  // the recorded train is credited only when its file is there to be heard
+  const [trainHeard, setTrainHeard] = useState(trainReady)
+  useEffect(() => onSamples(() => setTrainHeard(trainReady())), [])
   return (
     <section className="finale" aria-live="polite">
       <div className="finale-head">
@@ -363,6 +376,13 @@ function Finale() {
       </div>
       <div className="card finale-card">
         <Details compact />
+        <button className="lantern-open" data-interactive onClick={openLantern}>
+          <LanternIcon />
+          <span>
+            {again ? 'Thả thêm một đèn trời' : 'Viết lời chúc, thả đèn trời'}
+            <small>{again ? 'thêm một lời chúc nữa' : `gửi ${CAST.luc} một lời chúc`}</small>
+          </span>
+        </button>
         <div className="links">
           {hasCal && (
             <a href="#" onClick={(e) => (e.preventDefault(), downloadIcs())}>
@@ -387,11 +407,135 @@ function Finale() {
               </a>
             </span>
           ))}
+          {trainHeard && (
+            <span>
+              {' · '}
+              <a href={SFX.train.url} target="_blank" rel="noreferrer">
+                “{SFX.train.title}”
+              </a>{' '}
+              {SFX.train.author},{' '}
+              <a href={SFX.train.licenseUrl} target="_blank" rel="noreferrer">
+                {SFX.train.license}
+              </a>
+            </span>
+          )}
         </p>
       </div>
       <p className="finale-cue" aria-hidden="true">
         kéo để nhìn quanh
       </p>
+    </section>
+  )
+}
+
+function LanternIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round">
+      <path d="M8.6 19.5c-.3-2.6-3.1-5.2-3.1-9.4C5.5 6 8.2 3 12 3s6.5 3 6.5 7.1c0 4.2-2.8 6.8-3.1 9.4z" />
+      <path d="M12 16.2c-.9-1-.9-2.2 0-3.2.9 1 .9 2.2 0 3.2zM9.8 21.5h4.4" />
+    </svg>
+  )
+}
+
+/** wishes offered to those who would rather not type */
+const SUGGEST = [DEFAULT_WISH, 'Vững bước trên đường mới nhé!', `Tự hào về ${CAST.luc} lắm!`, 'Thành công rực rỡ nha!']
+
+/**
+ * Thả đèn trời. While the guest writes, the words appear on the lantern in the
+ * scene; when it is let go the wish is posted to Lực (ui/wishPost.ts — to him
+ * alone; with no endpoint configured nothing is sent), and afterwards they can
+ * keep a picture of it.
+ */
+function LanternPanel({ mode }: { mode: 'write' | 'done' }) {
+  const wish = useUI((s) => s.wish)
+  const released = useUI((s) => s.released)
+  const guest = useUI((s) => s.guest)
+  const input = useRef<HTMLInputElement>(null)
+  const post = useUI((s) => s.wishPost)
+  const [saved, setSaved] = useState<'' | 'busy' | 'done' | 'failed'>('')
+
+  useEffect(() => {
+    // (not on a phone: the keyboard would cover the lantern before it has been seen)
+    if (mode === 'write' && !window.matchMedia('(pointer: coarse)').matches) input.current?.focus({ preventScroll: true })
+  }, [mode])
+
+  if (mode === 'write') {
+    const submit = (e: FormEvent) => {
+      e.preventDefault()
+      input.current?.blur()
+      chime()
+      sendWish(guest, wishOr(wish))
+      releaseLantern()
+    }
+    return (
+      <form className="card lantern-card" onSubmit={submit} data-interactive>
+        <p className="host-sub">Đèn trời</p>
+        <label htmlFor="wish" className="lantern-title">
+          Viết lời chúc lên đèn
+        </label>
+        <input id="wish" ref={input} value={wish} maxLength={WISH_MAX} autoComplete="off" enterKeyHint="send" placeholder={DEFAULT_WISH} onChange={(e) => useUI.setState({ wish: e.target.value })} />
+        <div className="chips" aria-label="Lời chúc gợi ý">
+          {SUGGEST.map((s) => (
+            <button type="button" key={s} aria-pressed={wish === s} onClick={() => useUI.setState({ wish: s })}>
+              {s}
+            </button>
+          ))}
+        </div>
+        {wishesOn() && <p className="lantern-note">Lời chúc được gửi riêng tới {CAST.luc} — chỉ {CAST.luc} đọc được.</p>}
+        <div className="lantern-actions">
+          <button type="button" className="quiet" onClick={closeLantern}>
+            Để sau
+          </button>
+          <span className="count" aria-hidden="true">
+            {wish.length}/{WISH_MAX}
+          </span>
+          <button type="submit" className="go">
+            Thả đèn
+          </button>
+        </div>
+      </form>
+    )
+  }
+
+  const last = released[released.length - 1] ?? DEFAULT_WISH
+  const name = guest || INVITE.defaultGuest
+  const note =
+    saved === 'failed'
+      ? 'Chưa lưu được ảnh, bạn thử lại nhé.'
+      : post === 'sending'
+        ? `Đang gửi lời chúc tới ${CAST.luc}…`
+        : post === 'sent'
+          ? `Lời chúc đã gửi tới ${CAST.luc} — chỉ ${CAST.luc} đọc được.`
+          : post === 'later'
+            ? 'Mạng đang chập chờn: lời chúc sẽ tự gửi lại khi bạn mở thiệp lần sau.'
+            : `Lưu ảnh chiếc đèn rồi gửi cho ${CAST.luc} nhé — lời chúc chỉ nằm trên máy của bạn.`
+  const save = async () => {
+    if (saved === 'busy') return
+    setSaved('busy')
+    try {
+      const how = await saveLanternCard(last, guest)
+      setSaved(how === 'cancelled' ? '' : 'done')
+    } catch {
+      setSaved('failed')
+    }
+  }
+  return (
+    <section className="card lantern-card done" data-interactive aria-live="polite">
+      <p className="host-sub">Đèn đã bay lên</p>
+      <p className="lantern-title">Cảm ơn {name} đã gửi lời chúc.</p>
+      <p className="lantern-wish">“{last}”</p>
+      <p className="lantern-note">{note}</p>
+      <div className="lantern-actions">
+        <button className="quiet" onClick={closeLantern}>
+          Xem lại thiệp
+        </button>
+        <button className="quiet" onClick={openLantern}>
+          Thả thêm
+        </button>
+        <button className="go" onClick={save}>
+          {saved === 'busy' ? 'Đang vẽ…' : saved === 'done' ? 'Đã lưu ảnh ✓' : 'Lưu ảnh đèn'}
+        </button>
+      </div>
     </section>
   )
 }

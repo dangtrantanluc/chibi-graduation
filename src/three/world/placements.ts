@@ -1,5 +1,5 @@
 import { rng } from '../lib/kit'
-import { BANYAN, BIKE, BOARD, CHAM, CONGLANG, COW, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, FLAG_TOWER, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, WELL } from '../layout'
+import { BANYAN, BIKE, BOARD, CHAM, CHAM_HOME, CONGLANG, COW, DOANMON, GATE, HALL, HAYSTACK, HOUSE, HUE_PONDS, HUE_WALL_Z, NGOMON, FLAG_TOWER, PADDY, PATH, POND, RANGDONG, STREET, TOPIARY, VILLAGE_END, WELL } from '../layout'
 import { CAMPUS_TREES } from './Campus'
 
 /** Deterministic placement of buildings, trees, rocks and flowers, region by region. */
@@ -169,7 +169,7 @@ function regionKinds(z: number): TreeKind[] {
   return ['mai', 'green', 'pine']
 }
 
-export const TREES: TreeDef[] = (() => {
+const GROWN: TreeDef[] = (() => {
   const r = rng(11)
   const out = [...HAND_TREES]
   let tries = 0
@@ -186,6 +186,19 @@ export const TREES: TreeDef[] = (() => {
   return out
 })()
 
+/**
+ * Home is Bình Định, "xứ dừa": inside the village the trees are coconut palms, and two more
+ * stand by the house. (Added after the scatter above, so that nothing else on the board moves.)
+ */
+const inVillage = (z: number) => z < CONGLANG.z - 0.5 && z > VILLAGE_END
+const VILLAGE_PALMS: TreeDef[] = [
+  { x: 8.4, z: -38.2, s: 1.0, ry: 2.4, kind: 'coconut' },
+  { x: 3.9, z: -43.0, s: 1.1, ry: 0.9, kind: 'coconut' },
+]
+export const TREES: TreeDef[] = [...GROWN.map((t) => (t.kind === 'green' && inVillage(t.z) ? { ...t, kind: 'coconut' as const } : t)), ...VILLAGE_PALMS]
+/** whatever was scattered where the village's palms and its Cham tower now stand makes way for them */
+const taken = (x: number, z: number) => Math.hypot(x - CHAM_HOME.x, z - CHAM_HOME.z) < 2.9 * CHAM_HOME.s || VILLAGE_PALMS.some((t) => Math.hypot(t.x - x, t.z - z) < 0.9)
+
 export const BUSHES: [number, number, number][] = (() => {
   const r = rng(23)
   const out: [number, number, number][] = [
@@ -200,10 +213,10 @@ export const BUSHES: [number, number, number][] = (() => {
     const x = BOARD.minX + 1 + r() * (BOARD.maxX - BOARD.minX - 2)
     const z = BOARD.minZ + 1 + r() * (BOARD.maxZ - BOARD.minZ - 2)
     if (!isFree(x, z, -0.6)) continue
-    if (TREES.some((t) => Math.hypot(t.x - x, t.z - z) < 1.3)) continue
+    if (GROWN.some((t) => Math.hypot(t.x - x, t.z - z) < 1.3)) continue
     out.push([x, z, 0.45 + r() * 0.4])
   }
-  return out
+  return out.filter(([x, z]) => !taken(x, z))
 })()
 
 /** Flower beds, including deliberate foreground clusters for depth in each shot. */
@@ -255,7 +268,7 @@ export const ROCKS: [number, number, number][] = (() => {
     if (!isFree(x, z, -0.8)) continue
     out.push([x, z, 0.18 + r() * 0.25])
   }
-  return out
+  return out.filter(([x, z]) => !taken(x, z))
 })()
 
 export const GRASS: [number, number, number][] = (() => {
@@ -271,5 +284,5 @@ export const GRASS: [number, number, number][] = (() => {
     if (z < VILLAGE_END - 0.6 && Math.abs(x) < 8) continue
     out.push([x, z, 0.6 + r() * 0.7])
   }
-  return out
+  return out.filter(([x, z]) => !taken(x, z))
 })()

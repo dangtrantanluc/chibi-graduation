@@ -8,12 +8,20 @@ per chapter, all on one axis of the diorama:
 | --- | --- | --- | --- |
 | I | Bình Định · Cổng thành Hoàng Đế | Lực | sitting on a stone bench under his home town's gate, he grins shyly, greets you with a Bình Định martial salute (ôm quyền) and walks into the light |
 | II | Sài Gòn · ĐH Nông Lâm, giảng đường Rạng Đông | his CNTT friends | the North–South express carries him south; his friend in the Khoa CNTT polo looks up from her stickered laptop, "`</>`", a high-five — and the campus cow on the lawn has the last word ("ụm bò~") |
-| III | Hà Nội · Hoàng thành Thăng Long (autumn) | his Hà Nội friends | a gust of golden leaves; by a bicycle loaded with daisies she flashes a V-sign and offers you a bunch of cúc hoạ mi |
-| IV | Home · the village | Bố & Mẹ | he says goodbye to his Hà Nội friend and walks through Đoan Môn and the village gate to his parents, waiting in the yard of their thatched house; arms folded, he bows, then unrolls his diploma (made like a sớ) — the lanterns along the lane light up — and his parents step to either side of the lane to see him off toward Huế |
+| III | Hà Nội · Hoàng thành Thăng Long (autumn) | his Hà Nội friends | a gust of golden leaves; the first journey he chose for himself, far and alone — he walks straight on, and a golden dragon rises from behind Đoan Môn; by a bicycle loaded with daisies his friend teaches the shy boy her V-sign (he keeps it to the end) and offers you a bunch of cúc hoạ mi |
+| IV | Home · Bình Định again | Bố & Mẹ | he says goodbye to his Hà Nội friend and walks through Đoan Môn; the train passes once more, the other way (Hà Nội → Bồng Sơn), and he comes through the village gate to his parents, waiting in the yard of their thatched house (coconut palms, a Cham tower behind the roof, rice paper drying); arms folded, he bows, then unrolls his diploma (made like a sớ); he lights the low lantern at the edge of the lane from the lamp he has carried all the way, the lane's lanterns take from it one after another, and his parents step to either side of the lane to see him off toward Huế |
 | V | Huế · Ngọ Môn | Công nương (áo nhật bình) + everyone | out of the village under arching bamboo to Ngọ Môn. News of a degree was once proclaimed at the capital (lễ Truyền lô), so the princess, as herald, has the golden list (bảng vàng) lowered from Lầu Ngũ Phụng — a hush, three drum beats, a band of gold. Half open it proclaims the graduate ("TÂN KHOA · Lực") and he salutes it; then it unrolls the rest of the way: "KÍNH MỜI · {name} · đến chung vui" |
 
 Then the golden list rolls back up and they all walk in through Ngọ Môn, over
 the Trung Đạo bridge, to stand before Điện Thái Hòa — "See you inside."
+
+After the farewell the guest may **let a sky lantern go** (thả đèn trời): they
+write a wish, it appears on the lantern's paper as they type, Lực lights it
+from the lamp he has carried the whole way, and it rises over the hall among
+others. The wish is posted, write-only, to a Google Apps Script that adds a row
+to the host's private sheet (`docs/wishes-apps-script.gs`; paste its web-app URL
+into `WISHES.endpoint` in `src/config.ts` — left empty, nothing is sent), and a
+"save the picture" button draws a card of the lantern for the guest to keep.
 
 The two friends speak without a name tag: their lines are headed only by the
 place (Sài Gòn, Hà Nội).
@@ -113,7 +121,8 @@ src/
   story/director.ts      every camera move, character beat, line of dialogue (GSAP)
   state/                 UI store (zustand) + per-frame world state and event bus
   audio/music.ts         Web Audio music (crossfade by zone), bell, tap chime, mute
-  ui/                    journey-ticket name entry, visual-novel dialogue, invitation, finale;
+  ui/                    journey-ticket name entry, visual-novel dialogue, invitation, finale,
+                         the sky-lantern wish panel (lanternCard.ts draws the picture to keep);
                          interaction.ts = tap / drag / pinch gestures
   three/
     Experience.tsx       canvas, scene graph, lazy-mounted scenes
@@ -130,7 +139,7 @@ src/
 ```
 
 - **Transitions** are beats of the journey: the North–South express rushes past
-  the lens (Diêu Trì → Sài Gòn), a gust of golden leaves fills the frame (to Hà
+  the lens (Bồng Sơn → Sài Gòn), a gust of golden leaves fills the frame (to Hà
   Nội in autumn); the camera also physically walks through Đoan Môn's central
   arch and the village gate.
 - **Small physics:** lanterns are damped pendulums; leaves and petals react to
