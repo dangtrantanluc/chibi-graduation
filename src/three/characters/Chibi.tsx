@@ -476,7 +476,9 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
 
   const tmp = useMemo(() => ({ v: new THREE.Vector3(), w: new THREE.Vector3() }), [])
 
-  useFrame((_, rawDt) => {
+  useFrame((_, frameDt) => {
+    // (the story's own pace: faster while the guest holds the screen)
+    const rawDt = frameDt * world.rate
     const dt = Math.min(rawDt, 1 / 20)
     const c: CharState = world.chars[id]
     const t = world.time
@@ -508,7 +510,7 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
       } else {
         walking = true
         // travel keeps to real time even when frames are slow, so walks still land on the story's beats
-        const step = Math.min(dist, c.speed * Math.min(rawDt, 0.12))
+        const step = Math.min(dist, c.speed * Math.min(rawDt, 0.12 * world.rate))
         c.pos.x += (tmp.v.x / dist) * step
         c.pos.z += (tmp.v.z / dist) * step
         // climb (or descend) evenly along the leg, so stairs are walked, not jumped

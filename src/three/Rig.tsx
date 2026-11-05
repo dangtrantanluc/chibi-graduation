@@ -11,7 +11,7 @@ import { BOARD } from './layout'
 /** Advances the shared clock (world.time + shader time). Runs first. */
 export function Ticker() {
   useFrame((_, dt) => {
-    world.time += Math.min(dt, 0.1)
+    world.time += Math.min(dt, 0.1) * world.rate
     uTime.value = world.time
   }, -2)
   return null

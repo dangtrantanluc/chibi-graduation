@@ -38,6 +38,8 @@ interface UIState {
   wishCount: number
   /** the latest wish on its way to Lực (ui/wishPost.ts): being posted, posted, or held to be sent on the next visit */
   wishPost: 'none' | 'sending' | 'sent' | 'later'
+  /** the guest is holding the screen: the scene plays faster */
+  hurry: boolean
   /** 0‥1 warm light wash over the whole screen (walking through the lit gate) */
   flash: number
   quality: Quality
@@ -110,6 +112,7 @@ export const useUI = create<UIState>((set) => ({
   lantern: 'off',
   wish: '',
   wishPost: 'none',
+  hurry: false,
   ...(typeof window !== 'undefined' ? storedWishes() : { released: [], wishCount: 0 }),
   flash: 0,
   quality: initialQuality,

@@ -5,8 +5,9 @@ import { world } from '../state/world'
 import { advance, closeLantern, openLantern, releaseLantern, replay } from '../story/director'
 import { DEFAULT_WISH, wishOr } from '../three/fx/lanternPaper'
 import { saveLanternCard } from './lanternCard'
-import { flushWishes, sendWish, wishesOn } from './wishPost'
+import { flushWishes, sendRsvp, sendWish, storedRsvp, wishesOn, type Rsvp } from './wishPost'
 import { setOverview } from './interaction'
+import { FpsMeter, fpsWanted } from './FpsMeter'
 import { chime, isMuted, onMute, onSamples, playZone, setMuted, trainReady } from '../audio/music'
 
 /*
@@ -55,6 +56,7 @@ export function Overlay({ webgl }: { webgl: boolean }) {
   const flash = useUI((s) => s.flash)
   const guest = useUI((s) => s.guest)
   const overview = useUI((s) => s.overview)
+  const hurry = useUI((s) => s.hurry)
   const lantern = useUI((s) => s.lantern)
 
   // a wish that could not be posted on an earlier visit goes out now
@@ -90,6 +92,12 @@ export function Overlay({ webgl }: { webgl: boolean }) {
       <div className="flash" style={{ opacity: flash }} aria-hidden="true" />
 
       {phase === 'loading' && <Loader />}
+      {showFps && <FpsMeter />}
+      {hurry && (
+        <p className="hurry-badge" aria-hidden="true">
+          ▸▸ tua nhanh
+        </p>
+      )}
       {phase === 'ready' && <SoundToggle />}
       {phase === 'ready' && (overview || !busy) && <MapToggle on={overview} />}
       {overview && (
@@ -319,7 +327,7 @@ function LookHint() {
   if (!show) return null
   return (
     <div className="look-hint" aria-hidden="true">
-      <span className="hand">✥</span> Kéo để nhìn quanh
+      <span className="hand">✥</span> Kéo để nhìn quanh · giữ để tua nhanh
     </div>
   )
 }
@@ -343,6 +351,8 @@ function Details({ compact = false }: { compact?: boolean }) {
   )
 }
 
+const showFps = fpsWanted()
+
 const compactInvite = () => window.matchMedia('(max-width: 720px)').matches
 
 function InviteCard({ guest, ready }: { guest: string; ready: boolean }) {
@@ -351,7 +361,7 @@ function InviteCard({ guest, ready }: { guest: string; ready: boolean }) {
       <p className="sr-only">
         Bảng vàng xướng tên tân khoa {CAST.luc}, và kính mời {guest} đến chung vui.
       </p>
-      <p className="host">You are invited</p>
+      <p className="host">Thư mời tốt nghiệp</p>
       <p className="host-sub">Trân trọng kính mời</p>
       <Details compact={compactInvite()} />
       {ready && (
@@ -372,10 +382,12 @@ function Finale() {
   return (
     <section className="finale" aria-live="polite">
       <div className="finale-head">
-        <h2>See you inside.</h2>
+        <h2>Hẹn gặp bạn nhé.</h2>
       </div>
       <div className="card finale-card">
+        <TicketBack />
         <Details compact />
+        <RsvpRow />
         <button className="lantern-open" data-interactive onClick={openLantern}>
           <LanternIcon />
           <span>
@@ -389,6 +401,9 @@ function Finale() {
               Thêm vào lịch
             </a>
           )}
+          <a href={mapsUrl()} target="_blank" rel="noreferrer">
+            Chỉ đường
+          </a>
           <a href="#" onClick={(e) => (e.preventDefault(), replay())}>
             ↺ Đi lại hành trình
           </a>
@@ -540,6 +555,53 @@ function LanternPanel({ mode }: { mode: 'write' | 'done' }) {
   )
 }
 
+/** the ticket from the start of the journey comes back, stamped: the guest has arrived */
+function TicketBack() {
+  const guest = useUI((s) => s.guest) || INVITE.defaultGuest
+  return (
+    <p className="ticket-back">
+      <span>
+        Vé hành trình · <b>{guest.charAt(0).toLocaleUpperCase('vi') + guest.slice(1)}</b>
+      </span>
+      <span className="arrived" aria-label="đã đến nơi">
+        ✿ Đã đến
+      </span>
+    </p>
+  )
+}
+
+const mapsUrl = () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(INVITE.mapsQuery)}`
+
+/** "will you come?" — two buttons; the answer goes to Lực like a wish does */
+function RsvpRow() {
+  const guest = useUI((s) => s.guest) || INVITE.defaultGuest
+  const [answer, setAnswer] = useState<Rsvp | null>(storedRsvp)
+  const pick = (a: Rsvp) => {
+    setAnswer(a)
+    sendRsvp(guest, a)
+  }
+  if (answer)
+    return (
+      <p className="rsvp-done">
+        {answer === 'yes' ? `Đã báo ${CAST.luc}: bạn sẽ đến. Hẹn gặp nhé!` : `Đã báo ${CAST.luc}. Cảm ơn bạn đã ghé hành trình!`}{' '}
+        <button type="button" data-interactive onClick={() => setAnswer(null)}>
+          đổi ý
+        </button>
+      </p>
+    )
+  return (
+    <div className="rsvp" role="group" aria-label="Bạn có đến dự không?">
+      <span>Bạn sẽ đến chứ?</span>
+      <button type="button" data-interactive className="yes" onClick={() => pick('yes')}>
+        Mình sẽ đến
+      </button>
+      <button type="button" data-interactive onClick={() => pick('no')}>
+        Tiếc quá, bận mất
+      </button>
+    </div>
+  )
+}
+
 function downloadIcs() {
   const fmt = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
   const esc = (s: string) => s.replace(/[,;\\]/g, (m) => `\\${m}`)
@@ -552,9 +614,9 @@ function downloadIcs() {
     `DTSTAMP:${fmt(new Date().toISOString())}`,
     `DTSTART:${fmt(INVITE.startISO)}`,
     `DTEND:${fmt(INVITE.endISO)}`,
-    `SUMMARY:${esc(INVITE.event)}`,
+    `SUMMARY:${esc(`${INVITE.event} · ${CAST.luc}`)}`,
     `LOCATION:${esc(INVITE.location)}`,
-    'DESCRIPTION:You are invited',
+    `DESCRIPTION:${esc(`${INVITE.event} của ${CAST.luc}`)}`,
     'END:VEVENT',
     'END:VCALENDAR',
   ].join('\r\n')
@@ -578,7 +640,7 @@ function Fallback() {
           {PROCLAMATION.closing} cùng {CAST.luc}
         </p>
         <Details />
-        <p className="sign">See you inside.</p>
+        <p className="sign">Hẹn gặp bạn nhé.</p>
       </section>
     </main>
   )

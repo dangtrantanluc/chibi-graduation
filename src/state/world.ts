@@ -101,6 +101,8 @@ export interface LightSlot {
 
 export const world = {
   time: 0,
+  /** how fast the story runs: 1, or faster while the guest holds the screen (director `setHurry`) */
+  rate: 1,
   cam: {
     pos: new THREE.Vector3(0, 4.2, 27),
     target: new THREE.Vector3(0, 2.2, 5),

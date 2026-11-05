@@ -79,3 +79,33 @@ export function sendWish(name: string, wish: string) {
   useUI.setState({ wishPost: 'sending' })
   void flushWishes()
 }
+
+const RSVP = 'invite-rsvp'
+export type Rsvp = 'yes' | 'no'
+/** what this guest answered last time (kept only in their own browser) */
+export function storedRsvp(): Rsvp | null {
+  try {
+    const v = localStorage.getItem(RSVP)
+    return v === 'yes' || v === 'no' ? v : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The guest says whether they will come. It travels the same write-only way as a
+ * wish (a row in Lực's sheet, its text marked "[Xác nhận]"), so the script that
+ * is already deployed takes it as it is.
+ */
+export function sendRsvp(name: string, answer: Rsvp) {
+  try {
+    localStorage.setItem(RSVP, answer)
+  } catch {
+    // private mode: the answer is still sent once
+  }
+  if (!wishesOn()) return
+  const id = globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+  const wish = answer === 'yes' ? '[Xác nhận] Sẽ đến dự' : '[Xác nhận] Tiếc quá, không đến được'
+  keep([...outbox(), { id, name: name.slice(0, 40), wish }])
+  void flushWishes()
+}

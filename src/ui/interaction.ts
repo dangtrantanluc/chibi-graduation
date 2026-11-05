@@ -1,12 +1,14 @@
 import gsap from 'gsap'
 import { world } from '../state/world'
 import { useUI } from '../state/store'
+import { setHurry } from '../story/director'
 
 /**
  * One gesture vocabulary for the whole experience — no buttons needed:
  *   • tap / click anywhere       → continue (fires `village-tap`)
  *   • drag (mouse or one finger) → look around the current scene
  *   • wheel / pinch              → lean in or out a little
+ *   • press and hold, still      → the scene plays faster while held
  * In the map view (setOverview) a drag turns the whole board and a tap goes back.
  */
 const INTERACTIVE = 'input, textarea, button, a, [data-interactive]'
@@ -16,6 +18,14 @@ export function installInteraction() {
   let dragging = false
   const pts = new Map<number, { x: number; y: number }>()
   let pinch0 = 0
+  let holdTimer = 0
+  /** a hold that hurried the scene is not also a tap */
+  let held = false
+  const stopHold = () => {
+    clearTimeout(holdTimer)
+    holdTimer = 0
+    if (useUI.getState().hurry) setHurry(false)
+  }
 
   const clampLook = () => {
     const l = world.look
@@ -37,11 +47,21 @@ export function installInteraction() {
     if (pts.size === 2) {
       const [a, b] = [...pts.values()]
       pinch0 = Math.hypot(a.x - b.x, a.y - b.y)
+      stopHold()
       down = null
       return
     }
     down = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId }
     dragging = false
+    held = false
+    clearTimeout(holdTimer)
+    if (useUI.getState().busy && !world.overview.on)
+      holdTimer = window.setTimeout(() => {
+        if (down && !dragging && pts.size === 1) {
+          held = true
+          setHurry(true)
+        }
+      }, 320)
   }
 
   const onMove = (e: PointerEvent) => {
@@ -63,6 +83,7 @@ export function installInteraction() {
     const dy = e.clientY - prev.y
     if (!dragging && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 7) {
       dragging = true
+      stopHold()
       world.look.active = true
       gsap.killTweensOf(world.look)
       document.body.classList.add('is-dragging')
@@ -82,7 +103,8 @@ export function installInteraction() {
     pinch0 = 0
     document.body.classList.remove('is-dragging')
     world.look.active = false
-    if (down && down.id === e.pointerId && !dragging && performance.now() - down.t < 600) {
+    stopHold()
+    if (down && down.id === e.pointerId && !dragging && !held && performance.now() - down.t < 600) {
       window.dispatchEvent(new CustomEvent('village-tap'))
     }
     down = null
@@ -100,7 +122,15 @@ export function installInteraction() {
   window.addEventListener('pointerup', onUp)
   window.addEventListener('pointercancel', onUp)
   window.addEventListener('wheel', onWheel, { passive: true })
+  window.addEventListener('blur', stopHold)
+  // (a long press on a phone would otherwise open the browser's own menu)
+  const onMenu = (e: Event) => {
+    if (!(e.target as HTMLElement)?.closest?.(INTERACTIVE)) e.preventDefault()
+  }
+  window.addEventListener('contextmenu', onMenu)
   return () => {
+    window.removeEventListener('contextmenu', onMenu)
+    window.removeEventListener('blur', stopHold)
     window.removeEventListener('pointerdown', onDown)
     window.removeEventListener('pointermove', onMove)
     window.removeEventListener('pointerup', onUp)

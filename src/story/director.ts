@@ -59,10 +59,24 @@ function newTimeline() {
   idle.forEach((t) => t.kill())
   idle = []
   tl = gsap.timeline()
-  tl.timeScale(1 / K())
+  tl.timeScale(world.rate / K())
   // any look-around the guest did eases home as the camera moves on
   gsap.to(world.look, { yaw: 0, pitch: 0, zoom: 0, duration: 1.4, ease: 'sine.inOut', overwrite: true })
   return tl
+}
+
+/** how much faster a scene plays while the guest holds the screen */
+const HURRY = 2.2
+/**
+ * Hold to hurry: the whole story — its timeline, the shared clock that drives every
+ * gesture, and the walking — runs faster together, so nothing is cut short or skipped.
+ */
+export function setHurry(on: boolean) {
+  const rate = on ? HURRY : 1
+  if (world.rate === rate) return
+  world.rate = rate
+  tl?.timeScale(rate / K())
+  useUI.setState({ hurry: on })
 }
 
 function orbit(yaw: number, up: number, down: number, zoom = 0.25) {
@@ -229,7 +243,7 @@ const CAPTIONS: Record<string, () => Caption> = {
   campus: () => ({
     chapter: 'II',
     place: 'Sài Gòn · ĐH Nông Lâm',
-    line: `Ê ${CAST.luc}! Bốn năm rồi đó. Đập tay cái nào!`,
+    line: `Ê ${CAST.luc}! Bữa đầu còn đi lạc, giờ bốn năm rồi. Đập tay nào!`,
   }),
   hanoi: () => ({
     chapter: 'III',

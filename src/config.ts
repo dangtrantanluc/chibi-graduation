@@ -3,17 +3,20 @@
 // ─────────────────────────────────────────────────────────────
 
 export const INVITE = {
-  event: '[EVENT]',
-  date: '[DATE]',
-  time: '[TIME]',
-  location: '[LOCATION]',
+  event: 'Lễ tốt nghiệp',
+  date: 'Thứ Sáu, 04.12.2026',
+  time: '10:30 sáng',
+  location: 'Trường ĐH Nông Lâm TP.HCM',
+  /** opened by the "Chỉ đường" link (Google Maps search) */
+  mapsQuery: 'Trường Đại học Nông Lâm TP.HCM',
 
   /**
    * Optional. Fill both (ISO 8601 with timezone, e.g. '2026-10-18T18:00:00+07:00')
    * to show an "Add to calendar" button on the final screen.
    */
-  startISO: '',
-  endISO: '',
+  startISO: '2026-12-04T10:30:00+07:00',
+  /** (the end time is a guess: about an hour and a half) */
+  endISO: '2026-12-04T12:00:00+07:00',
 
   /** Used when no name is given in the link or typed by the guest (it is read inside Vietnamese sentences). */
   defaultGuest: 'bạn',
