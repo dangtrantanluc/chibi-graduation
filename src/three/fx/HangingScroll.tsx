@@ -193,7 +193,8 @@ export function HangingScroll() {
 #ifdef USE_MAP
   // uv.y runs from 1 at the top rod to 0 at the bottom one
   float sheenBand = exp( - pow( ( vMapUv.y - ( 1.0 - uSheen ) ) / 0.07, 2.0 ) ) * step( -0.5, uSheen );
-  totalEmissiveRadiance += vec3( 1.0, 0.8, 0.42 ) * sheenBand * 1.5;
+  // (in the paper's own colour, and gently: added as a flat light it washed the guest's name out to white)
+  totalEmissiveRadiance += diffuseColor.rgb * vec3( 1.0, 0.86, 0.6 ) * sheenBand * 0.6;
 #endif`,
       )
     }
@@ -241,7 +242,8 @@ export function HangingScroll() {
     const r = 0.05 + 0.075 * (1 - p)
     roll.current.scale.set(r, 1, r)
     roll.current.rotation.x = -p * 18
-    mat.emissiveIntensity = 0.22 * uGlow.value + world.glow.hue * 0.1
+    // (kept under the bloom threshold, so the writing stays crisp)
+    mat.emissiveIntensity = Math.min(0.3, 0.16 * uGlow.value + world.glow.hue * 0.06)
     sheen.value = world.scrollSheen
   })
 

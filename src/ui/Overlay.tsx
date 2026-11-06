@@ -57,6 +57,13 @@ export function Overlay({ webgl }: { webgl: boolean }) {
   const guest = useUI((s) => s.guest)
   const overview = useUI((s) => s.overview)
   const hurry = useUI((s) => s.hurry)
+  // the boot screen fades out over the first frame of the scene rather than vanishing
+  const [boot, setBoot] = useState(true)
+  useEffect(() => {
+    if (phase === 'loading') return
+    const t = setTimeout(() => setBoot(false), 800)
+    return () => clearTimeout(t)
+  }, [phase])
   const lantern = useUI((s) => s.lantern)
 
   // a wish that could not be posted on an earlier visit goes out now
@@ -91,7 +98,7 @@ export function Overlay({ webgl }: { webgl: boolean }) {
     <div className={overview ? 'overlay is-overview' : 'overlay'}>
       <div className="flash" style={{ opacity: flash }} aria-hidden="true" />
 
-      {phase === 'loading' && <Loader />}
+      {boot && <Loader out={phase !== 'loading'} />}
       {showFps && <FpsMeter />}
       {hurry && (
         <p className="hurry-badge" aria-hidden="true">
@@ -144,11 +151,15 @@ function SoundToggle() {
   )
 }
 
-function Loader() {
+function Loader({ out }: { out: boolean }) {
   return (
-    <div className="loader" role="status">
-      <div className="loader-star" aria-hidden="true" />
-      <p>Đang dựng hành trình…</p>
+    // (the same picture as the boot screen in index.html, so nothing jumps while the scene loads)
+    <div className={out ? 'boot out' : 'boot'} role="status">
+      <div className="boot-lamp" aria-hidden="true">
+        <i />
+      </div>
+      <p className="boot-kicker">Thư mời tốt nghiệp · {CAST.luc}</p>
+      <p className="boot-text">Đang thắp đèn lên đường…</p>
     </div>
   )
 }
@@ -163,6 +174,9 @@ function Petals({ n = 14 }: { n?: number }) {
     </div>
   )
 }
+
+/** "04.12.2026", read straight from the ISO date (no time-zone arithmetic) */
+const shortDate = () => INVITE.startISO.slice(0, 10).split('-').reverse().join('.')
 
 const STOPS = ['Bình Định', 'Sài Gòn', 'Hà Nội', 'Về nhà', 'Huế']
 
@@ -210,11 +224,12 @@ function IntroTicket() {
     <section className={`intro ${leaving ? 'leaving' : ''}`} aria-labelledby="intro-title">
       <Petals />
       <p className="greet">
-        <span>Xin chào</span>
+        <span>Thư mời tốt nghiệp</span>
         <span className="dot">·</span>
-        <span lang="en">Welcome</span>
+        <span>{shortDate()}</span>
       </p>
-      <h1 id="intro-title">Một hành trình nhỏ đang chờ bạn</h1>
+      <h1 id="intro-title">{CAST.luc} tốt nghiệp rồi!</h1>
+      <p className="intro-sub">Đi cùng {CAST.luc} một chuyến qua năm cánh cổng, rồi tới chung vui nhé.</p>
       <form className={`ticket ${nudge ? 'nudge' : ''} ${leaving ? 'punched' : ''}`} onSubmit={submit} data-interactive>
         <div className="ticket-main">
           <p className="ticket-head">
@@ -357,7 +372,10 @@ const compactInvite = () => window.matchMedia('(max-width: 720px)').matches
 
 function InviteCard({ guest, ready }: { guest: string; ready: boolean }) {
   return (
-    <section className="card invite" aria-live="polite">
+    <section className="card paper invite" aria-live="polite">
+      <span className="seal paper-seal" aria-hidden="true">
+        招
+      </span>
       <p className="sr-only">
         Bảng vàng xướng tên tân khoa {CAST.luc}, và kính mời {guest} đến chung vui.
       </p>
@@ -376,6 +394,9 @@ function InviteCard({ guest, ready }: { guest: string; ready: boolean }) {
 function Finale() {
   const hasCal = Boolean(INVITE.startISO && INVITE.endISO)
   const again = useUI((s) => s.wishCount > 0)
+  const guest = useUI((s) => s.guest) || INVITE.defaultGuest
+  // two steps: first "will you come?"; once answered, the sky lantern is the thing to do
+  const [answer, setAnswer] = useState<Rsvp | null>(storedRsvp)
   // the recorded train is credited only when its file is there to be heard
   const [trainHeard, setTrainHeard] = useState(trainReady)
   useEffect(() => onSamples(() => setTrainHeard(trainReady())), [])
@@ -384,17 +405,29 @@ function Finale() {
       <div className="finale-head">
         <h2>Hẹn gặp bạn nhé.</h2>
       </div>
-      <div className="card finale-card">
+      <div className="card paper finale-card">
         <TicketBack />
         <Details compact />
-        <RsvpRow />
-        <button className="lantern-open" data-interactive onClick={openLantern}>
-          <LanternIcon />
-          <span>
-            {again ? 'Thả thêm một đèn trời' : 'Viết lời chúc, thả đèn trời'}
-            <small>{again ? 'thêm một lời chúc nữa' : `gửi ${CAST.luc} một lời chúc`}</small>
-          </span>
-        </button>
+        <RsvpRow
+          answer={answer}
+          onAnswer={(a) => {
+            setAnswer(a)
+            if (a) sendRsvp(guest, a)
+          }}
+        />
+        {answer ? (
+          <button className="lantern-open" data-interactive onClick={openLantern}>
+            <LanternIcon />
+            <span>
+              {again ? 'Thả thêm một đèn trời' : 'Viết lời chúc, thả đèn trời'}
+              <small>{again ? 'thêm một lời chúc nữa' : `gửi ${CAST.luc} một lời chúc`}</small>
+            </span>
+          </button>
+        ) : (
+          <button type="button" className="lantern-later" data-interactive onClick={openLantern}>
+            hoặc gửi {CAST.luc} một lời chúc trước ✦
+          </button>
+        )}
         <div className="links">
           {hasCal && (
             <a href="#" onClick={(e) => (e.preventDefault(), downloadIcs())}>
@@ -408,8 +441,8 @@ function Finale() {
             ↺ Đi lại hành trình
           </a>
         </div>
-        <p className="credits">
-          ♪{' '}
+        <details className="credits">
+          <summary>♪ Nhạc &amp; âm thanh</summary>
           {Object.values(MUSIC.tracks).map((t, i) => (
             <span key={t.src}>
               {i > 0 && ' · '}
@@ -434,7 +467,7 @@ function Finale() {
               </a>
             </span>
           )}
-        </p>
+        </details>
       </div>
       <p className="finale-cue" aria-hidden="true">
         kéo để nhìn quanh
@@ -483,7 +516,7 @@ function LanternPanel({ mode }: { mode: 'write' | 'done' }) {
       releaseLantern()
     }
     return (
-      <form className="card lantern-card" onSubmit={submit} data-interactive>
+      <form className="card paper lantern-card" onSubmit={submit} data-interactive>
         <p className="host-sub">Đèn trời</p>
         <label htmlFor="wish" className="lantern-title">
           Viết lời chúc lên đèn
@@ -535,7 +568,7 @@ function LanternPanel({ mode }: { mode: 'write' | 'done' }) {
     }
   }
   return (
-    <section className="card lantern-card done" data-interactive aria-live="polite">
+    <section className="card paper lantern-card done" data-interactive aria-live="polite">
       <p className="host-sub">Đèn đã bay lên</p>
       <p className="lantern-title">Cảm ơn {name} đã gửi lời chúc.</p>
       <p className="lantern-wish">“{last}”</p>
@@ -573,13 +606,9 @@ function TicketBack() {
 const mapsUrl = () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(INVITE.mapsQuery)}`
 
 /** "will you come?" — two buttons; the answer goes to Lực like a wish does */
-function RsvpRow() {
-  const guest = useUI((s) => s.guest) || INVITE.defaultGuest
-  const [answer, setAnswer] = useState<Rsvp | null>(storedRsvp)
-  const pick = (a: Rsvp) => {
-    setAnswer(a)
-    sendRsvp(guest, a)
-  }
+function RsvpRow({ answer, onAnswer }: { answer: Rsvp | null; onAnswer: (a: Rsvp | null) => void }) {
+  const pick = (a: Rsvp) => onAnswer(a)
+  const setAnswer = onAnswer
   if (answer)
     return (
       <p className="rsvp-done">

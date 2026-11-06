@@ -178,7 +178,8 @@ export function patchMaterial<T extends THREE.MeshStandardMaterial>(mat: T, f: F
       if (f.selfLit) {
         add += `
         // lit paper and windows burn brighter against the dark
-        totalEmissiveRadiance += diffuseColor.rgb * ${f.selfLit.toFixed(3)} * uGlow * (1.0 + 0.3 * uNight);`
+        // (candle-warm, and kept off pure white: lit paper at full strength bloomed into flat white blocks)
+        totalEmissiveRadiance += diffuseColor.rgb * vec3(1.0, 0.8, 0.56) * ${f.selfLit.toFixed(3)} * uGlow * (1.0 + 0.2 * uNight);`
       }
       if (f.nightLift) {
         add += `
@@ -285,7 +286,7 @@ export function kitMat(key: MatKey): THREE.Material {
       m = patchMaterial(std({ roughness: 0.12, envMapIntensity: 1.5 }), { rim: { color: '#ffffff', strength: 0.15 } }, 'gloss')
       break
     case 'paperLit':
-      m = patchMaterial(std({ roughness: 0.9 }), { selfLit: 0.85 }, 'paperLit')
+      m = patchMaterial(std({ roughness: 0.9 }), { selfLit: 0.66 }, 'paperLit')
       break
     case 'ground':
     default:

@@ -3,9 +3,9 @@ import { useMemo } from 'react'
 import { G, blob, offsetParts, rng, type Part } from '../lib/kit'
 import { KitMesh } from '../lib/KitMesh'
 import { hipRoof } from '../lib/roof'
-import { canvas, signTex, toTexture } from '../lib/textures'
+import { canvas, FONT_DISPLAY, FONT_UI, signTex, toTexture } from '../lib/textures'
 import { RANGDONG, UNI_BENCH, campusToWorld } from '../layout'
-import { PLAQUES } from '../../config'
+import { CAST, INVITE, PLAQUES } from '../../config'
 import { C, bench, box, cyl, flagpole } from './parts'
 import { Flags } from './Common'
 
@@ -246,18 +246,95 @@ function plazaParts(): Part[] {
     p.push({ g: G.sphereLo, c: '#fff1c8', m: 'paperLit', p: [x + 0.45, 2.8, z], s: 0.07 })
   }
   p.push(...flagpole([FLAG[0], 0, FLAG[1]], 3.9))
-  // a campus notice board
-  p.push(...offsetParts([box(1.2, 0.8, 0.06, [0, 1.0, 0], '#2f6e4a', 'paint'), box(1.1, 0.7, 0.02, [0, 1.0, 0.04], '#f3efe2', 'plaster'), cyl(0.03, 1.4, [-0.5, 0.7, 0], '#6f757d', 'gloss'), cyl(0.03, 1.4, [0.5, 0.7, 0], '#6f757d', 'gloss')], [-4.6, 0, 6.6], 0.5))
+  // a campus notice board (its face, with the notices pinned to it, is NoticeFace below)
+  p.push(...offsetParts([box(1.2, 0.8, 0.06, [0, 1.0, 0], '#2f6e4a', 'paint'), cyl(0.03, 1.4, [-0.5, 0.7, 0], '#6f757d', 'gloss'), cyl(0.03, 1.4, [0.5, 0.7, 0], '#6f757d', 'gloss')], NOTICE.p, NOTICE.ry))
   return p
 }
 
 const FLAG: [number, number] = [-2.3, 2.3]
+/** the notice board, in the lecture hall's own frame */
+const NOTICE = { p: [-4.6, 0, 6.6] as [number, number, number], ry: 0.5 }
+
+/**
+ * What is pinned to the notice board: cork, and papers askew — the faculty's notices, a club
+ * poster, and (planted here, two chapters before the golden list says it) the graduation itself.
+ */
+function noticeTex() {
+  const W = 512
+  const H = 326
+  const [c, g] = canvas(W, H)
+  g.fillStyle = '#b98d5c'
+  g.fillRect(0, 0, W, H)
+  const r = rng(404)
+  for (let i = 0; i < 900; i++) {
+    g.fillStyle = r() < 0.5 ? 'rgba(90,55,25,0.22)' : 'rgba(235,200,150,0.2)'
+    g.fillRect(r() * W, r() * H, 1 + r() * 3, 1 + r() * 2)
+  }
+  const sheet = (x: number, y: number, w: number, h: number, rot: number, paper: string, draw: () => void, pin = '#c8361f') => {
+    g.save()
+    g.translate(x, y)
+    g.rotate(rot)
+    g.fillStyle = 'rgba(40,20,10,0.28)'
+    g.fillRect(-w / 2 + 4, -h / 2 + 5, w, h)
+    g.fillStyle = paper
+    g.fillRect(-w / 2, -h / 2, w, h)
+    g.fillStyle = '#3a2a22'
+    g.textAlign = 'center'
+    g.textBaseline = 'middle'
+    draw()
+    g.fillStyle = pin
+    g.beginPath()
+    g.arc(0, -h / 2 + 9, 6, 0, Math.PI * 2)
+    g.fill()
+    g.restore()
+  }
+  const lines = (x0: number, y0: number, n: number, w: number) => {
+    g.fillStyle = 'rgba(60,45,40,0.45)'
+    for (let i = 0; i < n; i++) g.fillRect(x0, y0 + i * 12, w * (0.6 + 0.4 * ((i * 37) % 10) / 10), 4)
+  }
+  // the graduation: cream, a red band, the date large
+  const day = INVITE.startISO.slice(0, 10).split('-').reverse().slice(0, 2).join('.')
+  sheet(150, 168, 210, 250, -0.04, '#fbf3e1', () => {
+    g.fillStyle = '#b8301c'
+    g.fillRect(-105, -125, 210, 40)
+    g.fillStyle = '#fff3dc'
+    g.font = `900 21px ${FONT_UI}`
+    g.fillText('LỄ TỐT NGHIỆP', 0, -104)
+    g.fillStyle = '#b8301c'
+    g.font = `700 64px ${FONT_DISPLAY}`
+    g.fillText(day, 0, -30)
+    g.fillStyle = '#3a2a22'
+    g.font = `800 15px ${FONT_UI}`
+    g.fillText('Khoa Công nghệ Thông tin', 0, 26)
+    g.font = `700 14px ${FONT_UI}`
+    g.fillText(`${INVITE.time} · ĐH Nông Lâm`, 0, 50)
+    lines(-70, 78, 3, 140)
+  })
+  // a faculty notice, typed
+  sheet(352, 92, 170, 140, 0.05, '#f4f1ea', () => {
+    g.font = `900 15px ${FONT_UI}`
+    g.fillText('THÔNG BÁO', 0, -42)
+    lines(-62, -22, 6, 124)
+  }, '#2f63b8')
+  // a club poster, blue
+  sheet(330, 252, 150, 112, -0.07, '#cfe0ee', () => {
+    g.fillStyle = '#2f63b8'
+    g.font = `900 30px ${FONT_UI}`
+    g.fillText('</>', 0, -14)
+    g.font = `800 13px ${FONT_UI}`
+    g.fillText(`CLB Tin học · ${CAST.luc} ✓`, 0, 26)
+  }, '#e0a52a')
+  // a little yellow note, and a torn tab of phone numbers
+  sheet(462, 210, 72, 72, 0.12, '#f7df7a', () => lines(-24, -14, 3, 48), '#2f8a4a')
+  return toTexture(c)
+}
 /** everything above, moved into place beside the lane */
 const toWorld = (parts: Part[]) => offsetParts(parts, [T.xf, 0, T.zc], T.ry)
 
 export function Campus() {
   const name = useMemo(() => signTex(PLAQUES.rangDong, { w: 1024, h: 96, color: '#2f63b8', weight: 900, spacing: 3 }), [])
   const walls = useMemo(() => ({ ground: corridorWallTex(true), upper: corridorWallTex(false) }), [])
+  const notice = useMemo(noticeTex, [])
   const wallMats = useMemo(() => {
     const mk = (map: THREE.Texture) => new THREE.MeshStandardMaterial({ map, roughness: 0.92 })
     return { ground: mk(walls.ground), upper: mk(walls.upper) }
@@ -283,6 +360,12 @@ export function Campus() {
           </mesh>
         ))}
         <mesh geometry={bandGeo} material={bandMat} position={[0, SIGN_Y, TF]} />
+        <group position={NOTICE.p} rotation-y={NOTICE.ry}>
+          <mesh position={[0, 1.0, 0.034]}>
+            <planeGeometry args={[1.1, 0.7]} />
+            <meshStandardMaterial map={notice} roughness={0.9} />
+          </mesh>
+        </group>
       </group>
       <Flags spots={[flag]} kind="vn" h={3.9} ry={T.ry + Math.PI / 2} />
     </group>

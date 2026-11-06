@@ -22,20 +22,24 @@ import { inkWish, signature, wishFontReady, wishOr } from './lanternPaper'
  * not other guests.
  */
 
-// ── the lantern: a paper bag, narrow at the mouth, widest at the shoulder ──
+// ── the lantern: a đèn khổng minh — a paper bag open at the bottom round a bamboo hoop, flaring a
+// little to a broad, almost flat top. (Narrow at the mouth and domed, it read as a jar on a stand.) ──
 const BODY = 14 // rings up the body, evenly spaced, so the writing is not stretched
-const BODY_H = 0.66
+const BODY_H = 0.82
 function lanternGeo(seg: number) {
   const pts: THREE.Vector2[] = []
   for (let i = 0; i <= BODY; i++) {
     const y = (i / BODY) * BODY_H
-    const r = y <= 0.54 ? 0.13 + 0.12 * Math.sin(((y / 0.54) * Math.PI) / 2) : 0.25 - 0.05 * ((y - 0.54) / 0.12) ** 2
+    // (taller than wide, flaring only a little: short and flared it read as a paper cup)
+    const r = 0.2 + 0.065 * Math.pow(y / BODY_H, 0.9)
     pts.push(new THREE.Vector2(r, y))
   }
   for (const [r, y] of [
-    [0.14, 0.715],
-    [0.07, 0.75],
-    [0.001, 0.765],
+    // rounded shoulders to a low crown
+    [0.258, 0.85],
+    [0.225, 0.875],
+    [0.14, 0.893],
+    [0.001, 0.9],
   ])
     pts.push(new THREE.Vector2(r, y))
   // u = 0.5 faces +z (the lens); the seam is at the back
@@ -47,19 +51,21 @@ const TW = 1024
 const TH = 512
 function paintPaper(g: CanvasRenderingContext2D, wish: string, sign: string) {
   const grd = g.createLinearGradient(0, 0, 0, TH)
-  grd.addColorStop(0, '#f6e0b6')
-  grd.addColorStop(1, '#fbeed2')
+  // giấy dó dyed marigold: warm even before the flame takes
+  grd.addColorStop(0, '#f2b45a')
+  grd.addColorStop(0.55, '#f7c978')
+  grd.addColorStop(1, '#f9d996')
   g.fillStyle = grd
   g.fillRect(0, 0, TW, TH)
   const r = rng(71)
   for (let i = 0; i < 520; i++) {
-    g.fillStyle = r() < 0.5 ? 'rgba(160,110,60,0.07)' : 'rgba(255,255,255,0.14)'
+    g.fillStyle = r() < 0.5 ? 'rgba(150,80,20,0.1)' : 'rgba(255,240,200,0.18)'
     g.fillRect(r() * TW, r() * TH, 6 + r() * 30, 1)
   }
   // the glued seams of its four panels (clear of the writing), vermilion rules top and bottom
-  g.fillStyle = 'rgba(150,90,50,0.16)'
+  g.fillStyle = 'rgba(140,70,20,0.2)'
   for (let k = 0; k < 4; k++) g.fillRect(k * 256 + 126, 0, 4, TH)
-  g.fillStyle = 'rgba(200,60,40,0.78)'
+  g.fillStyle = 'rgba(180,40,20,0.85)'
   for (const [y, h] of [
     [98, 5],
     [108, 2],
@@ -72,7 +78,7 @@ function paintPaper(g: CanvasRenderingContext2D, wish: string, sign: string) {
     g.save()
     g.translate(cx, 0)
     g.scale(1.1, 1)
-    inkWish(g, wish, sign, 0, 290, 268, 286, '#4a2416', [56, 50, 44, 38, 33])
+    inkWish(g, wish, sign, 0, 290, 268, 286, '#3e1a0c', [56, 50, 44, 38, 33])
     g.restore()
   }
 }
@@ -98,8 +104,9 @@ const paperFrag = /* glsl */ `
     float take = smoothstep(0.0, 0.4, uLit * 1.4 - vUv.y);
     float flick = 1.0 + 0.05 * sin(uTime * 11.0) + 0.03 * sin(uTime * 23.0 + 1.3);
     vec3 glow = vec3(1.0, 0.76, 0.44) * (0.92 + 1.1 * pow(1.0 - vUv.y, 2.0)) * flick;
-    // unlit, it is pale paper in the moonlight; darker toward the silhouette so that it reads as round
-    vec3 col = paper * mix(vec3(0.26, 0.28, 0.42), glow, take) * (0.72 + 0.28 * abs(vN.z));
+    // unlit, it is warm paper in the light of his lamp (a cold tint made it read as porcelain);
+    // darker toward the silhouette so that it reads as round
+    vec3 col = paper * mix(vec3(0.62, 0.5, 0.42), glow, take) * (0.7 + 0.3 * abs(vN.z));
     gl_FragColor = vec4(col, 1.0);
     #include <colorspace_fragment>
   }
@@ -323,7 +330,7 @@ export function SkyLanterns() {
           <mesh geometry={o.geo} material={o.mat} />
           {/* the bamboo hoop at the mouth, the wad of flame in it, and its halo */}
           <mesh position={[0, 0.006, 0]} rotation-x={Math.PI / 2} material={ring}>
-            <torusGeometry args={[0.13, 0.008, 5, 24]} />
+            <torusGeometry args={[0.2, 0.009, 5, 28]} />
           </mesh>
           <mesh position={[0, 0.05, 0]} material={o.flame}>
             <sphereGeometry args={[0.035, 10, 8]} />

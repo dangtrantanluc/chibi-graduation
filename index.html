@@ -15,14 +15,34 @@
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="/lantern.svg" type="image/svg+xml" />
+    <style>
+      /* the boot screen: one picture from the first byte until the scene is ready (React renders the same markup) */
+      html, body { margin: 0; background: #17183a; }
+      .boot { position: fixed; inset: 0; z-index: 50; display: grid; place-content: center; justify-items: center; gap: 10px;
+        background: radial-gradient(ellipse 120% 70% at 50% 100%, #b9707a 0%, #5b4a86 38%, #262a5c 70%, #141634 100%);
+        color: #fff4e6; font-family: Georgia, serif; text-align: center; transition: opacity .7s ease; }
+      .boot.out { opacity: 0; pointer-events: none; }
+      .boot-lamp { position: relative; width: 34px; height: 46px; margin-bottom: 22px; border-radius: 40% 40% 34% 34%;
+        background: radial-gradient(circle at 50% 58%, #fff3c4, #ffc35c 38%, #e9772f 75%, #a8421e);
+        box-shadow: 0 0 34px 12px rgba(255, 176, 84, .55), 0 0 120px 40px rgba(255, 150, 70, .22);
+        animation: boot-sway 2.6s ease-in-out infinite; transform-origin: 50% -26px; }
+      .boot-lamp::before { content: ''; position: absolute; left: 50%; top: -9px; width: 22px; height: 8px; margin-left: -11px; border-radius: 4px 4px 2px 2px; background: #2b2230; }
+      .boot-lamp::after { content: ''; position: absolute; left: 50%; top: -24px; width: 18px; height: 16px; margin-left: -11px; border: 2px solid #2b2230; border-bottom: 0; border-radius: 12px 12px 0 0; }
+      .boot-lamp i { position: absolute; left: 50%; bottom: -6px; width: 26px; height: 7px; margin-left: -13px; border-radius: 2px 2px 5px 5px; background: #2b2230; }
+      .boot-kicker { margin: 0; font: 800 11px/1 system-ui, sans-serif; letter-spacing: .22em; text-transform: uppercase; color: #f0c468; }
+      .boot-text { margin: 0; font-size: 19px; font-style: italic; }
+      @keyframes boot-sway { 0%, 100% { transform: rotate(-6deg) } 50% { transform: rotate(6deg) } }
+      @media (prefers-reduced-motion: reduce) { .boot-lamp { animation: none } }
+    </style>
     <title>Thư mời tốt nghiệp · Lực</title>
   </head>
   <body>
     <div id="root">
-      <!-- shown instantly while the scripts load; React replaces it -->
-      <div style="position:fixed;inset:0;display:grid;place-content:center;justify-items:center;gap:18px;background:radial-gradient(ellipse at 50% 60%,#f6c9a8,#c98f95 55%,#5a5286 100%);color:#fff4e6;font:italic 18px Georgia,serif">
-        <div style="width:54px;height:64px;border-radius:45%;background:radial-gradient(circle at 50% 45%,#ffd68a,#e2503a 60%,#a42b1f);box-shadow:0 0 40px 10px rgba(255,170,90,.6)"></div>
-        <p style="margin:0">Đang dựng ngôi làng nhỏ…</p>
+      <!-- shown instantly while the scripts load; React keeps the same picture (ui/Overlay.tsx Loader) until the scene is ready -->
+      <div class="boot" role="status">
+        <div class="boot-lamp" aria-hidden="true"><i></i></div>
+        <p class="boot-kicker">Thư mời tốt nghiệp · Lực</p>
+        <p class="boot-text">Đang thắp đèn lên đường…</p>
       </div>
       <noscript><p style="position:fixed;bottom:24px;width:100%;text-align:center;color:#fff">Hãy bật JavaScript để mở thư mời này.</p></noscript>
     </div>

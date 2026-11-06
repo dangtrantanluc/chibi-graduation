@@ -53,9 +53,10 @@ export type GradeName = 'predawn' | 'dawn' | 'overcast' | 'noon' | 'autumn' | 's
 const GRADES: Record<GradeName, GradeDef> = {
   // before first light: stars, a setting moon, a faint warmth along the horizon
   predawn: {
-    top: '#0a0f2c', mid: '#1b2352', horizon: '#5b4a7c', low: '#262550', glow: '#ff9a72',
-    sun: '#a3b4f2', sunI: 1.15, elev: 0.2,
-    hemiSky: '#5a69ba', hemiGround: '#35304f', hemiI: 0.68, fillI: 0.3, envI: 0.16,
+    // (lit a little beyond nature: it is the first picture a guest sees, and has to read)
+    top: '#0d1434', mid: '#29306a', horizon: '#8d5c86', low: '#2f2c5c', glow: '#ffa57a',
+    sun: '#b4c2f6', sunI: 1.5, elev: 0.2,
+    hemiSky: '#6e7cc8', hemiGround: '#4a4064', hemiI: 1.0, fillI: 0.45, envI: 0.3,
     fog: '#262c5a', cloud: '#636da0', cloudGlow: '#383c6e', range: '#59639f', night: 0.82, lamp: 1, sat: 0.06, rain: 0, haze: 0,
   },
   // sunrise over Bình Định

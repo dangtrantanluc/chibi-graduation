@@ -184,6 +184,11 @@ const MUTED = ['#7f8898', '#8e98a8', '#6f7a8c', '#9aa2ae', '#5f6b80', '#a8a49c',
 // tired paint: the reds, blues and greens of the real thing with most of the colour gone
 const BIKES = ['#74524e', '#4f5d74', '#9a9da3', '#2f3238', '#55685f', '#857a5c']
 const HELMETS = ['#b5b2aa', '#6f5754', '#55627a', '#2a2c30']
+// umbrellas in the rain — black, navy, a faded red or two; the rest wear a nón
+const UMBRELLAS = ['#2c2f36', '#3b4458', '#5a3f42', '#4b5a66', '#2c2f36', '#6d6a64']
+const NON = '#b9ab88'
+/** the share of walkers under an umbrella */
+const UMBRELLA_SHARE = 0.7
 
 function Crowd() {
   const sys = useMemo(() => {
@@ -209,6 +214,17 @@ function Crowd() {
       { g: new THREE.CapsuleGeometry(0.06, 0.14, 3, 8), c: '#ffffff', m: 'plaster', p: [-0.075, 0.16, 0] },
     ]).get('plaster')!
     const ped = new THREE.InstancedMesh(pedGeo, kitMat('plaster'), peds.length)
+    // Something over their heads, so that they read as people out in the rain and not as stand-ins:
+    // an umbrella (a shallow cone on a shaft, carried just over the head) or a nón lá.
+    const umbGeo = mergeKit([
+      { g: new THREE.ConeGeometry(0.27, 0.11, 10, 1, true), c: '#ffffff', m: 'toy', p: [0, 1.3, 0] },
+      { g: new THREE.CylinderGeometry(0.008, 0.008, 0.5, 4), c: '#ffffff', m: 'toy', p: [0.02, 1.08, 0.06] },
+    ]).get('toy')!
+    const umb = new THREE.InstancedMesh(umbGeo, kitMat('toy'), peds.length)
+    const nonGeo = new THREE.ConeGeometry(0.24, 0.13, 12)
+    nonGeo.translate(0, 1.15, 0.02)
+    const non = new THREE.InstancedMesh(nonGeo, kitMat('toy'), peds.length)
+    const under = peds.map(() => r() < UMBRELLA_SHARE)
     const bikeGeos = mergeKit(bikeParts('#ffffff', true))
     const bikeBody = new THREE.InstancedMesh(bikeGeos.get('toy')!, kitMat('toy'), bikes.length)
     const bikeRider = new THREE.InstancedMesh(bikeGeos.get('plaster')!, kitMat('plaster'), bikes.length)
@@ -220,23 +236,30 @@ function Crowd() {
     const lampMat = new THREE.MeshBasicMaterial({ color: '#e6eeff', toneMapped: false })
     const bikeLamp = new THREE.InstancedMesh(lampGeo, lampMat, bikes.length)
     const c = new THREE.Color()
-    peds.forEach((_, i) => ped.setColorAt(i, c.set(MUTED[Math.floor(r() * MUTED.length)])))
+    peds.forEach((_, i) => {
+      ped.setColorAt(i, c.set(MUTED[Math.floor(r() * MUTED.length)]))
+      umb.setColorAt(i, c.set(UMBRELLAS[Math.floor(r() * UMBRELLAS.length)]))
+      non.setColorAt(i, c.set(NON))
+    })
     bikes.forEach((_, i) => {
       bikeBody.setColorAt(i, c.set(BIKES[Math.floor(r() * BIKES.length)]))
       bikeRider.setColorAt(i, c.set(MUTED[Math.floor(r() * MUTED.length)]))
       bikeHelm.setColorAt(i, c.set(HELMETS[Math.floor(r() * HELMETS.length)]))
     })
-    const meshes = [ped, bikeBody, bikeRider, bikeHelm, bikeLamp]
+    const meshes = [ped, umb, non, bikeBody, bikeRider, bikeHelm, bikeLamp]
     for (const m of meshes) {
       m.frustumCulled = false
       // (only the walkers and the machines throw shadows: half the cost, and nobody misses the rest)
-      m.castShadow = m === ped || m === bikeBody
+      m.castShadow = m === ped || m === umb || m === bikeBody
       m.receiveShadow = m !== bikeLamp
     }
-    return { agents, peds, bikes, ped, bikeBody, bikeRider, bikeHelm, bikeLamp, lampMat, meshes }
+    return { agents, peds, bikes, ped, umb, non, under, bikeBody, bikeRider, bikeHelm, bikeLamp, lampMat, meshes }
   }, [])
 
-  const tmp = useMemo(() => ({ m: new THREE.Matrix4(), q: new THREE.Quaternion(), e: new THREE.Euler(), p: new THREE.Vector3(), s: new THREE.Vector3() }), [])
+  const tmp = useMemo(
+    () => ({ m: new THREE.Matrix4(), u: new THREE.Matrix4(), lift: new THREE.Matrix4(), hide: new THREE.Matrix4().makeScale(0, 0, 0), q: new THREE.Quaternion(), e: new THREE.Euler(), p: new THREE.Vector3(), s: new THREE.Vector3() }),
+    [],
+  )
 
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 0.1)
@@ -252,8 +275,9 @@ function Crowd() {
       if (his) {
         const ahead = (luc.x - a.x) * a.dir
         // whoever has not reached him yet waits a little way off; whoever is already passing hurries on
-        if (ahead > (a.kind ? 0.75 : 0.5) && ahead < (a.kind ? 3.4 : 1.6)) target = 0
-        else if (ahead > -0.6 && ahead <= (a.kind ? 0.75 : 0.5)) target = a.v0 * 1.7
+        // (walkers stop far enough off that an umbrella stays clear of his head)
+        if (ahead > (a.kind ? 0.75 : 0.85) && ahead < (a.kind ? 3.4 : 1.9)) target = 0
+        else if (ahead > -0.75 && ahead <= (a.kind ? 0.75 : 0.85)) target = a.v0 * 1.7
       }
       // … and keep off whoever is in front, in the same lane and direction
       for (const b of agents) {
@@ -274,7 +298,21 @@ function Crowd() {
       tmp.m.compose(tmp.p.set(a.x, bob, a.z), tmp.q, tmp.s.setScalar(a.s * edge))
       return tmp.m
     }
-    sys.peds.forEach((a, i) => sys.ped.setMatrixAt(i, put(a)))
+    const hide = tmp.hide
+    sys.peds.forEach((a, i) => {
+      const m = put(a)
+      sys.ped.setMatrixAt(i, m)
+      // the two directions on a pavement pass close: their umbrellas are carried at different
+      // heights so that they slide over one another instead of through
+      if (sys.under[i]) {
+        tmp.u.copy(m).premultiply(tmp.lift.makeTranslation(0, a.dir > 0 ? 0 : 0.13 * a.s, 0))
+        sys.umb.setMatrixAt(i, tmp.u)
+        sys.non.setMatrixAt(i, hide)
+      } else {
+        sys.umb.setMatrixAt(i, hide)
+        sys.non.setMatrixAt(i, m)
+      }
+    })
     sys.bikes.forEach((a, i) => {
       const m = put(a)
       sys.bikeBody.setMatrixAt(i, m)

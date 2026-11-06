@@ -41,14 +41,23 @@ function veilTex() {
       const u = x / (S - 1) - 0.5
       const v = y / (S - 1) // 0 = lintel, 1 = ground
       const edge = Math.min(1, Math.abs(u) * 2)
+      // drifting wisps: low, broad bands of mist (an even fill read as a white wall)
+      const wisp =
+        0.5 +
+        0.25 * Math.sin(v * 19 + Math.sin(u * 5.3) * 2.2) +
+        0.15 * Math.sin(v * 41 + u * 7 + Math.sin(u * 13) * 1.4) +
+        0.1 * Math.sin(u * 23 - v * 11)
       // light: falls off toward the jambs and toward the ground
-      const light = 1 - 0.3 * edge * edge - 0.22 * v * v
+      const light = 1 - 0.3 * edge * edge - 0.22 * v * v - 0.12 * (1 - wisp)
       // density: mist lies thickest on the ground and thins toward the lintel, where the
       // crowns of the trees beyond still show through
-      const a = 0.5 + 0.46 * Math.pow(v, 0.7) + 0.05 * (1 - edge)
+      const a = (0.3 + 0.5 * Math.pow(v, 0.8) + 0.05 * (1 - edge)) * (0.72 + 0.4 * wisp)
       const i = (y * S + x) * 4
-      img.data[i] = img.data[i + 1] = img.data[i + 2] = Math.round(255 * light)
-      img.data[i + 3] = Math.round(255 * Math.min(1, a))
+      // (warmer toward the lintel, where the light behind it is)
+      img.data[i] = Math.round(255 * light)
+      img.data[i + 1] = Math.round(255 * light * (0.94 + 0.05 * v))
+      img.data[i + 2] = Math.round(255 * light * (0.84 + 0.14 * v))
+      img.data[i + 3] = Math.round(255 * Math.min(0.9, a))
     }
   }
   g.putImageData(img, 0, 0)

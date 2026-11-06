@@ -42,8 +42,10 @@ function lit(c: THREE.Color, n: THREE.Vector3, mist: number, air: number) {
  */
 function karst(seed: number, R: number, H: number, air: number): THREE.BufferGeometry {
   const r = rng(seed)
-  const NA = 24
-  const NY = 13
+  // (fine enough to carry ledges and gullies — at 24 × 13 a near tower read as a smooth cone —
+  // and no finer: the scene is at its frame budget)
+  const NA = 36
+  const NY = 20
   const ph = [r() * 6.28, r() * 6.28, r() * 6.28, r() * 6.28]
   const lean = [(r() - 0.5) * 0.3 * R, (r() - 0.5) * 0.3 * R]
   const sharp = 1.7 + r() * 1.6
@@ -54,7 +56,10 @@ function karst(seed: number, R: number, H: number, air: number): THREE.BufferGeo
     for (let i = 0; i <= NA; i++) {
       const th = (i / NA) * Math.PI * 2
       const lobes = 1 + 0.17 * Math.sin(th * 2 + ph[0] + t * 2) + 0.1 * Math.sin(th * 3 + ph[1]) + 0.07 * Math.sin(th * 5 + ph[2] + t * 4)
-      const rad = R * prof * lobes
+      // gullies cut down the faces, and the bedding of the rock steps the profile in ledges
+      const gully = 1 - 0.045 * Math.pow(0.5 + 0.5 * Math.sin(th * 11 + ph[3] + t * 1.5), 6)
+      const ledge = 1 + 0.035 * Math.sin(t * 34 + ph[1] + Math.sin(th * 2) * 0.8)
+      const rad = R * prof * lobes * gully * ledge
       pos.push(Math.cos(th) * rad + lean[0] * t, t * H * (1 + 0.05 * Math.sin(th * 2 + ph[3])), Math.sin(th) * rad + lean[1] * t)
     }
   }
@@ -83,7 +88,9 @@ function karst(seed: number, R: number, H: number, air: number): THREE.BufferGeo
       n.fromBufferAttribute(nrm, k)
       // limestone: pale grey, streaked dark where water runs down it
       const streak = 0.5 + 0.5 * Math.sin(th * 9 + ph[2]) * Math.sin(th * 4 + ph[0])
-      rock.set('#9a9cae').lerp(c.set('#6f728a'), smooth(0.45, 0.95, streak))
+      const fine = 0.5 + 0.5 * Math.sin(th * 23 + ph[1] + Math.sin(t * 9) * 0.6)
+      const bed = 0.5 + 0.5 * Math.sin(t * 34 + ph[1] + Math.sin(th * 2) * 0.8)
+      rock.set('#9a9cae').lerp(c.set('#6f728a'), Math.min(1, smooth(0.45, 0.95, streak) + 0.35 * smooth(0.6, 1, fine) + 0.25 * smooth(0.7, 1, bed)))
       veg.set('#4a7a4e').lerp(c.set('#7da25a'), 0.5 + 0.5 * Math.sin(th * 6 + t * 7 + ph[1]))
       // forest on the crown, and in shrubby patches on ledges lower down
       const cling = smooth(0.55, 0.85, Math.sin(th * 5 + t * 11 + ph[3]) * Math.sin(t * 13 + ph[0]))

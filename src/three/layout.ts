@@ -219,23 +219,25 @@ export const MARKS = {
   motherPat: [-0.45, 0, -40.86] as const,
   princess: [0, 0, -52.7] as const,
   // Ngọ Môn formation, inside the U of the gate (x relative to the axis, z absolute)
-  // Lực and the princess at the centre, his parents either side, the friends at the ends
+  // Lực alone at the centre, a half step ahead and right under the golden list; his parents
+  // either side of him, the friends at the ends — and the princess, the herald, off at the right
+  // end, so that nobody stands between him and the list
   hue: {
-    uni: [-3.35, -52.95],
-    mother: [-2.05, -53.25],
-    luc: [-0.7, -52.75],
-    princess: [0.7, -52.7],
-    father: [2.05, -53.25],
-    hanoi: [3.35, -52.95],
+    uni: [-3.0, -52.85],
+    mother: [-1.5, -53.1],
+    luc: [0, -52.5],
+    father: [1.5, -53.1],
+    hanoi: [3.0, -52.85],
+    princess: [4.3, -52.55],
   } as Record<string, [number, number]>,
   // the same on a phone, closed up so the row fits the narrow frame
   hueTall: {
-    uni: [-2.6, -53.0],
-    mother: [-1.6, -53.45],
-    luc: [-0.55, -52.9],
-    princess: [0.55, -52.9],
-    father: [1.6, -53.45],
-    hanoi: [2.6, -53.0],
+    uni: [-2.35, -52.95],
+    mother: [-1.2, -53.2],
+    luc: [0, -52.6],
+    father: [1.2, -53.2],
+    hanoi: [2.35, -52.95],
+    princess: [3.2, -53.65],
   } as Record<string, [number, number]>,
   // the farewell before Điện Thái Hòa: three on the terrace at the head of the stairs, three in the court below
   hall: {

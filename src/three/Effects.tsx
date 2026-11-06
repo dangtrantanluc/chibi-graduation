@@ -6,6 +6,7 @@ import {
   EffectComposer,
   HueSaturation,
   N8AO,
+  SMAA,
   TiltShift2,
   ToneMapping,
   Vignette,
@@ -19,8 +20,9 @@ type TiltRef = { blur: number }
 
 /**
  * Cinematic finish. High tier: soft AO, bokeh depth of field that tracks the
- * director's focus point, gentle bloom on lanterns. Low tier (phones): a cheap
- * tilt-shift blur instead of DOF/AO — it also sells the miniature look.
+ * director's focus point, gentle bloom on lanterns. Low tier (phones): a light
+ * tilt-shift blur instead of DOF/AO, and SMAA — MSAA is off there, and without
+ * it every outline and spike of hair is a staircase.
  */
 export function Effects() {
   const quality = useUI((s) => s.quality)
@@ -45,7 +47,7 @@ export function Effects() {
     }
     // the grey city drains the colour out of the picture; it comes back with the sun
     if (hue.current) hue.current.saturation = grade.sat
-    if (tilt.current) tilt.current.blur = (high ? 0.22 * c.tilt : 0.1 + 0.18 * Math.max(c.tilt, c.dof * 0.5)) * (1 - map) * near + 0.16 * map
+    if (tilt.current) tilt.current.blur = (high ? 0.22 * c.tilt : 0.03 + 0.12 * Math.max(c.tilt, c.dof * 0.5)) * (1 - map) * near + 0.16 * map
   })
 
   if (high) {
@@ -63,11 +65,12 @@ export function Effects() {
   }
   return (
     <EffectComposer multisampling={0} stencilBuffer={false}>
-      <TiltShift2 ref={tilt as never} blur={0.12} taper={0.6} samples={6} />
+      <TiltShift2 ref={tilt as never} blur={0.05} taper={0.6} samples={6} />
       <Bloom mipmapBlur intensity={dark ? 0.9 : 0.5} luminanceThreshold={dark ? 0.7 : 0.92} luminanceSmoothing={0.25} radius={dark ? 0.75 : 0.65} />
       <HueSaturation ref={hue} saturation={0.06} />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       <Vignette offset={0.28} darkness={dark ? 0.66 : 0.5} />
+      <SMAA />
     </EffectComposer>
   )
 }
