@@ -307,7 +307,7 @@ function noticeTex() {
     g.font = `800 15px ${FONT_UI}`
     g.fillText('Khoa Công nghệ Thông tin', 0, 26)
     g.font = `700 14px ${FONT_UI}`
-    g.fillText(`${INVITE.time} · ĐH Nông Lâm`, 0, 50)
+    g.fillText(`${INVITE.time.split(' ')[0]} · ${INVITE.hall}`, 0, 50)
     lines(-70, 78, 3, 140)
   })
   // a faculty notice, typed

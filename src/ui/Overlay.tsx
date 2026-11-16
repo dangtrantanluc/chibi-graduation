@@ -377,7 +377,7 @@ function InviteCard({ guest, ready }: { guest: string; ready: boolean }) {
         招
       </span>
       <p className="sr-only">
-        Bảng vàng xướng tên tân khoa {CAST.luc}, và kính mời {guest} đến chung vui.
+        Bảng vàng xướng tên tân khoa {CAST.fullName}, và kính mời {guest} đến chung vui.
       </p>
       <p className="host">Thư mời tốt nghiệp</p>
       <p className="host-sub">Trân trọng kính mời</p>

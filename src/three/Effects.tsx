@@ -66,7 +66,8 @@ export function Effects() {
   return (
     <EffectComposer multisampling={0} stencilBuffer={false}>
       <TiltShift2 ref={tilt as never} blur={0.05} taper={0.6} samples={6} />
-      <Bloom mipmapBlur intensity={dark ? 0.9 : 0.5} luminanceThreshold={dark ? 0.7 : 0.92} luminanceSmoothing={0.25} radius={dark ? 0.75 : 0.65} />
+      {/* (glow is soft by nature: half resolution and five levels look the same and cost less) */}
+      <Bloom mipmapBlur resolutionScale={0.5} levels={5} intensity={dark ? 0.9 : 0.5} luminanceThreshold={dark ? 0.7 : 0.92} luminanceSmoothing={0.25} radius={dark ? 0.75 : 0.65} />
       <HueSaturation ref={hue} saturation={0.06} />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
       <Vignette offset={0.28} darkness={dark ? 0.66 : 0.5} />

@@ -364,7 +364,9 @@ export function Board() {
       uv[i * 2 + 1] = (pos.getZ(i) - BOARD.minZ) / BD
     }
     top.setAttribute('uv', new THREE.BufferAttribute(uv, 2))
-    const mat = new THREE.MeshStandardMaterial({ map: paintGround(), roughness: 0.96 })
+    // (Lambert, not PBR: at roughness 0.96 the ground reflects nothing anyone could see, and it fills
+    // half of most frames — the full physical shading of every one of those pixels was pure cost)
+    const mat = new THREE.MeshLambertMaterial({ map: paintGround() })
     const ground = { geo: top, mat }
 
     const s0 = boardShape()

@@ -271,7 +271,7 @@ const CAPTIONS: Record<string, () => Caption> = {
     place: 'Huế · Ngọ Môn',
     speaker: CAST.princess,
     color: '#b3262e',
-    line: `Tân Kỹ Sư ${CAST.luc}!`,
+    line: `Tân Kỹ Sư ${CAST.fullName}!`,
   }),
 }
 

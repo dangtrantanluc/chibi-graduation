@@ -31,6 +31,12 @@ import { CloudDragon } from './fx/CloudDragon'
 import { LacBirds } from './fx/LacBirds'
 import { SkyLanterns } from './fx/SkyLanterns'
 import { MAI_POTS } from './layout'
+import { GpuTimer } from './lib/GpuTimer'
+
+/** the most resolution each tier asks for (a phone's 3× screen is drawn at 1.5× and scaled up) */
+const DPR_CAP = { high: 1.75, low: 1.5 } as const
+/** … and the least it will drop to on a GPU that cannot keep up (SMAA keeps the edges clean) */
+const DPR_FLOOR = 0.8
 
 const MAI: [number, number, number][] = MAI_POTS.map(([x, z]) => [x, 0.4, z])
 
@@ -81,7 +87,7 @@ function Prewarm() {
 
 export default function Experience() {
   const quality = useUI((s) => s.quality)
-  const [dpr, setDpr] = useState(quality === 'high' ? 1.75 : 1.5)
+  const [dpr, setDpr] = useState<number>(DPR_CAP[quality])
 
   return (
     <Canvas
@@ -94,13 +100,17 @@ export default function Experience() {
     >
       <color attach="background" args={['#e7b9a4']} />
       <fog attach="fog" args={['#e8b8a6', 70, 280]} />
+      {/* When frames run slow, give ground a step at a time: first the high tier's effects, then
+          resolution, a fifth at a time, down to 0.8×; and take resolution back if there is room. */}
       <PerformanceMonitor
         onDecline={() => {
-          setDpr(1.25)
-          useUI.setState({ quality: 'low' })
+          if (useUI.getState().quality === 'high') useUI.setState({ quality: 'low' })
+          else setDpr((d) => Math.max(DPR_FLOOR, Math.round((d - 0.2) * 100) / 100))
         }}
-        flipflops={2}
+        onIncline={() => setDpr((d) => Math.min(DPR_CAP[useUI.getState().quality], Math.round((d + 0.2) * 100) / 100))}
+        flipflops={4}
       />
+      {import.meta.env.DEV && new URLSearchParams(location.search).has('gputime') && <GpuTimer />}
       <Ticker />
       <NightBackdrop />
       <CameraRig />
@@ -108,12 +118,22 @@ export default function Experience() {
       <Suspense fallback={null}>
         <Sky />
         <Board />
-        <BinhDinh />
-        <Campus />
-        <Street />
-        <ThangLong />
-        <Village />
-        <Hue />
+        <group name="zone-binhdinh">
+          <BinhDinh />
+        </group>
+        <group name="zone-campus">
+          <Campus />
+          <Street />
+        </group>
+        <group name="zone-thanglong">
+          <ThangLong />
+        </group>
+        <group name="zone-village">
+          <Village />
+        </group>
+        <group name="zone-hue">
+          <Hue />
+        </group>
         <Overgrowth />
         <Foliage />
         <Lanterns />

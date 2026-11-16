@@ -111,7 +111,7 @@ function scrollTexture(guest: string) {
   g.fillStyle = '#b8412f'
   g.font = `800 58px ${FONT_UI}`
   spaced(PROCLAMATION.title, py + 276, 14)
-  bigName(CAST.luc, py + 462, 184)
+  bigName(CAST.fullName, py + 462, 184)
   g.fillStyle = '#6b4a3a'
   g.font = `italic 400 52px ${FONT_DISPLAY}`
   PROCLAMATION.lines.slice(0, 2).forEach((line, i) => g.fillText(line, cx, py + 544 + i * 62))
@@ -217,6 +217,14 @@ export function HangingScroll() {
   useFrame(() => {
     const p = world.scroll
     const t = world.time
+    // rolled up, there is no paper to shape (and no normals to recompute every frame)
+    paper.current.visible = p > 0.002
+    if (!paper.current.visible) {
+      bottom.current.position.set(bottom.current.position.x, -0.001, 0.07)
+      roll.current.scale.set(0.125, 1, 0.125)
+      roll.current.rotation.x = 0
+      return
+    }
     const h = Math.max(0.001, L * p)
     for (let j = 0; j <= SEG_Y; j++) {
       const v = j / SEG_Y // 0 top → 1 bottom

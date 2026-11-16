@@ -5,18 +5,19 @@
 export const INVITE = {
   event: 'Lễ tốt nghiệp',
   date: 'Thứ Sáu, 04.12.2026',
-  time: '10:30 sáng',
-  location: 'Trường ĐH Nông Lâm TP.HCM',
+  time: '11:30 – 13:00',
+  location: 'Giảng đường Phượng Vỹ, ĐH Nông Lâm TP.HCM',
+  /** the hall alone (where a line is short, e.g. the poster on the campus notice board) */
+  hall: 'GĐ Phượng Vỹ',
   /** opened by the "Chỉ đường" link (Google Maps search) */
-  mapsQuery: 'Trường Đại học Nông Lâm TP.HCM',
+  mapsQuery: 'Giảng đường Phượng Vỹ, Trường Đại học Nông Lâm TP.HCM',
 
   /**
    * Optional. Fill both (ISO 8601 with timezone, e.g. '2026-10-18T18:00:00+07:00')
    * to show an "Add to calendar" button on the final screen.
    */
-  startISO: '2026-12-04T10:30:00+07:00',
-  /** (the end time is a guess: about an hour and a half) */
-  endISO: '2026-12-04T12:00:00+07:00',
+  startISO: '2026-12-04T11:30:00+07:00',
+  endISO: '2026-12-04T13:00:00+07:00',
 
   /** Used when no name is given in the link or typed by the guest (it is read inside Vietnamese sentences). */
   defaultGuest: 'bạn',
@@ -104,6 +105,8 @@ export const SFX = {
  */
 export const CAST = {
   luc: 'Lực',
+  /** his name as it is proclaimed (the herald's call, the golden list) — friends and family say Lực */
+  fullName: 'Tấn Lực',
   /** the name tag when both parents speak together */
   parents: 'Bố & Mẹ',
   princess: 'Công nương',

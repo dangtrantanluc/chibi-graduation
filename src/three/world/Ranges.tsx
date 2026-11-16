@@ -115,7 +115,8 @@ const FIELDS = ['#f0c648', '#f0c648', '#e6b53a', '#f3d267', '#b7cf52', '#8fb648'
  */
 function terraced(seed: number, R: number, H: number, steps: number, air: number): THREE.BufferGeometry {
   const r = rng(seed)
-  const NA = 64
+  // (seen from 70 m and more: 44 round is as smooth as 64 was)
+  const NA = 44
   const ph = [r() * 6.28, r() * 6.28, r() * 6.28, r() * 6.28]
   const drift = [(r() - 0.5) * 0.5 * R, (r() - 0.5) * 0.5 * R]
   const contour = (th: number, k: number) =>
@@ -310,17 +311,33 @@ export function Ranges() {
       [-50, -142, 38, 23, -13],
       [-54, 50, 36, 21, -12],
     ]
-    HILLS.forEach(([x, z, R, H, y], i) => hills.push(place(terraced(71 + i * 13, R, H, 34, 0.05 + Math.hypot(x, z + 31) / 1100), x, y, z, r() * 6.28)))
+    HILLS.forEach(([x, z, R, H, y], i) => hills.push(place(terraced(71 + i * 13, R, H, 28, 0.05 + Math.hypot(x, z + 31) / 1100), x, y, z, r() * 6.28)))
     const mat = new THREE.MeshBasicMaterial({ vertexColors: true, fog: false })
     const flat = new THREE.MeshBasicMaterial({ vertexColors: true, fog: false, side: THREE.DoubleSide })
+    // Each layer is cut into sectors round the board, so that the lens draws only the third or so
+    // of the rim that it faces. (Merged whole, the rim could not be culled: every frame drew it all.)
+    const SECTORS = 8
+    const sph = new THREE.Sphere()
     const mk = (geos: THREE.BufferGeometry[], m: THREE.Material, order: number) => {
-      const mesh = new THREE.Mesh(mergeGeometries(geos), m)
-      mesh.renderOrder = order
-      mesh.frustumCulled = false
+      const bins: THREE.BufferGeometry[][] = Array.from({ length: SECTORS }, () => [])
+      for (const g of geos) {
+        g.computeBoundingSphere()
+        sph.copy(g.boundingSphere!)
+        const a = Math.atan2(sph.center.x - CENTER.x, sph.center.z - CENTER.z) + Math.PI
+        bins[Math.min(SECTORS - 1, Math.floor((a / (Math.PI * 2)) * SECTORS))].push(g)
+      }
+      const out: THREE.Mesh[] = []
+      for (const bin of bins) {
+        if (!bin.length) continue
+        const mesh = new THREE.Mesh(mergeGeometries(bin), m)
+        mesh.renderOrder = order
+        mesh.geometry.computeBoundingSphere()
+        out.push(mesh)
+      }
       geos.forEach((g) => g.dispose())
-      return mesh
+      return out
     }
-    return { list: [mk(far, flat, -6), mk(towers, mat, -4), mk(hills, mat, -3)], mats: [mat, flat] }
+    return { list: [...mk(far, flat, -6), ...mk(towers, mat, -4), ...mk(hills, mat, -3)], mats: [mat, flat] }
   }, [])
   // the painted rim takes the tint of the hour; by night it sinks to deep blue silhouettes
   useFrame(() => meshes.mats.forEach((m) => m.color.copy(grade.range)))

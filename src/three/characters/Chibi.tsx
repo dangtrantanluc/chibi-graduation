@@ -26,6 +26,8 @@ export const HEAD = 0.95
 export const UPPER = 0.105
 export const FORE = 0.1
 const Z = new THREE.Vector3(0, 0, 1)
+/** beyond this far from the lens a character is not drawn (see the frame loop) */
+const FAR = 42
 const FACE_DAY = new THREE.Color('#ffffff')
 export const FACE_NIGHT = new THREE.Color('#c4bcd4')
 
@@ -477,6 +479,11 @@ export function Chibi({ id, look, children }: { id: CharId; look: ChibiLook; chi
   const tmp = useMemo(() => ({ v: new THREE.Vector3(), w: new THREE.Vector3() }), [])
 
   useFrame((_, frameDt) => {
+    // Someone waiting at a later chapter's place, far down the board, is a few pixels behind a
+    // wall — and forty draw calls. Not drawn beyond FAR (always in the map view). The pose below
+    // still runs, so nothing jumps when they come back into range.
+    const c0 = world.chars[id].pos
+    root.current.visible = world.overview.k > 0 || camera.position.distanceToSquared(c0) < FAR * FAR
     // (the story's own pace: faster while the guest holds the screen)
     const rawDt = frameDt * world.rate
     const dt = Math.min(rawDt, 1 / 20)

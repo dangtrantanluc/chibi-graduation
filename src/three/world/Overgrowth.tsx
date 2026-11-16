@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { G, blob, rng, type Part, type V3 } from '../lib/kit'
-import { KitMesh } from '../lib/KitMesh'
+import { ChunkedKitMesh, DETAIL_DIST } from '../lib/chunk'
 import { taperTube } from '../characters/hair'
 import { BOARD, CHAM, DOANMON, GATE, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON } from '../layout'
 
@@ -10,7 +10,9 @@ import { BOARD, CHAM, DOANMON, GATE, HALL, HUE_PONDS, HUE_WALL_Z, NGOMON } from 
  * cushions along the foot of a wall and on its ledges, weeds and little ferns
  * rooted in the joints, creepers hanging over the top — on the four old
  * monuments: the Hoàng Đế citadel, Đoan Môn, Ngọ Môn and Điện Thái Hòa.
- * Everything clings (no wind sway) and is baked into one mesh.
+ * Everything clings (no wind sway). It is baked into one mesh per cell of the board, so that
+ * only what is in view is drawn, and it casts no shadow: tufts a hand high, on walls that
+ * already shade them, cost a whole shadow pass of triangles for nothing anyone could see.
  */
 
 type R = () => number
@@ -286,5 +288,5 @@ function build(): Part[] {
 
 /** Moss cushions, weeds, ferns and creepers on the old monuments. */
 export function Overgrowth() {
-  return <KitMesh build={build} />
+  return <ChunkedKitMesh build={build} castShadow={false} maxDist={DETAIL_DIST} />
 }

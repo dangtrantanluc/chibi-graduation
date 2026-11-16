@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { Chunked } from '../lib/chunk'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { blob, rng } from '../lib/kit'
@@ -146,7 +147,10 @@ function Clouds() {
   return (
     <group position={CENTER.toArray()}>
       <group ref={group} position={CENTER.clone().negate().toArray()}>
-        <primitive object={mesh} />
+        {/* (cut into wide cells round the board, so the lens draws only the clouds it faces) */}
+        <Chunked cell={50}>
+          <primitive object={mesh} />
+        </Chunked>
       </group>
     </group>
   )

@@ -247,8 +247,13 @@ function Crowd() {
       bikeHelm.setColorAt(i, c.set(HELMETS[Math.floor(r() * HELMETS.length)]))
     })
     const meshes = [ped, umb, non, bikeBody, bikeRider, bikeHelm, bikeLamp]
+    // They move, so no bounding sphere of their own would hold; but they never leave the street —
+    // give them the street's, so that they are culled with it (and out of the shadow pass) once
+    // the story has moved on and the lens is looking elsewhere.
+    const street = new THREE.Sphere(new THREE.Vector3(0, 0.8, (S.z0 + S.z1) / 2), Math.hypot(HALF + 1, (S.z1 - S.z0) / 2 + 1))
     for (const m of meshes) {
-      m.frustumCulled = false
+      m.boundingSphere = street.clone()
+      m.frustumCulled = true
       // (only the walkers and the machines throw shadows: half the cost, and nobody misses the rest)
       m.castShadow = m === ped || m === umb || m === bikeBody
       m.receiveShadow = m !== bikeLamp
@@ -262,6 +267,8 @@ function Crowd() {
   )
 
   useFrame((_, rawDt) => {
+    // (no city yet, nothing to move)
+    if (!world.city) return
     const dt = Math.min(rawDt, 0.1)
     const luc = world.chars.luc.pos
     const onTheMove = world.chars.luc.path.length > 0
@@ -424,7 +431,8 @@ function Rain() {
     g.setAttribute('aSeed', new THREE.BufferAttribute(seed, 2))
     const m = new THREE.ShaderMaterial({ uniforms: { uTime, uOpacity: { value: 0 } }, vertexShader: rainVert, fragmentShader: rainFrag, transparent: true, depthWrite: false })
     const l = new THREE.LineSegments(g, m)
-    l.frustumCulled = false
+    // (the streaks fall in the vertex shader: bound them by the box they fall in)
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 1.5, 1.5), 17)
     l.renderOrder = 6
     return l
   }, [])

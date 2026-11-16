@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { Chunked, DETAIL_DIST } from '../lib/chunk'
 import { useEffect, useMemo } from 'react'
 import { blob, G, mergeKit, rng, type Part, type V3 } from '../lib/kit'
 import { cardMat, kitMat } from '../lib/materials'
@@ -544,19 +545,25 @@ export function Foliage() {
   const stems = useMemo<Item[]>(() => FLOWERS.map(([x, z], i) => ({ p: [x, 0, z], ry: i * 0.7, s: 1 })), [])
 
   return (
-    <group>
+    // (trees, bamboo, grass and bushes spread over the whole board: cut into cells, so that each
+    // scene draws its own and not everyone else's — in wide cells: every kind of tree is two draw
+    // calls a cell, and on a phone the calls cost as much as the triangles)
+    <Chunked cell={22}>
       {(Object.keys(SPECS) as Exclude<TreeKind, 'coconut'>[]).map((k) => (byKind[k].length ? <TreeKindMesh key={k} kind={k} items={byKind[k]} /> : null))}
       {byKind.coconut.length > 0 && <CoconutPalms items={byKind.coconut} />}
       <Bamboo items={bamboo} />
       <BambooArch z={VILLAGE_END} />
-      <InstancedKit build={riceKit} items={rice} shadow={false} />
       <Bushes items={bushes} />
-      <InstancedKit build={grassKit} items={grass} shadow={false} />
-      <InstancedKit build={rockKit} items={rocks} />
-      <InstancedKit build={stemKit} items={stems} shadow={false} />
-      <FlowerHeads />
       <Topiary x={TOPIARY.x} z={TOPIARY.z} r={TOPIARY.r} />
-    </group>
+      {/* (the small things — rice, grass, stones, flowers — are left out where they would be a few pixels) */}
+      <Chunked maxDist={DETAIL_DIST}>
+        <InstancedKit build={riceKit} items={rice} shadow={false} />
+        <InstancedKit build={grassKit} items={grass} shadow={false} />
+        <InstancedKit build={rockKit} items={rocks} />
+        <InstancedKit build={stemKit} items={stems} shadow={false} />
+        <FlowerHeads />
+      </Chunked>
+    </Chunked>
   )
 }
 

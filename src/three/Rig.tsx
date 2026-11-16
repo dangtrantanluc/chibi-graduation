@@ -147,6 +147,19 @@ export function Lighting() {
   const target = useMemo(() => new THREE.Object3D(), [])
   const pts = useRef<THREE.PointLight[]>([])
   const scene = useThree((s) => s.scene)
+  const gl = useThree((s) => s.gl)
+
+  // On the low tier the shadow map is redrawn every other frame: half the shadow pass, and a
+  // shadow a frame late is not something anyone sees. (Its matrices are only updated when it is
+  // redrawn, so map and lookup always agree.)
+  useEffect(() => {
+    gl.shadowMap.autoUpdate = quality === 'high'
+    gl.shadowMap.needsUpdate = true
+  }, [gl, quality])
+  const tick = useRef(0)
+  useFrame(() => {
+    if (quality !== 'high') gl.shadowMap.needsUpdate = (tick.current++ & 1) === 0 || world.overview.k > 0
+  })
 
   useEffect(() => {
     scene.add(target)
